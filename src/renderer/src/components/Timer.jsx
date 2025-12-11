@@ -6,21 +6,27 @@ export default function Timer({ onFinish, addCandy, onTick }) {
   const [running, setRunning] = useState(false)
   const intervalRef = useRef(null)
 
+  const remainingRef = useRef(remaining)
+
+  useEffect(() => {
+    remainingRef.current = remaining
+  }, [remaining])
+
   useEffect(() => {
     if (running) {
       // Interval principal pour le timer
       intervalRef.current = setInterval(() => {
-        setRemaining((prev) => {
-          if (prev <= 1) {
-            clearInterval(intervalRef.current)
-            intervalRef.current = null
-            setRunning(false)
-            if (onFinish) onFinish()
-            return 0
-          }
+        const current = remainingRef.current
+        if (current <= 1) {
+          clearInterval(intervalRef.current)
+          intervalRef.current = null
+          setRunning(false)
+          setRemaining(0)
+          if (onFinish) onFinish()
+        } else {
           if (onTick) onTick(1)
-          return prev - 1
-        })
+          setRemaining((prev) => prev - 1)
+        }
       }, 1000)
     }
 

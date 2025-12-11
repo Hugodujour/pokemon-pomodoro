@@ -1,4 +1,4 @@
-export function createCandyTimer(initialTime = 0, intervalSec = 300) {
+export function createCandyTimer(initialTime = 0, intervalSec = 10) {
   let elapsed = initialTime // secondes écoulées depuis dernier bonbon
   const tick = (seconds = 1) => {
     elapsed += seconds
