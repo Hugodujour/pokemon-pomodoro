@@ -1,7 +1,7 @@
 import { getLevel } from '../utils/leveling'
 
 export default function PokemonDisplay({ name, xp }) {
-  const pokemonImages = import.meta.glob('../assets/pokemon/*.gif', {
+  const pokemonImages = import.meta.glob('../assets/pokemon/*.{gif,png,jpg,jpeg}', {
     eager: true
   })
 

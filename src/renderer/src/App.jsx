@@ -4,11 +4,20 @@ import PokemonDisplay from './components/PokemonDisplay'
 import Inventory from './components/Inventory'
 import { pokedex } from './data/pokedex'
 import { createCandyTimer } from './utils/candyTimer'
+import { getLevel } from './utils/leveling'
+import candyIcon from './assets/icon/rare_candy.png'
 
 function App() {
   const [activePokemon, setActivePokemon] = useState('pikachu')
   const [xpData, setXpData] = useState({}) // xp par pokemon
   const [candies, setCandies] = useState(0)
+  const [inventory, setInventory] = useState({})
+  const [unlockedPokemon, setUnlockedPokemon] = useState([
+    'pikachu',
+    'bulbizarre',
+    'salameche',
+    'carapuce'
+  ])
   const candyTimer = useRef(createCandyTimer())
 
   useEffect(() => {
@@ -46,6 +55,48 @@ function App() {
     localStorage.setItem('activePokemon', activePokemon)
   }, [activePokemon])
 
+  useEffect(() => {
+    const storedInv = localStorage.getItem('inventory')
+    if (storedInv) setInventory(JSON.parse(storedInv))
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('inventory', JSON.stringify(inventory))
+  }, [inventory])
+
+  useEffect(() => {
+    const storedUnlocked = localStorage.getItem('unlockedPokemon')
+    if (storedUnlocked) setUnlockedPokemon(JSON.parse(storedUnlocked))
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('unlockedPokemon', JSON.stringify(unlockedPokemon))
+  }, [unlockedPokemon])
+
+  const checkEvolution = (pokemonId, xp) => {
+    const p = pokedex.find((p) => p.id === pokemonId)
+    if (!p || !p.evolutions) return null
+
+    const { level } = getLevel(xp)
+    const levelEvo = p.evolutions.find((e) => e.type === 'level' && level >= e.level)
+    return levelEvo ? levelEvo.to : null
+  }
+
+  const performEvolution = (newId, xp) => {
+    // Replace old activePokemon with newId in unlocked list
+    setUnlockedPokemon((prev) => {
+      const newList = prev.filter((id) => id !== activePokemon)
+      return [...newList, newId]
+    })
+
+    setActivePokemon(newId)
+    setXpData((old) => ({
+      ...old,
+      [newId]: xp
+    }))
+    // Optional: Notification or sound
+  }
+
   const handleTick = useCallback((seconds = 1) => {
     if (candyTimer.current.tick(seconds)) {
       setCandies((c) => c + 1)
@@ -53,36 +104,68 @@ function App() {
   }, [])
 
   const handlePomodoroFinish = useCallback(() => {
-    setXpData((old) => ({
-      ...old,
-      [activePokemon]: (old[activePokemon] || 0) + 50
-    }))
+    const currentXp = xpData[activePokemon] || 0
+    const newXp = currentXp + 50
 
-    // Super bonbons
+    const nextId = checkEvolution(activePokemon, newXp)
+    if (nextId) {
+      performEvolution(nextId, newXp)
+    } else {
+      setXpData((old) => ({
+        ...old,
+        [activePokemon]: newXp
+      }))
+    }
+
     setCandies((c) => c + 5)
-  }, [activePokemon])
+  }, [activePokemon, xpData])
 
   const giveCandy = useCallback(() => {
     if (candies <= 0) return
 
     const XP_AMOUNT = 40
+    const currentXp = xpData[activePokemon] || 0
+    const newXp = currentXp + XP_AMOUNT
 
     setCandies((c) => c - 1)
 
-    setXpData((old) => ({
-      ...old,
-      [activePokemon]: (old[activePokemon] || 0) + XP_AMOUNT
-    }))
-  }, [candies, activePokemon])
+    const nextId = checkEvolution(activePokemon, newXp)
+    if (nextId) {
+      performEvolution(nextId, newXp)
+    } else {
+      setXpData((old) => ({
+        ...old,
+        [activePokemon]: newXp
+      }))
+    }
+  }, [candies, activePokemon, xpData])
 
-  const addCandy = useCallback((amount = 1) => {
+  const handleBuyStone = () => {
+    if (candies >= 50) {
+      setCandies((c) => c - 50)
+      setInventory((inv) => ({ ...inv, 'pierre-foudre': (inv['pierre-foudre'] || 0) + 1 }))
+    }
+  }
+
+  const handleEvolveWithStone = () => {
+    const p = pokedex.find((p) => p.id === activePokemon)
+    if (!p || !p.evolutions) return
+
+    const itemEvo = p.evolutions.find((e) => e.type === 'item' && inventory[e.item] > 0)
+    if (itemEvo) {
+      setInventory((inv) => ({ ...inv, [itemEvo.item]: inv[itemEvo.item] - 1 }))
+      performEvolution(itemEvo.to, xpData[activePokemon] || 0)
+    }
+  }
+
+  const addCandy = useCallback((amount = 100) => {
     setCandies((c) => c + amount)
   }, [])
 
   return (
     <div>
       <Inventory
-        pokedex={pokedex}
+        pokedex={pokedex.filter((p) => unlockedPokemon.includes(p.id))}
         active={activePokemon}
         onSelect={setActivePokemon}
         xpData={xpData}
@@ -90,10 +173,39 @@ function App() {
 
       <PokemonDisplay name={activePokemon.toUpperCase()} xp={xpData[activePokemon] || 0} />
       <div style={{ textAlign: 'center', margin: '1rem' }}>
-        <div>Super bonbons : {candies}</div>
+        <div>
+          <img src={candyIcon} alt="candy" /> {candies}
+        </div>
         <button onClick={giveCandy} disabled={candies === 0}>
           Donner un bonbon
         </button>
+
+        <div style={{ marginTop: '1rem', borderTop: '1px solid #444', paddingTop: '1rem' }}>
+          <h4>Boutique & Evolution</h4>
+          <button onClick={handleBuyStone} disabled={candies < 50}>
+           Acheter Pierre Foudre (50 🍬)
+          </button>
+          <div style={{ fontSize: '0.8rem', margin: '5px' }}>
+             Pierres Foudre: {inventory['pierre-foudre'] || 0}
+          </div>
+
+          {pokedex
+            .find((p) => p.id === activePokemon)
+            ?.evolutions?.some((e) => e.type === 'item' && inventory[e.item] > 0) && (
+            <button
+              onClick={handleEvolveWithStone}
+              style={{
+                marginTop: '0.5rem',
+                backgroundColor: 'gold',
+                color: 'black',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
+            >
+              Faire évoluer !
+            </button>
+          )}
+        </div>
       </div>
 
       <Timer onFinish={handlePomodoroFinish} addCandy={addCandy} onTick={handleTick} />
