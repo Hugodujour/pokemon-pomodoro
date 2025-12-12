@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import PropTypes from 'prop-types'
 import { getLevel } from '../utils/leveling'
 
@@ -5,6 +6,7 @@ export default function PokemonDisplay({ name, xp }) {
   const pokemonImages = import.meta.glob('../assets/pokemon/*.{gif,png,jpg,jpeg}', {
     eager: true
   })
+
 
   const pokemonSrc = Object.entries(pokemonImages).find(([path]) =>
     path.toLowerCase().includes(name.toLowerCase())
