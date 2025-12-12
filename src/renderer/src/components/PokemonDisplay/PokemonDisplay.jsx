@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types'
-import { getLevel } from '../utils/leveling'
+import { getLevel } from '../../utils/leveling'
 import './PokemonDisplay.css'
 
 export default function PokemonDisplay({ name, xp }) {
-  const pokemonImages = import.meta.glob('../assets/pokemon/*.{gif,png,jpg,jpeg}', {
+  const pokemonImages = import.meta.glob('../../assets/pokemon/*.{gif,png,jpg,jpeg}', {
     eager: true
   })
 

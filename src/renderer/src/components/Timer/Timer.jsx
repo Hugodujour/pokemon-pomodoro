@@ -1,14 +1,27 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react'
 import PropTypes from 'prop-types'
 import './Timer.css'
 
-export default function Timer({ onFinish, onTick }) {
-  const DURATION = 25 * 60
+const Timer = forwardRef(({ onFinish, onTick, onStart }, ref) => {
+  const DURATION = 0.1 * 60
   const [remaining, setRemaining] = useState(DURATION)
   const [running, setRunning] = useState(false)
   const intervalRef = useRef(null)
 
   const remainingRef = useRef(remaining)
+
+  useImperativeHandle(ref, () => ({
+    start: () => setRunning(true),
+    pause: () => setRunning(false),
+    reset: (autoStart = false) => {
+        setRunning(false)
+        setRemaining(DURATION)
+        if (autoStart) {
+            // Tiny timeout to ensure state update if needed, or just set true
+            setTimeout(() => setRunning(true), 0)
+        }
+    }
+  }))
 
   useEffect(() => {
     remainingRef.current = remaining
@@ -16,6 +29,7 @@ export default function Timer({ onFinish, onTick }) {
 
   useEffect(() => {
     if (running) {
+      if (onStart) onStart()  // Notify start
       // Interval principal pour le timer
       intervalRef.current = setInterval(() => {
         const current = remainingRef.current
@@ -35,7 +49,7 @@ export default function Timer({ onFinish, onTick }) {
     return () => {
       clearInterval(intervalRef.current)
     }
-  }, [running, onFinish, onTick])
+  }, [running, onFinish, onTick, onStart])
 
   const minutes = String(Math.floor(remaining / 60)).padStart(2, '0')
   const seconds = String(remaining % 60).padStart(2, '0')
@@ -57,24 +71,17 @@ export default function Timer({ onFinish, onTick }) {
         />
       </div>
 
-      <div className="timer-controls">
-        <button className="btn-timer" onClick={() => setRunning(true)}>Start</button>
-        <button className="btn-timer" onClick={() => setRunning(false)}>Pause</button>
-        <button
-          className="btn-timer reset"
-          onClick={() => {
-            setRunning(false)
-            setRemaining(DURATION)
-          }}
-        >
-          Reset
-        </button>
-      </div>
+
     </div>
   )
-}
+})
+
+Timer.displayName = 'Timer'
 
 Timer.propTypes = {
   onFinish: PropTypes.func,
-  onTick: PropTypes.func
+  onTick: PropTypes.func,
+  onStart: PropTypes.func
 }
+
+export default Timer

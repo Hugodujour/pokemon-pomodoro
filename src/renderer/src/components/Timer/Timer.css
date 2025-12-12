@@ -1,0 +1,33 @@
+.timer-container {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.timer-display {
+  font-size: 1.5rem; /* Slightly smaller to fit 150px height comfortably */
+  margin: 0;
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5); /* Readable on transparent bg */
+}
+
+.timer-bar-container {
+  width: 220px;
+  height: 10px;
+  background: #222;
+  margin: 10px auto;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.timer-bar-fill {
+  height: 100%;
+  background: orange;
+  transition: width 0.3s linear;
+}
+
+

@@ -6,8 +6,8 @@
 }
 
 .team-slot {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 120px;
   border: 1px solid #555;
   border-radius: 10px;
   background-color: #1a1a1a;
@@ -17,6 +17,7 @@
   justify-content: center;
   position: relative;
   transition: all 0.2s ease;
+  padding: 5px;
 }
 
 .team-slot.filled {
@@ -33,6 +34,18 @@
   transform: translateY(-2px);
 }
 
+.team-sprite {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  margin-bottom: 5px;
+}
+
+.team-info {
+  text-align: center;
+  width: 100%;
+}
+
 .team-label {
   font-weight: bold;
   font-size: 0.8rem;
@@ -40,17 +53,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 90%;
+  max-width: 100%;
 }
 
 .team-level {
   font-size: 0.7rem;
   color: #ccc;
-}
-
-.team-empty {
-  color: #555;
-  font-size: 0.8rem;
 }
 
 .btn-remove-team {

@@ -2,10 +2,21 @@ import PropTypes from 'prop-types'
 import './Team.css'
 
 export default function Team({ team, activeId, onSelect, onRemove }) {
-  // Ensure we always have 6 slots for display
+  // Ensure we always have 3 slots for display
   const slots = [...team]
-  while (slots.length < 6) {
+  while (slots.length < 3) {
     slots.push(null)
+  }
+
+  const pokemonImages = import.meta.glob('../../assets/pokemon/*.{gif,png,jpg,jpeg}', {
+    eager: true
+  })
+
+  const getPokemonImage = (speciesId) => {
+      // speciesId is usually lowercase like 'pikachu'
+     return Object.entries(pokemonImages).find(([path]) =>
+        path.toLowerCase().includes(speciesId.toLowerCase())
+      )?.[1]?.default
   }
 
   return (
@@ -13,6 +24,7 @@ export default function Team({ team, activeId, onSelect, onRemove }) {
       {slots.map((pokemon, index) => {
         const isActive = pokemon && pokemon.uuid === activeId
         const isFilled = !!pokemon
+        const imgSrc = pokemon ? getPokemonImage(pokemon.speciesId || pokemon.label) : null
         
         return (
           <div
@@ -22,8 +34,12 @@ export default function Team({ team, activeId, onSelect, onRemove }) {
           >
             {pokemon ? (
               <>
-                <div className="team-label">{pokemon.label}</div>
-                <div className="team-level">Lvl {pokemon.level}</div>
+                <img src={imgSrc} alt={pokemon.label} className="team-sprite" />
+                <div className="team-info">
+                    <div className="team-label">{pokemon.label}</div>
+                    <div className="team-level">Lvl {pokemon.level}</div>
+                </div>
+                
                 {/* Optional: Remove/Deposit button if team > 1 */}
                 {onRemove && team.length > 1 && (
                   <button
@@ -54,8 +70,8 @@ Team.propTypes = {
       uuid: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
       level: PropTypes.number.isRequired,
-      xp: PropTypes.number.isRequired
-      // speciesId is implicit from label or passed if needed for image
+      xp: PropTypes.number.isRequired,
+      speciesId: PropTypes.string.isRequired
     })
   ).isRequired,
   activeId: PropTypes.string,

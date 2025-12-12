@@ -1,0 +1,203 @@
+.combat-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(14, 14, 14, 0.95); /* Weaker opacity? Or solid? */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Minimalist Container: Full width/height usage or just invisible container */
+.combat-container.minimalist {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+
+/* FIGHTERS */
+.fighter {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  animation: slideIn 0.5s ease-out;
+}
+
+.fighter.opponent {
+  top: 15%;
+  right: 10%;
+  flex-direction: row-reverse; /* Sprite on right? Or standard pokemon style? */
+  /* Pokemon games: Opponent on top right. Sprite on left of their UI block? 
+     Usually: Sprite Top Right. UI ID card Top Left.
+     Here let's keep it simple: Sprite and Info side-by-side.
+  */
+}
+
+.fighter.player {
+  bottom: 15%;
+  left: 10%;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* SPRITES */
+.fighter-sprite img {
+  width: 150px; /* Adjust scale */
+  height: 150px;
+  object-fit: contain;
+  /* Pixel art rendering */
+  image-rendering: pixelated; 
+  filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
+}
+
+.fighter.opponent .fighter-sprite img {
+   /* Scale up slightly for perspective? */
+   transform: scale(1.1);
+}
+
+.fighter.player .fighter-sprite img {
+   transform: scale(3.5); /* Backwards sprite usually bigger */
+}
+
+/* INFO BOXES */
+.fighter-info {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 20px;
+  border-radius: 15px;
+  backdrop-filter: blur(5px);
+  color: white;
+  min-width: 200px;
+}
+
+.fighter-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.fighter-level {
+  font-size: 0.8rem;
+  color: #f1c40f;
+}
+
+/* HP BAR */
+.fighter-hp-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #444;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.fighter-hp-fill {
+  height: 100%;
+  background: #2ecc71; /* Green by default */
+  transition: width 0.5s ease-out;
+}
+
+.fighter-hp-text {
+  font-size: 0.8rem;
+  margin-top: 5px;
+  text-align: right;
+  opacity: 0.8;
+}
+
+/* LOGS and CONTROLS */
+.combat-log-minimal {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+  width: 400px;
+  text-align: right;
+  pointer-events: none;
+}
+
+.log-entry {
+  font-size: 1rem;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  margin-bottom: 5px;
+  opacity: 0;
+  animation: logFadeIn 0.3s forwards;
+}
+
+.log-entry:last-child {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #f1c40f;
+}
+
+@keyframes logFadeIn {
+  to { opacity: 1; }
+}
+
+.combat-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Let clicks pass through to underneath elements if needed, but we have button... */
+  /* Actually for the button we need pointer events */
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+}
+
+/* Only enable pointer events on the button/content */
+.combat-controls > * {
+  pointer-events: auto;
+}
+
+.auto-combat-status {
+    /* Hidden or very subtle */
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    opacity: 0.5;
+    color: white;
+}
+
+.btn-combat {
+  padding: 15px 40px;
+  font-size: 1.5rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transition: transform 0.2s;
+  background: white;
+  color: #333;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.btn-combat:hover {
+  transform: scale(1.05);
+}
+
