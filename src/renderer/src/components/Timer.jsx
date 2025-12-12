@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
+import PropTypes from 'prop-types'
 
-export default function Timer({ onFinish, addCandy, onTick }) {
+export default function Timer({ onFinish, onTick }) {
   const DURATION = 25 * 60
   const [remaining, setRemaining] = useState(DURATION)
   const [running, setRunning] = useState(false)
@@ -80,4 +81,9 @@ export default function Timer({ onFinish, addCandy, onTick }) {
       </div>
     </div>
   )
+}
+
+Timer.propTypes = {
+  onFinish: PropTypes.func,
+  onTick: PropTypes.func
 }

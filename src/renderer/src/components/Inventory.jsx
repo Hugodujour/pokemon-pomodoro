@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types'
+
 export default function Inventory({ pokedex, active, onSelect, xpData }) {
   return (
     <div
@@ -28,3 +30,16 @@ export default function Inventory({ pokedex, active, onSelect, xpData }) {
     </div>
   )
 }
+
+Inventory.propTypes = {
+  pokedex: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired
+    })
+  ).isRequired,
+  active: PropTypes.string.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  xpData: PropTypes.objectOf(PropTypes.number).isRequired
+}
+

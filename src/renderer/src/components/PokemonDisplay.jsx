@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { getLevel } from '../utils/leveling'
 
 export default function PokemonDisplay({ name, xp }) {
@@ -46,4 +47,9 @@ export default function PokemonDisplay({ name, xp }) {
       </div>
     </div>
   )
+}
+
+PokemonDisplay.propTypes = {
+  name: PropTypes.string.isRequired,
+  xp: PropTypes.number.isRequired
 }

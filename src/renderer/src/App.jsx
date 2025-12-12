@@ -7,95 +7,88 @@ import { createCandyTimer } from './utils/candyTimer'
 import { getLevel } from './utils/leveling'
 import candyIcon from './assets/icon/rare_candy.png'
 
-function App() {
-  const [activePokemon, setActivePokemon] = useState('pikachu')
-  const [xpData, setXpData] = useState({}) // xp par pokemon
-  const [candies, setCandies] = useState(0)
-  const [inventory, setInventory] = useState({})
-  const [unlockedPokemon, setUnlockedPokemon] = useState([
-    'pikachu',
-    'bulbizarre',
-    'salameche',
-    'carapuce'
-  ])
-  const candyTimer = useRef(createCandyTimer())
+// Helper pure function
+const checkEvolution = (pokemonId, xp) => {
+  const p = pokedex.find((p) => p.id === pokemonId)
+  if (!p || !p.evolutions) return null
 
-  useEffect(() => {
+  const { level } = getLevel(xp)
+  const levelEvo = p.evolutions.find((e) => e.type === 'level' && level >= e.level)
+  return levelEvo ? levelEvo.to : null
+}
+
+function App() {
+  const [activePokemon, setActivePokemon] = useState(() => {
+    return localStorage.getItem('activePokemon') || 'pikachu'
+  })
+
+  const [xpData, setXpData] = useState(() => {
+    const stored = localStorage.getItem('xpData')
+    if (stored) return JSON.parse(stored)
+    const initial = {}
+    pokedex.forEach((p) => (initial[p.id] = 0))
+    return initial
+  })
+
+  const [candies, setCandies] = useState(() => {
     const stored = localStorage.getItem('candies')
-    if (stored) setCandies(Number(stored))
-  }, [])
+    return stored ? Number(stored) : 0
+  })
+
+  const [inventory, setInventory] = useState(() => {
+    const stored = localStorage.getItem('inventory')
+    return stored ? JSON.parse(stored) : {}
+  })
+
+  const [unlockedPokemon, setUnlockedPokemon] = useState(() => {
+    const stored = localStorage.getItem('unlockedPokemon')
+    return stored ? JSON.parse(stored) : ['pikachu', 'bulbizarre', 'salameche', 'carapuce']
+  })
+
+  const candyTimer = useRef(createCandyTimer())
 
   useEffect(() => {
     localStorage.setItem('candies', candies)
   }, [candies])
 
-  // Charger depuis localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem('xpData')
-    if (stored) {
-      setXpData(JSON.parse(stored))
-    } else {
-      // init xp = 0 pour tous
-      const initial = {}
-      pokedex.forEach((p) => (initial[p.id] = 0))
-      setXpData(initial)
-    }
-
-    const storedActive = localStorage.getItem('activePokemon')
-    if (storedActive) setActivePokemon(storedActive)
-  }, [])
-
-  // Sauvegarde quand xp change
   useEffect(() => {
     localStorage.setItem('xpData', JSON.stringify(xpData))
   }, [xpData])
 
-  // Sauvegarde du pokemon sélectionné
   useEffect(() => {
     localStorage.setItem('activePokemon', activePokemon)
   }, [activePokemon])
-
-  useEffect(() => {
-    const storedInv = localStorage.getItem('inventory')
-    if (storedInv) setInventory(JSON.parse(storedInv))
-  }, [])
 
   useEffect(() => {
     localStorage.setItem('inventory', JSON.stringify(inventory))
   }, [inventory])
 
   useEffect(() => {
-    const storedUnlocked = localStorage.getItem('unlockedPokemon')
-    if (storedUnlocked) setUnlockedPokemon(JSON.parse(storedUnlocked))
-  }, [])
-
-  useEffect(() => {
     localStorage.setItem('unlockedPokemon', JSON.stringify(unlockedPokemon))
   }, [unlockedPokemon])
 
-  const checkEvolution = (pokemonId, xp) => {
-    const p = pokedex.find((p) => p.id === pokemonId)
-    if (!p || !p.evolutions) return null
+  const performEvolution = useCallback(
+    (newId, xp) => {
+      setUnlockedPokemon((prev) => {
+        // Keep old unlocked, add new one if not present?
+        // Original logic was: remove current active, add newId.
+        // Wait, was it intentional to REMOVE the pre-evolution?
+        // Line 88: prev.filter(id => id !== activePokemon).
+        // Yes, it "evolves" so the old one is gone.
+        const newList = prev.filter((id) => id !== activePokemon) // activePokemon is closure captured? No, need dependency or functional update with context.
+        // But activePokemon inside setUnlockedPokemon callback refers to the one in scope.
+        // If performEvolution is memoized, activePokemon must be a dep.
+        return [...newList, newId]
+      })
 
-    const { level } = getLevel(xp)
-    const levelEvo = p.evolutions.find((e) => e.type === 'level' && level >= e.level)
-    return levelEvo ? levelEvo.to : null
-  }
-
-  const performEvolution = (newId, xp) => {
-    // Replace old activePokemon with newId in unlocked list
-    setUnlockedPokemon((prev) => {
-      const newList = prev.filter((id) => id !== activePokemon)
-      return [...newList, newId]
-    })
-
-    setActivePokemon(newId)
-    setXpData((old) => ({
-      ...old,
-      [newId]: xp
-    }))
-    // Optional: Notification or sound
-  }
+      setActivePokemon(newId)
+      setXpData((old) => ({
+        ...old,
+        [newId]: xp
+      }))
+    },
+    [activePokemon]
+  ) // Added activePokemon dependency
 
   const handleTick = useCallback((seconds = 1) => {
     if (candyTimer.current.tick(seconds)) {
@@ -118,7 +111,7 @@ function App() {
     }
 
     setCandies((c) => c + 5)
-  }, [activePokemon, xpData])
+  }, [activePokemon, xpData, performEvolution]) // Added performEvolution
 
   const giveCandy = useCallback(() => {
     if (candies <= 0) return
@@ -138,7 +131,7 @@ function App() {
         [activePokemon]: newXp
       }))
     }
-  }, [candies, activePokemon, xpData])
+  }, [candies, activePokemon, xpData, performEvolution]) // Added performEvolution
 
   const handleBuyStone = () => {
     if (candies >= 50) {
@@ -157,10 +150,6 @@ function App() {
       performEvolution(itemEvo.to, xpData[activePokemon] || 0)
     }
   }
-
-  const addCandy = useCallback((amount = 100) => {
-    setCandies((c) => c + amount)
-  }, [])
 
   return (
     <div>
@@ -183,10 +172,10 @@ function App() {
         <div style={{ marginTop: '1rem', borderTop: '1px solid #444', paddingTop: '1rem' }}>
           <h4>Boutique & Evolution</h4>
           <button onClick={handleBuyStone} disabled={candies < 50}>
-           Acheter Pierre Foudre (50 🍬)
+            Acheter Pierre Foudre (50 🍬)
           </button>
           <div style={{ fontSize: '0.8rem', margin: '5px' }}>
-             Pierres Foudre: {inventory['pierre-foudre'] || 0}
+            Pierres Foudre: {inventory['pierre-foudre'] || 0}
           </div>
 
           {pokedex
@@ -208,7 +197,7 @@ function App() {
         </div>
       </div>
 
-      <Timer onFinish={handlePomodoroFinish} addCandy={addCandy} onTick={handleTick} />
+      <Timer onFinish={handlePomodoroFinish} onTick={handleTick} />
     </div>
   )
 }

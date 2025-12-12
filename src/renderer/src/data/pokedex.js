@@ -2,9 +2,7 @@ export const pokedex = [
   {
     id: 'pikachu',
     label: 'Pikachu',
-    evolutions: [
-      { type: 'item', item: 'pierre-foudre', to: 'raichu' }
-    ]
+    evolutions: [{ type: 'item', item: 'pierre-foudre', to: 'raichu' }]
   },
   {
     id: 'raichu',
@@ -14,16 +12,12 @@ export const pokedex = [
   {
     id: 'bulbizarre',
     label: 'Bulbizarre',
-    evolutions: [
-      { type: 'level', level: 16, to: 'herbizarre' }
-    ]
+    evolutions: [{ type: 'level', level: 16, to: 'herbizarre' }]
   },
   {
     id: 'herbizarre',
     label: 'Herbizarre',
-    evolutions: [
-      { type: 'level', level: 32, to: 'florizarre' }
-    ]
+    evolutions: [{ type: 'level', level: 32, to: 'florizarre' }]
   },
   {
     id: 'florizarre',

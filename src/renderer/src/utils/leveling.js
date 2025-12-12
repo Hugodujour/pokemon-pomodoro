@@ -7,5 +7,5 @@ export function getLevel(xp) {
     level++
   }
 
-  return { level, current: remainingXp, required: level * 1}
+  return { level, current: remainingXp, required: level * 1 }
 }
