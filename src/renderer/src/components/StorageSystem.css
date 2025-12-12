@@ -1,0 +1,70 @@
+.storage-container {
+  border: 2px solid #444;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 20px;
+  background-color: #111;
+}
+
+.storage-title {
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+  color: #ddd;
+}
+
+.storage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 5px; /* space for scrollbar */
+}
+
+/* Scrollbar styling */
+.storage-grid::-webkit-scrollbar {
+  width: 6px;
+}
+.storage-grid::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+.storage-grid::-webkit-scrollbar-track {
+  background: #111;
+}
+
+.storage-item {
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background-color: #222;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.storage-item:hover {
+  background-color: #333;
+  transform: scale(1.02);
+}
+
+.storage-item-label {
+  font-weight: bold;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.storage-item-level {
+  font-size: 0.7rem;
+  color: #999;
+}
+
+.storage-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 20px;
+}

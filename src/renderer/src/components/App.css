@@ -1,0 +1,185 @@
+.app-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+  font-family: 'Inter', sans-serif;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+/* --- HEADER / TEAM SECTION --- */
+.team-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  transition: opacity 0.3s ease;
+}
+
+.section-title {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* --- STORAGE TOGGLE --- */
+.storage-toggle-container {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.btn-toggle-storage {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-toggle-storage:hover {
+  background-color: #444;
+}
+
+/* --- ACTIVE POKEMON SECTION --- */
+.active-pokemon-section {
+  margin-top: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 2rem;
+  backdrop-filter: blur(5px);
+}
+
+.active-pokemon-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.active-pokemon-controls {
+  text-align: center;
+  margin: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.candy-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.candy-display img {
+  width: 24px;
+  height: 24px;
+}
+
+.btn-primary {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* --- SHOP SECTION --- */
+.shop-section {
+  margin-top: 1rem;
+  border-top: 1px solid #444;
+  padding-top: 1rem;
+  width: 100%;
+}
+
+.shop-title {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: #aaa;
+}
+
+.shop-inventory {
+  font-size: 0.8rem;
+  margin: 5px;
+  color: #888;
+}
+
+.btn-evolve {
+  margin-top: 0.5rem;
+  background-color: gold;
+  color: black;
+  font-weight: bold;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+}
+
+/* --- MODE SWITCHER --- */
+.mode-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #444;
+  color: #aaa;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  z-index: 100;
+}
+
+.mode-toggle:hover {
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+}
+
+/* --- MODES --- */
+
+/* Minimalist Mode: Hide Team, Storage, Shop detail if desired? */
+/* Assumption: Minimalist = Just Timer + Active Pokemon visual + Essential controls */
+
+.app-container.minimalist {
+  padding: 0.5rem;
+  max-width: 400px; /* Smaller width for widget feel */
+}
+
+.app-container.minimalist .team-section,
+.app-container.minimalist .storage-toggle-container,
+.app-container.minimalist .storage-section,
+.app-container.minimalist .shop-section {
+  display: none;
+}
+
+.app-container.minimalist .active-pokemon-section {
+  margin-top: 0;
+  padding: 1rem;
+  background: transparent;
+}
+
+.app-container.minimalist .section-title {
+  display: none; /* Hide "Pokemon Actif" title in minimalist */
+}

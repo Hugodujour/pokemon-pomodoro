@@ -1,6 +1,6 @@
-/* eslint-disable prettier/prettier */
 import PropTypes from 'prop-types'
 import { getLevel } from '../utils/leveling'
+import './PokemonDisplay.css'
 
 export default function PokemonDisplay({ name, xp }) {
   const pokemonImages = import.meta.glob('../assets/pokemon/*.{gif,png,jpg,jpeg}', {
@@ -17,34 +17,22 @@ export default function PokemonDisplay({ name, xp }) {
   const percent = Math.floor((current / required) * 100)
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-      <h2>
+    <div className="pokemon-display-container">
+      <h2 className="pokemon-display-title">
         {name} — Niveau {level}
       </h2>
 
-      <img src={pokemonSrc} alt={name} style={{ width: '150px', imageRendering: 'pixelated' }} />
+      <img src={pokemonSrc} alt={name} className="pokemon-image" />
 
       {/* BARRE D'XP */}
-      <div
-        style={{
-          width: '200px',
-          height: '12px',
-          background: '#222',
-          margin: '10px auto',
-          borderRadius: '6px',
-          overflow: 'hidden'
-        }}
-      >
+      <div className="xp-bar-container">
         <div
-          style={{
-            width: percent + '%',
-            height: '100%',
-            background: 'limegreen'
-          }}
+          className="xp-bar-fill"
+          style={{ width: percent + '%' }}
         />
       </div>
 
-      <div style={{ fontSize: '0.8rem' }}>
+      <div className="xp-text">
         {current} / {required} XP
       </div>
     </div>

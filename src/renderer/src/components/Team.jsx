@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import './Team.css'
 
 export default function Team({ team, activeId, onSelect, onRemove }) {
   // Ensure we always have 6 slots for display
@@ -8,60 +9,41 @@ export default function Team({ team, activeId, onSelect, onRemove }) {
   }
 
   return (
-    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '20px' }}>
-      {slots.map((pokemon, index) => (
-        <div
-          key={pokemon ? pokemon.uuid : `empty-${index}`}
-          onClick={() => pokemon && onSelect(pokemon.uuid)}
-          style={{
-            width: '80px',
-            height: '80px',
-            border: pokemon && pokemon.uuid === activeId ? '2px solid yellow' : '1px solid #555',
-            borderRadius: '10px',
-            backgroundColor: pokemon ? '#333' : '#1a1a1a',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: pokemon ? 'pointer' : 'default',
-            position: 'relative'
-          }}
-        >
-          {pokemon ? (
-            <>
-              <div style={{ fontWeight: 'bold', fontSize: '0.8rem' }}>{pokemon.label}</div>
-              <div style={{ fontSize: '0.7rem' }}>Lvl {pokemon.level}</div>
-              {/* Optional: Remove/Deposit button if team > 1 */}
-              {onRemove && team.length > 1 && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onRemove(pokemon.uuid)
-                  }}
-                  style={{
-                    position: 'absolute',
-                    top: -5,
-                    right: -5,
-                    background: 'red',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '20px',
-                    height: '20px',
-                    cursor: 'pointer',
-                    fontSize: '12px'
-                  }}
-                  title="Move to Storage"
-                >
-                  X
-                </button>
-              )}
-            </>
-          ) : (
-            <div style={{ color: '#555', fontSize: '0.8rem' }}>Empty</div>
-          )}
-        </div>
-      ))}
+    <div className="team-container">
+      {slots.map((pokemon, index) => {
+        const isActive = pokemon && pokemon.uuid === activeId
+        const isFilled = !!pokemon
+        
+        return (
+          <div
+            key={pokemon ? pokemon.uuid : `empty-${index}`}
+            onClick={() => pokemon && onSelect(pokemon.uuid)}
+            className={`team-slot ${isFilled ? 'filled' : ''} ${isActive ? 'active' : ''}`}
+          >
+            {pokemon ? (
+              <>
+                <div className="team-label">{pokemon.label}</div>
+                <div className="team-level">Lvl {pokemon.level}</div>
+                {/* Optional: Remove/Deposit button if team > 1 */}
+                {onRemove && team.length > 1 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onRemove(pokemon.uuid)
+                    }}
+                    className="btn-remove-team"
+                    title="Move to Storage"
+                  >
+                    X
+                  </button>
+                )}
+              </>
+            ) : (
+              <div className="team-empty">Empty</div>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }

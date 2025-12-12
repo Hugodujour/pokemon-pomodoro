@@ -8,6 +8,7 @@ import { pokedex } from './data/pokedex'
 import { createCandyTimer } from './utils/candyTimer'
 import { getLevel } from './utils/leveling'
 import candyIcon from './assets/icon/rare_candy.png'
+import './components/App.css'
 
 // Helper pure function
 const checkEvolution = (speciesId, xp) => {
@@ -271,53 +272,68 @@ function App() {
 
   const activeInstance = getActiveInstance()
   
+  // --- VIEW MODE ---
+  const [viewMode, setViewMode] = useState('active') // 'active' | 'minimalist'
+
+  const toggleViewMode = () => {
+    setViewMode(prev => prev === 'active' ? 'minimalist' : 'active')
+    // Optionally resize window here via IPC if Electron allows
+  }
+
   return (
-    <div>
-      <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-        <h2>Équipe</h2>
+    <div className={`app-container ${viewMode}`}>
+      <button className="mode-toggle" onClick={toggleViewMode}>
+        {viewMode === 'active' ? '↘ Minimize' : '↖ Expand'}
+      </button>
+
+      <div className="team-section">
+        <h2 className="section-title">Équipe</h2>
+        <Team 
+          team={teamList} 
+          activeId={activeId} 
+          onSelect={setActiveId} 
+          onRemove={handleRemoveFromTeam}
+        />
       </div>
-      <Team 
-        team={teamList} 
-        activeId={activeId} 
-        onSelect={setActiveId} 
-        onRemove={handleRemoveFromTeam}
-      />
       
-      <div style={{textAlign: 'center', marginBottom: '10px'}}>
-        <button onClick={() => setShowStorage(prev => !prev)}>
+      <div className="storage-toggle-container">
+        <button className="btn-toggle-storage" onClick={() => setShowStorage(prev => !prev)}>
            {showStorage ? 'Fermer PC' : 'Ouvrir PC'}
         </button>
       </div>
 
-      <StorageSystem 
-        storedPokemon={storageList} 
-        onWithdraw={handleWithdraw} 
-        visible={showStorage} 
-      />
+      <div className="storage-section">
+        <StorageSystem 
+          storedPokemon={storageList} 
+          onWithdraw={handleWithdraw} 
+          visible={showStorage} 
+        />
+      </div>
 
       {activeInstance && (
-        <div style={{marginTop: '2rem'}}>
-          <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-             <h3>Pokémon Actif</h3>
+        <div className="active-pokemon-section">
+          <div className="active-pokemon-header">
+             <h3 className="section-title">Pokémon Actif</h3>
           </div>
           <PokemonDisplay 
             name={activeInstance.speciesId.toUpperCase()} 
             xp={activeInstance.xp} 
           />
-          <div style={{ textAlign: 'center', margin: '1rem' }}>
-            <div>
-              <img src={candyIcon} alt="candy" /> {candies}
+          <div className="active-pokemon-controls">
+            <div className="candy-display">
+              <img src={candyIcon} alt="candy" />
+              <span>{candies}</span>
             </div>
-            <button onClick={giveCandy} disabled={candies === 0}>
+            <button className="btn-primary" onClick={giveCandy} disabled={candies === 0}>
               Donner un bonbon
             </button>
     
-            <div style={{ marginTop: '1rem', borderTop: '1px solid #444', paddingTop: '1rem' }}>
-              <h4>Boutique & Evolution</h4>
-              <button onClick={handleBuyStone} disabled={candies < 50}>
+            <div className="shop-section">
+              <h4 className="shop-title">Boutique & Evolution</h4>
+              <button className="btn-primary" onClick={handleBuyStone} disabled={candies < 50}>
                 Acheter Pierre Foudre (50 🍬)
               </button>
-              <div style={{ fontSize: '0.8rem', margin: '5px' }}>
+              <div className="shop-inventory">
                 Pierres Foudre: {inventory['pierre-foudre'] || 0}
               </div>
     
@@ -325,14 +341,8 @@ function App() {
                 .find((p) => p.id === activeInstance.speciesId)
                 ?.evolutions?.some((e) => e.type === 'item' && inventory[e.item] > 0) && (
                 <button
+                  className="btn-evolve"
                   onClick={handleEvolveWithStone}
-                  style={{
-                    marginTop: '0.5rem',
-                    backgroundColor: 'gold',
-                    color: 'black',
-                    fontWeight: 'bold',
-                    cursor: 'pointer'
-                  }}
                 >
                   Faire évoluer !
                 </button>

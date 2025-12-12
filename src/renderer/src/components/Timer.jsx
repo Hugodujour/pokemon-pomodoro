@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
+import './Timer.css'
 
 export default function Timer({ onFinish, onTick }) {
   const DURATION = 25 * 60
@@ -41,36 +42,26 @@ export default function Timer({ onFinish, onTick }) {
   const percent = (1 - remaining / DURATION) * 100
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-      <h1 style={{ fontSize: '3rem' }}>
+    <div className="timer-container">
+      <h1 className="timer-display">
         {minutes}:{seconds}
       </h1>
 
       {/* barre du timer */}
-      <div
-        style={{
-          width: '220px',
-          height: '10px',
-          background: '#222',
-          margin: '10px auto',
-          borderRadius: '6px',
-          overflow: 'hidden'
-        }}
-      >
+      <div className="timer-bar-container">
         <div
+          className="timer-bar-fill"
           style={{
             width: percent + '%',
-            height: '100%',
-            background: 'orange',
-            transition: 'width 0.3s linear'
           }}
         />
       </div>
 
-      <div style={{ marginTop: '1rem' }}>
-        <button onClick={() => setRunning(true)}>Start</button>
-        <button onClick={() => setRunning(false)}>Pause</button>
+      <div className="timer-controls">
+        <button className="btn-timer" onClick={() => setRunning(true)}>Start</button>
+        <button className="btn-timer" onClick={() => setRunning(false)}>Pause</button>
         <button
+          className="btn-timer reset"
           onClick={() => {
             setRunning(false)
             setRemaining(DURATION)
