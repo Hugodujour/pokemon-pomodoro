@@ -1,8 +1,18 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
-const api = {}
+const api = {
+  openSelectionWindow: () => ipcRenderer.send('open-selection-window'),
+  selectPokemon: (pokemonId, shouldClose = true) => ipcRenderer.send('pokemon-selected', pokemonId, shouldClose),
+  onPokemonSelected: (callback) => {
+    const subscription = (_event, pokemonId) => callback(pokemonId)
+    ipcRenderer.on('pokemon-selected', subscription)
+    return () => ipcRenderer.removeListener('pokemon-selected', subscription)
+  },
+  minimize: () => ipcRenderer.send('window-minimize'),
+  close: () => ipcRenderer.send('window-close')
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

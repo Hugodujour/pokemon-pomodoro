@@ -3,17 +3,20 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
+let mainWindow
+let selectionWindow
+
 function createWindow() {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+  mainWindow = new BrowserWindow({
+    width: 250,
+    height: 350,
     show: false,
     autoHideMenuBar: true,
     transparent: true,
     frame: false,
     hasShadow: false,
-    resizable: false, // Ensure fixed size for widget feel
+    resizable: false,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -39,6 +42,67 @@ function createWindow() {
   }
 }
 
+function createSelectionWindow() {
+  if (selectionWindow) {
+    selectionWindow.focus()
+    return
+  }
+
+  selectionWindow = new BrowserWindow({
+    width: 450,
+    height: 600,
+    show: false,
+    autoHideMenuBar: true,
+    frame: false,
+    transparent: true,
+    hasShadow: false,
+    titleBarStyle: 'hidden', // Extra safety for some platforms
+    resizable: true,
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      sandbox: false
+    }
+  })
+
+  selectionWindow.on('ready-to-show', () => {
+    selectionWindow.show()
+  })
+
+  selectionWindow.on('closed', () => {
+    selectionWindow = null
+  })
+
+  const url = is.dev && process.env['ELECTRON_RENDERER_URL'] 
+    ? `${process.env['ELECTRON_RENDERER_URL']}#selection`
+    : `file://${join(__dirname, '../renderer/index.html')}#selection`
+
+  selectionWindow.loadURL(url)
+}
+
+// IPC Handlers
+ipcMain.on('open-selection-window', () => {
+  createSelectionWindow()
+})
+
+ipcMain.on('pokemon-selected', (event, pokemonId, shouldClose = true) => {
+  if (mainWindow) {
+    mainWindow.webContents.send('pokemon-selected', pokemonId)
+  }
+  if (shouldClose && selectionWindow) {
+    selectionWindow.close()
+  }
+})
+
+ipcMain.on('window-minimize', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  if (win) win.minimize()
+})
+
+ipcMain.on('window-close', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  if (win) win.close()
+})
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -46,33 +110,20 @@ app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
-  // Default open or close DevTools by F12 in development
-  // and ignore CommandOrControl + R in production.
-  // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
-
   createWindow()
 
   app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.

@@ -1,0 +1,223 @@
+@import "tailwindcss";
+@reference "../../../assets/main.css";
+
+.app-container {
+  width: 100vw;
+  height: 100vh;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: 20px;
+
+  /* Glassmorphism Effect */
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 var(--glass-shadow);
+
+  /* Prevent text selection */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Make interactive elements non-draggable and responsive */
+button, select, input, .candy-display, .pokemon-display-container, [onClick] {
+  -webkit-app-region: no-drag;
+}
+
+/* --- SECTIONS --- */
+
+/* Active Pokemon (Left) */
+.active-pokemon-section {
+  flex: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Middle Section (Candy, Timer, Controls) */
+.widget-middle-section {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  gap: 0.25rem;
+}
+
+.candy-display {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  margin: 0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid var(--glass-border);
+  z-index: 10;
+  background: rgba(17, 24, 39, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px var(--glass-shadow);
+}
+
+.candy-display img {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* Right Section (Adventure/Actions) */
+.adventure-controls {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  flex: 1 1 0%;
+}
+
+.adventure-controls select {
+  padding: 0.375rem 0.5rem;
+  font-size: 0.75rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  background: rgba(30, 41, 59, 0.7);
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
+  outline: none;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s;
+}
+
+.adventure-controls select:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: var(--color-primary-light);
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.4);
+  -webkit-app-region: no-drag; 
+}
+
+.modal-content {
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  max-width: 90%;
+  max-height: 90%;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.25rem;
+  z-index: 20;
+}
+
+.window-controls {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 1000;
+  -webkit-app-region: no-drag;
+}
+
+.win-btn {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.25rem;
+}
+
+.win-btn.minimize {
+  font-size: 1rem;
+  padding-bottom: 0.125rem;
+}
+
+.shop-title {
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.shop-inventory {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+}
+
+.shop-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btn-icon {
+  font-size: 1.25rem;
+  padding: 0.25rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-danger {
+  /* uses btn-primary base */
+  background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-hover) 100%);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+.candy-display.clickable {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.candy-display.clickable:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.candy-display.clickable:active {
+  transform: scale(0.95);
+}
+
+.candy-count {
+  font-weight: 700;
+  margin-right: 0.25rem;
+}
+
+.pokemon-trigger {
+  cursor: pointer;
+}

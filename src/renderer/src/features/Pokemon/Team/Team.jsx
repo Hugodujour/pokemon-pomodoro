@@ -8,7 +8,7 @@ export default function Team({ team, activeId, onSelect, onRemove }) {
     slots.push(null)
   }
 
-  const pokemonImages = import.meta.glob('../../assets/pokemon/*.{gif,png,jpg,jpeg}', {
+  const pokemonImages = import.meta.glob('../../../assets/pokemon/*.{gif,png,jpg,jpeg}', {
     eager: true
   })
 
@@ -35,12 +35,9 @@ export default function Team({ team, activeId, onSelect, onRemove }) {
             {pokemon ? (
               <>
                 <img src={imgSrc} alt={pokemon.label} className="team-sprite" />
-                <div className="team-info">
-                    <div className="team-label">{pokemon.label}</div>
-                    <div className="team-level">Lvl {pokemon.level}</div>
-                </div>
+                <div className="team-label">{pokemon.label}</div>
+                <div className="team-level">Lvl {pokemon.level}</div>
                 
-                {/* Optional: Remove/Deposit button if team > 1 */}
                 {onRemove && team.length > 1 && (
                   <button
                     onClick={(e) => {
@@ -50,12 +47,12 @@ export default function Team({ team, activeId, onSelect, onRemove }) {
                     className="btn-remove-team"
                     title="Move to Storage"
                   >
-                    X
+                    ×
                   </button>
                 )}
               </>
             ) : (
-              <div className="team-empty">Empty</div>
+              <div className="team-empty">Vide</div>
             )}
           </div>
         )

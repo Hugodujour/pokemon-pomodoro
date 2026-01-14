@@ -1,26 +1,26 @@
 :root {
-  --ev-c-white: #ffffff;
-  --ev-c-white-soft: #f8f8f8;
-  --ev-c-white-mute: #f2f2f2;
-
-  --ev-c-black: #1b1b1f;
-  --ev-c-black-soft: #222222;
-  --ev-c-black-mute: #282828;
-
-  --ev-c-gray-1: #515c67;
-  --ev-c-gray-2: #414853;
-  --ev-c-gray-3: #32363f;
-
-  --ev-c-text-1: rgba(255, 255, 245, 0.86);
-  --ev-c-text-2: rgba(235, 235, 245, 0.6);
-  --ev-c-text-3: rgba(235, 235, 245, 0.38);
-
-  --ev-button-alt-border: transparent;
-  --ev-button-alt-text: var(--ev-c-text-1);
-  --ev-button-alt-bg: var(--ev-c-gray-3);
-  --ev-button-alt-hover-border: transparent;
-  --ev-button-alt-hover-text: var(--ev-c-text-1);
-  --ev-button-alt-hover-bg: var(--ev-c-gray-2);
+  /* Glassmorphism - Refined for USER preference */
+  --glass-bg: rgba(17, 24, 39, 0.8); /* Gray 900 at 80% */
+  --glass-blur: 12px; 
+  --glass-saturate: 120%;
+  --glass-border: rgba(243, 244, 246, 0.2); /* Gray 100 subtle */
+  --glass-shadow: rgba(0, 0, 0, 0.4);
+  
+  /* Unified Color System - No more hardcoded color names in variables */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  
+  --color-primary: #6366f1; /* Indigo 500 */
+  --color-primary-hover: #4f46e5; /* Indigo 600 */
+  --color-primary-light: #a5b4fc; /* Indigo 300 */
+  
+  --color-secondary: #334155; /* Slate 700 */
+  --color-secondary-hover: #1e293b; /* Slate 800 */
+  
+  --color-danger: #ef4444; 
+  --color-danger-hover: #dc2626;
+  
+  --accent-glow: rgba(99, 102, 241, 0.4);
 }
 
 :root {

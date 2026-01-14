@@ -51,11 +51,16 @@ export const useCombat = ({
     const levelOffset = Math.floor(Math.random() * 5) - 2 // -2 to +2
     const opponentLevel = Math.max(1, active.level + levelOffset)
 
-    // HP Calculation
-    // For now keeping simple HP formula to match existing balance, or should we update HP too?
-    // Let's keep HP similar but slightly boosted since damage might be higher with BP.
+    // Stats
     const maxOpponentHp = opponentLevel * 10 + 40
     const maxPlayerHp = active.level * 10 + 40
+    
+    const activeData = pokedex.find(p => p.id === active.speciesId)
+
+    // Determine Initiative
+    const playerSpeed = (activeData?.baseSpeed || 50) + active.level
+    const opponentSpeed = (speciesData?.baseSpeed || 50) + opponentLevel
+    const initialTurn = playerSpeed >= opponentSpeed ? 'player' : 'opponent'
 
     setCombatState({
       active: true,
@@ -67,88 +72,109 @@ export const useCombat = ({
         maxHp: maxOpponentHp,
         catchRate: speciesData.catchRate || 30,
         types: speciesData.types || ['normal'],
-        basePower: speciesData.basePower || 40
+        basePower: speciesData.basePower || 40,
+        baseSpeed: speciesData.baseSpeed || 50
       },
       playerHp: maxPlayerHp,
       maxPlayerHp: maxPlayerHp,
-      log: [`Un ${speciesData.label} sauvage apparaît !`],
+       // Initial log
+      log: [`Un ${speciesData.label} sauvage apparaît !`, `Le combat commence ! (${initialTurn === 'player' ? activeData.label : speciesData.label} est plus rapide)`],
       isFinished: false,
-      result: null
+      result: null,
+      turn: initialTurn
     })
   }, [activeId, busyPokemonId, ownedPokemon, selectedZone])
 
-  // Handle Attack Round
+  // Handle Attack Round (One Turn at a time)
   const handleAttack = () => {
+    const { active: isCombatActive, opponent, playerHp, log, turn } = combatState
+    if (!isCombatActive || !opponent) return
+
     const fighterId = busyPokemonId || activeId
     const active = ownedPokemon.find((p) => p.uuid === fighterId)
-    const { opponent, playerHp, log } = combatState
-
-    if (!active || !opponent) return
+    if (!active) return
 
     // Prepare Fighter Data
     const activeData = pokedex.find(p => p.id === active.speciesId)
     const playerFighter = {
+      label: activeData?.label || 'Joueur',
       level: active.level,
       types: activeData?.types || ['normal'],
       basePower: activeData?.basePower || 40
     }
 
     const opponentFighter = {
+      label: opponent.label,
       level: opponent.level,
       types: opponent.types,
       basePower: opponent.basePower
     }
 
-    // --- Player Turn ---
-    const playerResult = calculateDamage(playerFighter, opponentFighter)
-    const newOpponentHp = Math.max(0, opponent.hp - playerResult.damage)
+    if (turn === 'player') {
+         // --- Player Turn ---
+        const result = calculateDamage(playerFighter, opponentFighter)
+        const newOpponentHp = Math.max(0, opponent.hp - result.damage)
 
-    let roundLog = []
-    
-    let effectMsg = ''
-    if (playerResult.effectiveness > 1) effectMsg = ' (Super efficace !)'
-    if (playerResult.effectiveness < 1 && playerResult.effectiveness > 0) effectMsg = ' (Pas très efficace...)'
-    if (playerResult.effectiveness === 0) effectMsg = ' (Ça n\'affecte pas...)'
+        let effectMsg = ''
+        if (result.effectiveness > 1) effectMsg = ' (Super efficace !)'
+        if (result.effectiveness < 1 && result.effectiveness > 0) effectMsg = ' (Pas très efficace...)'
+        if (result.effectiveness === 0) effectMsg = ' (Ça n\'affecte pas...)'
 
-    roundLog.push(`${activeData?.label} inflige ${playerResult.damage} dégâts !${effectMsg}`)
+        const turnLog = `${playerFighter.label} attaque ! ... inflige ${result.damage} dégâts !${effectMsg}`
+        
+        if (newOpponentHp <= 0) {
+          // Win - Determine Capture Outcome NOW
+          const roll = Math.random() * 100
+          const isCaught = roll < (opponent.catchRate || 30)
 
-    if (newOpponentHp <= 0) {
-      setCombatState((prev) => ({
-        ...prev,
-        opponent: { ...prev.opponent, hp: 0 },
-        log: [...log, ...roundLog, `${opponent.label} est K.O. !`, `Vous avez gagné !`],
-        isFinished: true,
-        result: 'win'
-      }))
-      return
-    }
+          setCombatState((prev) => ({
+            ...prev,
+            opponent: { ...prev.opponent, hp: 0 },
+            log: [...log, turnLog, `L'ennemi ${opponent.label} est K.O. !`, `Vous avez gagné !`],
+            isFinished: true,
+            result: 'win',
+            captured: isCaught // Store result for animation
+          }))
+        } else {
+          // Pass turn
+          setCombatState((prev) => ({
+            ...prev,
+            opponent: { ...prev.opponent, hp: newOpponentHp },
+            log: [...log, turnLog],
+            turn: 'opponent'
+          }))
+        }
 
-    // --- Opponent Turn ---
-    const opponentResult = calculateDamage(opponentFighter, playerFighter)
-    const newPlayerHp = Math.max(0, playerHp - opponentResult.damage)
-
-    let oppEffectMsg = ''
-    if (opponentResult.effectiveness > 1) oppEffectMsg = ' (Super efficace !)'
-    if (opponentResult.effectiveness < 1 && opponentResult.effectiveness > 0) oppEffectMsg = ' (Pas très efficace...)'
-    
-    roundLog.push(`${opponent.label} attaque et inflige ${opponentResult.damage} dégâts !${oppEffectMsg}`)
-
-    if (newPlayerHp <= 0) {
-      setCombatState((prev) => ({
-        ...prev,
-        opponent: { ...prev.opponent, hp: newOpponentHp },
-        playerHp: 0,
-        log: [...log, ...roundLog, `Votre Pokémon est K.O...`, `Vous prenez la fuite...`],
-        isFinished: true,
-        result: 'loss'
-      }))
     } else {
-      setCombatState((prev) => ({
-        ...prev,
-        opponent: { ...prev.opponent, hp: newOpponentHp },
-        playerHp: newPlayerHp,
-        log: [...log, ...roundLog]
-      }))
+        // --- Opponent Turn ---
+        const result = calculateDamage(opponentFighter, playerFighter)
+        const newPlayerHp = Math.max(0, playerHp - result.damage)
+
+        let effectMsg = ''
+        if (result.effectiveness > 1) effectMsg = ' (Super efficace !)'
+        if (result.effectiveness < 1 && result.effectiveness > 0) effectMsg = ' (Pas très efficace...)'
+        
+        const turnLog = `L'ennemi ${opponentFighter.label} attaque ! ... inflige ${result.damage} dégâts !${effectMsg}`
+
+        if (newPlayerHp <= 0) {
+          // Loss
+          setCombatState((prev) => ({
+            ...prev,
+            playerHp: 0,
+            log: [...log, turnLog, `Votre Pokémon est K.O...`, `Vous prenez la fuite...`],
+            isFinished: true,
+            result: 'loss',
+            captured: false
+          }))
+        } else {
+          // Pass turn
+          setCombatState((prev) => ({
+            ...prev,
+            playerHp: newPlayerHp,
+            log: [...log, turnLog],
+            turn: 'player'
+          }))
+        }
     }
   }
 
@@ -158,13 +184,14 @@ export const useCombat = ({
       ...prev,
       log: [...prev.log, `Vous avez pris la fuite !`],
       isFinished: true,
-      result: 'flee'
+      result: 'flee',
+      captured: false
     }))
   }
 
   // Close Combat & Give Rewards
   const closeCombat = () => {
-    const { result, opponent } = combatState
+    const { result, opponent, captured } = combatState
     const fighterId = busyPokemonId || activeId
 
     if (result === 'win') {
@@ -185,9 +212,8 @@ export const useCombat = ({
       }
       setCandies((c) => c + CANDY_GAIN)
 
-      // Catch Logic
-      const roll = Math.random() * 100
-      if (roll < (opponent.catchRate || 30)) {
+      // Catch Logic - Use pre-determined result
+      if (captured) {
         // CAUGHT!
         const newPokemon = {
           uuid: uuidv4(),
@@ -216,7 +242,8 @@ export const useCombat = ({
       maxPlayerHp: 0,
       log: [],
       isFinished: false,
-      result: null
+      result: null,
+      captured: false
     })
   }
 

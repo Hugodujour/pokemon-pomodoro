@@ -3,7 +3,7 @@ import './assets/main.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
-import ErrorBoundary from './components/ErrorBoundary'
+import ErrorBoundary from './features/Core/ErrorBoundary'
 
 console.log('Main script started')
 

@@ -1,0 +1,264 @@
+@import "tailwindcss";
+@reference "../../../assets/main.css";
+
+.combat-slot-container {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  position: relative;
+  padding-bottom: 3.5rem;
+  min-width: 250px;
+  background: transparent;
+  box-sizing: border-box;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+/* FIGHTER ROWS */
+.combat-fighter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  flex: 1 1 0%;
+}
+
+.combat-fighter.opponent {
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+}
+
+.combat-fighter.player {
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+}
+
+/* SPRITES */
+.combat-sprite-container {
+  flex-shrink: 0;
+}
+
+.combat-sprite {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 4px rgba(0,0,0,0.4));
+}
+
+/* Player sprite back view - flipped horizontally to face right */
+.combat-fighter.player .combat-sprite {
+  transform: scaleX(-1);
+}
+
+/* INFO BLOCKS */
+.combat-info {
+  flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.combat-fighter.opponent .combat-info {
+  align-items: center;
+  text-align: center;
+}
+
+.combat-fighter.player .combat-info {
+  align-items: center;
+  text-align: center;
+}
+
+.combat-name {
+  font-weight: 700;
+  margin-bottom: 0.125rem;
+  white-space: nowrap;
+}
+
+.combat-lvl {
+  font-size: 0.7em;
+  margin-left: 0.25rem;
+  color: var(--color-primary-light);
+}
+
+/* HP BARS */
+.combat-hp-bar {
+  width: 100%;
+  max-width: 120px;
+  height: 0.375rem;
+  border-radius: 9999px;
+  overflow: hidden;
+  background: var(--glass-border);
+}
+
+.combat-hp-fill {
+  height: 100%;
+  width: var(--progress, 0%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--color-primary);
+}
+
+.combat-hp-text {
+  font-size: 0.7em;
+  margin-top: 0.125rem;
+  opacity: 0.8;
+}
+
+/* VS DIVIDER */
+.combat-vs {
+  text-align: center;
+  font-weight: 900;
+  font-size: 0.8rem;
+  opacity: 0.3;
+  margin-top: -0.375rem;
+  margin-bottom: -0.375rem;
+  letter-spacing: 0.1em;
+}
+
+/* ATTACK ANIMATIONS */
+@keyframes attack-player {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(40px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes attack-opponent {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-40px); }
+  100% { transform: translateX(0); }
+}
+
+.anim-attack-player {
+  animation: attack-player 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.anim-attack-opponent {
+  animation: attack-opponent 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+/* CAPTURE ANIMATIONS */
+.pokeball-icon {
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  z-index: 100;
+  display: none;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+@keyframes throw-ball-anim {
+  0% { 
+    left: 20%; 
+    bottom: 20%; 
+    transform: scale(0.5) rotate(0deg); 
+  }
+  25% {
+    left: 35%;
+    bottom: 65%;
+    transform: scale(0.8) rotate(180deg);
+  }
+  50% { 
+    left: 50%; 
+    bottom: 80%;
+    transform: scale(1.0) rotate(360deg); 
+  }
+  75% {
+    left: 64%;
+    bottom: 60%;
+    transform: scale(1.1) rotate(540deg);
+  }
+  100% { 
+    left: 77%; 
+    bottom: 35%; 
+    transform: scale(1) rotate(720deg); 
+  }
+}
+
+.anim-throw {
+  display: block;
+  animation: throw-ball-anim 0.6s forwards linear;
+}
+
+@keyframes shake-ball-anim {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-20deg); }
+  75% { transform: rotate(20deg); }
+}
+
+.anim-shake {
+  display: block;
+  left: 77%; 
+  bottom: 35%;
+  animation: shake-ball-anim 0.7s 3 ease-in-out;
+}
+
+.anim-caught {
+  display: block;
+  left: 77%; 
+  bottom: 35%;
+  filter: brightness(1.2) drop-shadow(0 0 10px var(--color-primary-light));
+}
+
+@keyframes absorb-pokemon-anim {
+  0% { transform: scale(1); opacity: 1; filter: brightness(1); }
+  100% { transform: scale(0); opacity: 0; filter: brightness(10); }
+}
+
+.anim-absorb {
+  animation: absorb-pokemon-anim 0.4s forwards ease-in;
+}
+
+@keyframes breakout-anim {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.anim-breakout {
+  animation: breakout-anim 0.4s forwards ease-out;
+}
+
+@keyframes flee-fade {
+  to { transform: translateX(20px); opacity: 0; }
+}
+
+.anim-flee {
+  animation: flee-fade 0.5s forwards ease-out;
+}
+
+/* UI ELEMENTS */
+.combat-footer {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  z-index: 10;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.capture-msg {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-primary-light);
+}
+
+.btn-return {
+  /* uses global btn-primary */
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  min-width: 120px;
+}
