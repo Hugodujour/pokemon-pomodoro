@@ -1,126 +1,216 @@
-import { createContext, useState, useEffect, useContext } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { createContext, useState, useEffect, useContext, useCallback } from 'react';
 
 const GameContext = createContext();
 
 export const useGame = () => useContext(GameContext);
 
 export function GameProvider({ children }) {
-  // --- STATE ---
-  const [ownedPokemon, setOwnedPokemon] = useState(() => {
-    try {
-      const stored = localStorage.getItem('ownedPokemon');
-      if (stored) return JSON.parse(stored);
-    } catch (e) {
-      console.error('Error loading ownedPokemon:', e);
-    }
-    const starters = ['pikachu', 'bulbizarre', 'salameche', 'carapuce'];
-    return starters.map(speciesId => ({ uuid: uuidv4(), speciesId, xp: 0, level: 1, dateCaught: new Date().toISOString() }));
-  });
+  // --- STATE (Mirror of Main Process State) ---
+  const [state, setState] = useState(null);
+  const [pokedex, setPokedex] = useState([]);
+  const [zones, setZones] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [teamIds, setTeamIds] = useState(() => {
-    try {
-      const stored = localStorage.getItem('teamIds');
-      if (stored) return JSON.parse(stored);
-    } catch (e) {
-      console.error('Error loading teamIds:', e);
-    }
-    return [];
-  });
-
-  const [activeId, setActiveId] = useState(() => localStorage.getItem('activeId') || null);
-  const [candies, setCandies] = useState(() => Number(localStorage.getItem('candies')) || 0);
-  const [inventory, setInventory] = useState(() => {
-    try {
-      const stored = localStorage.getItem('inventory');
-      return stored ? JSON.parse(stored) : {};
-    } catch (e) {
-      console.error('Error loading inventory:', e);
-      return {};
-    }
-  });
-
-  // --- PERSISTENCE ---
-  useEffect(() => { 
-    if (ownedPokemon.length > 0) localStorage.setItem('ownedPokemon', JSON.stringify(ownedPokemon)); 
-  }, [ownedPokemon]);
-  
-  useEffect(() => { 
-    if (teamIds.length > 0) localStorage.setItem('teamIds', JSON.stringify(teamIds)); 
-  }, [teamIds]);
-  
-  useEffect(() => { 
-    if (activeId) localStorage.setItem('activeId', activeId); 
-  }, [activeId]);
-  
-  useEffect(() => { localStorage.setItem('candies', candies); }, [candies]);
-  useEffect(() => { localStorage.setItem('inventory', JSON.stringify(inventory)); }, [inventory]);
-
-  // Sync from localStorage when other windows change it (Selection Window)
+  // --- INITIAL LOAD ---
   useEffect(() => {
-    const handleStorage = (e) => {
+    const loadInitialData = async () => {
       try {
-        if (e.key === 'ownedPokemon' && e.newValue) setOwnedPokemon(JSON.parse(e.newValue));
-        if (e.key === 'teamIds' && e.newValue) setTeamIds(JSON.parse(e.newValue));
-        if (e.key === 'activeId' && e.newValue) setActiveId(e.newValue);
-        if (e.key === 'candies' && e.newValue) setCandies(Number(e.newValue));
-        if (e.key === 'inventory' && e.newValue) setInventory(JSON.parse(e.newValue));
+        // Load static data
+        if (!window.gameAPI) {
+          throw new Error('API non disponible (Preload failed)');
+        }
+
+        const [pokedexData, zonesData, gameState] = await Promise.all([
+          window.gameAPI.getPokedex(),
+          window.gameAPI.getZones(),
+          window.gameAPI.getState()
+        ]);
+
+
+        setPokedex(pokedexData);
+        setZones(zonesData);
+        setState(gameState);
+        setLoading(false);
+
+        console.log('[GameContext] État initial chargé:', gameState);
       } catch (err) {
-        console.error("Storage sync error:", err);
+        console.error('[GameContext] Erreur de chargement:', err);
+        setLoading(false);
       }
     };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
 
-  // Sync with selection window (IPC) implementation can stay here or be handled where needed.
-  // For now, we keep the IPC listener here to update the central state.
+    loadInitialData();
+
+    // Listen for state changes from Main process
+    if (window.gameAPI?.onStateChange) {
+      const unsubscribe = window.gameAPI.onStateChange((newState) => {
+        console.log('[GameContext] État mis à jour depuis Main:', newState);
+        setState(newState);
+      });
+      return unsubscribe;
+    }
+  }, [state]);
+
+
+  // --- SYNC WITH SELECTION WINDOW ---
   useEffect(() => {
     if (window.api?.onPokemonSelected) {
-      const unsubscribe = window.api.onPokemonSelected((newId) => {
-        setActiveId(newId);
-        // Refresh everything just in case
-        const storedPokemon = localStorage.getItem('ownedPokemon');
-        if (storedPokemon) setOwnedPokemon(JSON.parse(storedPokemon));
-        const storedTeam = localStorage.getItem('teamIds');
-        if (storedTeam) setTeamIds(JSON.parse(storedTeam));
+      const unsubscribe = window.api.onPokemonSelected(async (newId) => {
+        // Refresh state from Main when a pokemon is selected from other window
+        const newState = await window.gameAPI.getState();
+        setState(newState);
       });
       return unsubscribe;
     }
   }, []);
 
-  // Ensure team and active are set on load
-  useEffect(() => {
-    if (ownedPokemon.length > 0) {
-      if (teamIds.length === 0) {
-        const newTeam = ownedPokemon.slice(0, 3).map(p => p.uuid);
-        setTeamIds(newTeam);
-        if (!activeId) setActiveId(newTeam[0]);
-      } else if (!activeId || !ownedPokemon.find(p => p.uuid === activeId)) {
-        setActiveId(teamIds[0] || ownedPokemon[0].uuid);
+  // --- ACTIONS (Wrappers around IPC calls) ---
+  
+  const pickStarter = useCallback(async (speciesId) => {
+    const result = await window.gameAPI.pickStarter(speciesId);
+    await refreshState();
+    return result;
+  }, []);
+
+  const refreshState = useCallback(async () => {
+    const newState = await window.gameAPI.getState();
+    setState(newState);
+    return newState;
+  }, []);
+
+  const updatePokemon = useCallback(async (uuid, updates) => {
+    const updated = await window.gameAPI.updatePokemon(uuid, updates);
+    await refreshState();
+    return updated;
+  }, [refreshState]);
+
+  const setActiveId = useCallback(async (id) => {
+    await window.gameAPI.setActiveId(id);
+    await refreshState();
+  }, [refreshState]);
+
+  const setTeamIds = useCallback(async (teamIds) => {
+    await window.gameAPI.setTeamIds(teamIds);
+    await refreshState();
+  }, [refreshState]);
+
+  const setCandies = useCallback(async (amount) => {
+    // For compatibility with old code that uses setCandies(c => c + 1)
+    if (typeof amount === 'function') {
+      const currentState = await window.gameAPI.getState();
+      const newAmount = amount(currentState.candies) - currentState.candies;
+      await window.gameAPI.addCandies(newAmount);
+    } else {
+      const currentState = await window.gameAPI.getState();
+      const diff = amount - currentState.candies;
+      await window.gameAPI.addCandies(diff);
+    }
+    await refreshState();
+  }, [refreshState]);
+
+  const addCandies = useCallback(async (amount) => {
+    await window.gameAPI.addCandies(amount);
+    await refreshState();
+  }, [refreshState]);
+
+  const useCandy = useCallback(async () => {
+    const result = await window.gameAPI.useCandy();
+    await refreshState();
+    return result;
+  }, [refreshState]);
+
+  const setInventory = useCallback(async (updater) => {
+    // For compatibility: inventory updates are complex, 
+    // we'll handle common cases (adding items)
+    const currentState = await window.gameAPI.getState();
+    const newInventory = typeof updater === 'function' 
+      ? updater(currentState.inventory) 
+      : updater;
+    
+    // Find differences and apply
+    for (const [itemId, quantity] of Object.entries(newInventory)) {
+      const diff = quantity - (currentState.inventory[itemId] || 0);
+      if (diff > 0) {
+        await window.gameAPI.addItem(itemId, diff);
+      } else if (diff < 0) {
+        for (let i = 0; i < Math.abs(diff); i++) {
+          await window.gameAPI.useItem(itemId);
+        }
       }
     }
-  }, [ownedPokemon, teamIds, activeId]);
+    await refreshState();
+  }, [refreshState]);
 
-  // --- ACTIONS ---
-  const updatePokemon = (uuid, updates) => {
-    setOwnedPokemon(prev => prev.map(p => (p.uuid === uuid ? { ...p, ...updates } : p)));
-  };
+  const setOwnedPokemon = useCallback(async (updater) => {
+    // This is mainly for adding new pokemon (capture)
+    // Complex operations should use specific IPC calls
+    console.warn('[GameContext] setOwnedPokemon is deprecated, use specific IPC calls');
+    await refreshState();
+  }, [refreshState]);
 
-  const getActiveInstance = () => ownedPokemon.find(p => p.uuid === activeId);
+  // --- DERIVED STATE ---
+  const getActiveInstance = useCallback(() => {
+    if (!state) return null;
+    return state.ownedPokemon.find(p => p.uuid === state.activeId);
+  }, [state]);
 
+  // --- LOADING STATE ---
+  if (loading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        height: '100vh',
+        color: 'white',
+        fontSize: '0.875rem'
+      }}>
+        Chargement...
+      </div>
+    );
+  }
+
+  if (!state) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        height: '100vh',
+        color: 'red',
+        fontSize: '0.875rem'
+      }}>
+        Erreur de chargement
+      </div>
+    );
+  }
+
+  // --- CONTEXT VALUE ---
   const value = {
-    ownedPokemon,
-    setOwnedPokemon,
-    teamIds,
-    setTeamIds,
-    activeId,
+    // State (read-only mirrors)
+    ownedPokemon: state.ownedPokemon,
+    teamIds: state.teamIds,
+    activeId: state.activeId,
+    candies: state.candies,
+    inventory: state.inventory,
+
+    // Static data
+    pokedex,
+    zones,
+
+    // Actions (IPC wrappers)
     setActiveId,
-    candies,
+    setTeamIds,
     setCandies,
-    inventory,
+    addCandies,
+    useCandy,
     setInventory,
+    setOwnedPokemon,
     updatePokemon,
+    refreshState,
+    pickStarter,
+
+    // Helpers
     getActiveInstance
   };
 

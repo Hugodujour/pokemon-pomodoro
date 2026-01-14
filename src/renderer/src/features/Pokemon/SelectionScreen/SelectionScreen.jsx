@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Team from '../Team/Team';
 import StorageSystem from '../StorageSystem/StorageSystem';
-import { pokedex } from '../../../data/pokedex';
 import { useGame } from '../../../contexts/GameContext';
 import './SelectionScreen.css';
 
@@ -11,36 +10,38 @@ function SelectionScreen() {
     teamIds, 
     setTeamIds, 
     activeId, 
-    setActiveId 
+    setActiveId,
+    pokedex
   } = useGame();
 
   const [showStorage, setShowStorage] = useState(false);
 
-  const handleSelectActive = id => {
-    setActiveId(id);
+  const handleSelectActive = async (id) => {
+    await setActiveId(id);
     if (window.api) {
       window.api.selectPokemon(id);
     }
   };
 
-  const handleWithdraw = uuid => {
+  const handleWithdraw = async (uuid) => {
     if (teamIds.length < 3) {
       const newTeam = [...teamIds, uuid];
-      setTeamIds(newTeam);
-      if (window.api) window.api.selectPokemon(activeId, false); // No close
+      await setTeamIds(newTeam);
+      if (window.api) window.api.selectPokemon(activeId, false);
     }
   };
 
-  const handleRemoveFromTeam = uuid => {
+  const handleRemoveFromTeam = async (uuid) => {
     if (teamIds.length > 1) {
       const newTeam = teamIds.filter(id => id !== uuid);
-      setTeamIds(newTeam);
+      await setTeamIds(newTeam);
+      
       let newActive = activeId;
       if (activeId === uuid) {
         newActive = newTeam[0];
-        setActiveId(newActive);
+        await setActiveId(newActive);
       }
-      if (window.api) window.api.selectPokemon(newActive, false); // No close
+      if (window.api) window.api.selectPokemon(newActive, false);
     }
   };
 

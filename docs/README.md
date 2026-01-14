@@ -5,75 +5,133 @@ Ce projet est une application de type "Idle Game / Widget" Pokémon développée
 
 ## 2. Architecture Technique
 
+### Architecture IPC (Inter-Process Communication)
+L'application utilise une architecture **Main Process / Renderer Process** avec communication IPC pour séparer la logique métier de l'interface utilisateur.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      MAIN PROCESS (Node.js)                     │
+│                                                                 │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+│  │  GameService    │  │  StorageService │  │  CombatService  │  │
+│  │  (État global)  │  │  (Persistence)  │  │  (Calculs)      │  │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  │
+│           │                    │                    │           │
+│                         IPC Handlers                            │
+│                          (ipcMain)                              │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │ IPC (invoke/handle)
+┌────────────────────────────────┴────────────────────────────────┐
+│                       PRELOAD (Bridge)                          │
+│   window.gameAPI = { getState, startCombat, attack, ... }       │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+┌────────────────────────────────┴────────────────────────────────┐
+│                    RENDERER PROCESS (React)                     │
+│                                                                 │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │              GameContext (Client léger IPC)               │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+│  │    Widget.jsx   │  │  CombatScreen   │  │  SelectionScreen│  │
+│  │    (UI only)    │  │    (UI only)    │  │    (UI only)    │  │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ### Structure du Projet
-L'architecture a été refondue pour suivre une approche **"Feature-Based"**, favorisant la modularité et la scalabilité.
 
 ```
-src/renderer/src/
-├── assets/           # Ressources statiques (images, CSS global)
-├── contexts/         # Gestion d'état global (React Context)
-│   └── GameContext.jsx
-├── data/             # Données statiques (Pokedex, Zones)
-├── features/         # Modules fonctionnels
-│   ├── Combat/       # Logique et UI de combat
-│   ├── Core/         # Composants principaux (Widget, Timer)
-│   ├── Pokemon/      # Gestion des Pokémon (Affichage, Équipe, Stockage)
-│   └── Shop/         # Boutique et Inventaire
-├── hooks/            # Hooks personnalisés (useCombat, etc.)
-└── utils/            # Fonctions utilitaires pures
+src/
+├── main/                          # BACKEND (Node.js)
+│   ├── index.js                   # Point d'entrée, initialisation
+│   ├── ipcHandlers.js             # Handlers IPC (game:*, combat:*, shop:*)
+│   ├── data/
+│   │   └── gameData.js            # Pokédex et Zones (source unique)
+│   └── services/
+│       ├── storageService.js      # Persistance fichier JSON
+│       ├── gameService.js         # État du jeu (équipe, inventaire, XP)
+│       └── combatService.js       # Logique de combat
+│
+├── preload/
+│   └── index.js                   # Bridge sécurisé (window.api, window.gameAPI)
+│
+└── renderer/src/                  # FRONTEND (React - UI seulement)
+    ├── contexts/
+    │   └── GameContext.jsx        # Client léger IPC
+    ├── hooks/
+    │   └── useCombat.js           # Hook combat utilisant IPC
+    ├── features/
+    │   ├── Core/                  # Widget, Timer
+    │   ├── Combat/                # CombatScreen
+    │   └── Pokemon/               # PokemonDisplay, Team, SelectionScreen
+    └── assets/                    # Images, CSS global
 ```
 
-### Gestion de l'État (State Management)
-L'état de l'application est centralisé dans le `GameContext` (`src/renderer/src/contexts/GameContext.jsx`).
-Il gère :
-*   La liste des Pokémon possédés (`ownedPokemon`).
-*   L'équipe active (`teamIds`).
-*   Le Pokémon actif (`activeId`).
-*   L'inventaire (`candies`, `items`).
-*   La persistance automatique via `localStorage`.
+### Flux de Données
 
-### Composants Clés
-*   **Widget (`features/Core`)** : Le cœur de l'application. Il orchestre l'interface principale, gère le timer Pomodoro et sert de conteneur pour les autres fonctionnalités.
-*   **CombatScreen (`features/Combat`)** : Gère l'affichage et les animations lors des phases de combat automatique.
-*   **SelectionScreen (`features/Pokemon`)** : Une fenêtre séparée permettant à l'utilisateur de gérer son équipe et son stockage PC.
+1. **Renderer** appelle `window.gameAPI.getState()` via IPC
+2. **Preload** transmet l'appel via `ipcRenderer.invoke('game:getState')`
+3. **Main Process** exécute `gameService.getState()` et retourne le résultat
+4. **Renderer** reçoit l'état et met à jour l'UI
+
+### Gestion de l'État
+L'état est **stocké dans le Main Process** et persisté dans un fichier JSON (`userData/game-data.json`).
+
+Le `GameContext` dans le Renderer est un **client léger** qui :
+- Charge l'état initial via `window.gameAPI.getState()`
+- Écoute les changements via `window.gameAPI.onStateChange()`
+- Expose des wrappers autour des appels IPC
 
 ## 3. Fonctionnalités Principales
 
 ### Mode Aventure (Pomodoro)
-*   L'utilisateur lance un timer (basé sur la méthode Pomodoro).
-*   Pendant que le timer tourne, le Pokémon "part à l'aventure" (indisponible pour d'autres actions).
-*   À la fin du timer, un combat automatique se déclenche.
+- L'utilisateur lance un timer basé sur la méthode Pomodoro.
+- À la fin du timer, un combat automatique se déclenche.
+- Les combats sont gérés entièrement dans le **Main Process**.
 
 ### Système de Combat
-*   Combats au tour par tour automatisés.
-*   Calcul des dégâts basé sur le niveau et les types (Eau > Feu > Plante).
-*   Animations CSS pour les attaques et la capture.
-*   En cas de victoire, chance de capturer le Pokémon ennemi.
+- Combats au tour par tour via `CombatService`.
+- Calcul des dégâts basé sur les types (table d'efficacité complète).
+- Récompenses (XP, bonbons, capture) distribuées via IPC.
 
-### Gestion des Pokémon
-*   **Évolution** : Les Pokémon gagnent de l'XP et évoluent automatiquement ou via des objets (Pierres).
-*   **Inventaire** : Gestion des bonbons (monnaie) et objets d'évolution.
-*   **PC** : Stockage illimité des Pokémon capturés.
+### Persistance
+- **Fichier JSON** dans `app.getPath('userData')`.
+- Pas de `localStorage` (plus sécurisé, pas de limite de taille).
+- Synchronisation multi-fenêtres via IPC natif.
 
-## 4. Guide de Développement
+## 4. API IPC Disponibles
 
-### Ajouter une nouvelle fonctionnalité
-1.  Créer un nouveau dossier sous `src/renderer/src/features/`.
-2.  Si la fonctionnalité nécessite un nouvel état global, l'ajouter dans `GameContext.jsx`.
-3.  Importer et utiliser le composant dans `Widget.jsx` ou `App.jsx`.
+### Game State
+```javascript
+window.gameAPI.getState()              // Retourne l'état complet
+window.gameAPI.setActiveId(id)         // Change le Pokémon actif
+window.gameAPI.setTeamIds([...])       // Modifie l'équipe
+```
 
-### Styles
-*   Utilisation de **Tailwind CSS** (v4) pour le style utilitaire.
-*   Variables CSS globales pour les couleurs et les effets de verre (Glassmorphism) définies dans `assets/base.css`.
-*   Pas de styles inline dans le JSX (sauf variables dynamiques `--progress`).
+### Combat
+```javascript
+window.gameAPI.startCombat(activeId, zoneId)
+window.gameAPI.attack(combatState)
+window.gameAPI.flee(combatState)
+window.gameAPI.finishCombat(combatState)
+```
 
-### Commandes Utiles
-*   `npm run dev` : Lance l'application en mode développement.
-*   `npm run build` : Construit l'application pour la production.
+### Resources
+```javascript
+window.gameAPI.useCandy()              // Utilise un bonbon
+window.gameAPI.addCandies(amount)
+window.gameAPI.buyStone()              // Achète une pierre
+```
 
-## 5. Dépendances Principales
-*   `electron`
-*   `react` / `react-dom`
-*   `vite`
-*   `tailwindcss`
-*   `uuid` (pour la génération d'IDs uniques)
+## 5. Commandes Utiles
+- `npm run dev` : Lance l'application en développement
+- `npm run build` : Construit pour la production
+
+## 6. Dépendances Principales
+- `electron` / `@electron-toolkit/utils`
+- `react` / `react-dom`
+- `vite` / `electron-vite`
+- `tailwindcss`
+- `uuid`

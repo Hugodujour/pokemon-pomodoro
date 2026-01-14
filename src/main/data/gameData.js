@@ -1,3 +1,4 @@
+// Data statiques pour le Main Process
 export const pokedex = [
   {
     id: 'pikachu',
@@ -44,54 +45,106 @@ export const pokedex = [
     catchRate: 10,
     evolutions: []
   },
-  { id: 'salameche',
+  {
+    id: 'salameche',
     label: 'Salamèche',
     types: ['fire'],
     basePower: 52,
     baseSpeed: 65,
     catchRate: 30,
-    evolutions: [{ type: 'level', level: 16, to: 'reptincel' }] },
-  { id: 'reptincel',
+    evolutions: [{ type: 'level', level: 16, to: 'reptincel' }]
+  },
+  {
+    id: 'reptincel',
     label: 'Reptincel',
     types: ['fire'],
     basePower: 64,
     baseSpeed: 80,
     catchRate: 20,
-    evolutions: [{ type: 'level', level: 36, to: 'dracaufeu' }] },
-    { id: 'dracaufeu',
+    evolutions: [{ type: 'level', level: 36, to: 'dracaufeu' }]
+  },
+  {
+    id: 'dracaufeu',
     label: 'Dracaufeu',
     types: ['fire', 'flying'],
-    basePower: 104, // Charizard stronk
+    basePower: 104,
     baseSpeed: 100,
     catchRate: 10,
-    evolutions: [] },
-  { id: 'carapuce',
+    evolutions: []
+  },
+  {
+    id: 'carapuce',
     label: 'Carapuce',
     types: ['water'],
     basePower: 48,
     baseSpeed: 43,
     catchRate: 30,
-    evolutions: [{ type: 'level', level: 16, to: 'carabaffe' }] },
-  { id: 'carabaffe',
+    evolutions: [{ type: 'level', level: 16, to: 'carabaffe' }]
+  },
+  {
+    id: 'carabaffe',
     label: 'Carabaffe',
     types: ['water'],
     basePower: 63,
     baseSpeed: 58,
     catchRate: 20,
-    evolutions: [{ type: 'level', level: 36, to: 'tortank' }] },
-  { id: 'tortank',
+    evolutions: [{ type: 'level', level: 36, to: 'tortank' }]
+  },
+  {
+    id: 'tortank',
     label: 'Tortank',
     types: ['water'],
-    basePower: 95, 
+    basePower: 95,
     baseSpeed: 78,
     catchRate: 10,
-    evolutions: [] },
-  // ZONES EXTRAS
+    evolutions: []
+  },
   { id: 'nidoran-f', label: 'Nidoran♀', types: ['poison'], basePower: 47, baseSpeed: 41, catchRate: 35, evolutions: [] },
   { id: 'nidoran-m', label: 'Nidoran♂', types: ['poison'], basePower: 50, baseSpeed: 50, catchRate: 35, evolutions: [] },
   { id: 'nosferapti', label: 'Nosferapti', types: ['poison', 'flying'], basePower: 45, baseSpeed: 55, catchRate: 35, evolutions: [] },
   { id: 'racaillou', label: 'Racaillou', types: ['rock', 'ground'], basePower: 80, baseSpeed: 20, catchRate: 35, evolutions: [] },
   { id: 'hypotrempe', label: 'Hypotrempe', types: ['water'], basePower: 40, baseSpeed: 60, catchRate: 40, evolutions: [] },
   { id: 'magicarp', label: 'Magicarpe', types: ['water'], basePower: 10, baseSpeed: 80, catchRate: 50, evolutions: [] },
-  { id: 'tentacool', label: 'Tentacool', types: ['water', 'poison'], basePower: 40, baseSpeed: 70, catchRate: 40, evolutions: [] },
+  { id: 'tentacool', label: 'Tentacool', types: ['water', 'poison'], basePower: 40, baseSpeed: 70, catchRate: 40, evolutions: [] }
 ]
+
+export const zones = [
+  {
+    id: 'bourg-palette',
+    label: 'Bourg Palette',
+    type: 'city',
+    pokemon: []
+  },
+  {
+    id: 'jadielle',
+    label: 'Jadielle',
+    type: 'city',
+    pokemon: []
+  },
+  {
+    id: 'forest',
+    label: 'Forêt de Jadielle',
+    type: 'wild',
+    pokemon: ['pikachu', 'bulbizarre']
+  },
+  {
+    id: 'cave',
+    label: 'Mont Sélénite',
+    type: 'wild',
+    pokemon: ['nidoran-f', 'nidoran-m', 'nosferapti', 'racaillou']
+  },
+  {
+    id: 'sea',
+    label: 'Route 19',
+    type: 'wild',
+    pokemon: ['carapuce', 'hypotrempe', 'magicarp', 'tentacool']
+  },
+  {
+    id: 'test',
+    label: 'Zone TEST',
+    type: 'wild',
+    pokemon: ['pikachu'],
+    fixedLevel: 1
+  }
+]
+

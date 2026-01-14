@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { getLevel } from '../../../utils/leveling'
 import './PokemonDisplay.css'
+
+// Inline level calculation (logic moved to Main process)
+function getLevel(xp) {
+  let level = 1
+  let remainingXp = xp
+  while (remainingXp >= level * 1) {
+    remainingXp -= level * 1
+    level++
+  }
+  return { level, current: remainingXp, required: level * 1 }
+}
 
 export default function PokemonDisplay({ name, xp, isAdventureRunning, timerState }) {
   const [displaySpecies, setDisplaySpecies] = useState(name)

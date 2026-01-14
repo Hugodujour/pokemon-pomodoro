@@ -1,13 +1,38 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
 
-let mainWindow
-let selectionWindow
+// Database
+import { initDatabase, closeDatabase } from './db'
+import { DatabaseService } from './services/databaseService'
+import { GameService } from './services/gameService'
+import { CombatService } from './services/combatService'
+import { setupIpcHandlers } from './ipcHandlers'
 
-function createWindow() {
-  // Create the browser window.
+let mainWindow: BrowserWindow | null = null
+let selectionWindow: BrowserWindow | null = null
+
+// Services
+let databaseService: DatabaseService
+let gameService: GameService
+let combatService: CombatService
+
+function initializeServices(): void {
+  const userDataPath = app.getPath('userData')
+  
+  // Initialiser la base de données SQLite
+  initDatabase(userDataPath)
+  
+  // Créer les services
+  databaseService = new DatabaseService()
+  gameService = new GameService(databaseService)
+  combatService = new CombatService(gameService)
+  
+  console.log('[Main] Services initialises avec SQLite')
+  console.log('[Main] Base de donnees:', userDataPath + '/pokemon-game.db')
+}
+
+function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 250,
     height: 350,
@@ -17,15 +42,17 @@ function createWindow() {
     frame: false,
     hasShadow: false,
     resizable: false,
-    ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: true,
+      contextIsolation: true,
+      nodeIntegration: false
     }
   })
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+    console.log('[Main] Fenetre principale prete')
+    mainWindow?.show()
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -33,16 +60,17 @@ function createWindow() {
     return { action: 'deny' }
   })
 
-  // HMR for renderer base on electron-vite cli.
-  // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  // Setup IPC handlers after window is created
+  setupIpcHandlers(gameService, combatService, mainWindow)
 }
 
-function createSelectionWindow() {
+function createSelectionWindow(): void {
   if (selectionWindow) {
     selectionWindow.focus()
     return
@@ -56,16 +84,18 @@ function createSelectionWindow() {
     frame: false,
     transparent: true,
     hasShadow: false,
-    titleBarStyle: 'hidden', // Extra safety for some platforms
+    titleBarStyle: 'hidden',
     resizable: true,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: true,
+      contextIsolation: true,
+      nodeIntegration: false
     }
   })
 
   selectionWindow.on('ready-to-show', () => {
-    selectionWindow.show()
+    selectionWindow?.show()
   })
 
   selectionWindow.on('closed', () => {
@@ -79,12 +109,12 @@ function createSelectionWindow() {
   selectionWindow.loadURL(url)
 }
 
-// IPC Handlers
+// IPC Handlers for Window Management
 ipcMain.on('open-selection-window', () => {
   createSelectionWindow()
 })
 
-ipcMain.on('pokemon-selected', (event, pokemonId, shouldClose = true) => {
+ipcMain.on('pokemon-selected', (_event, pokemonId: string, shouldClose = true) => {
   if (mainWindow) {
     mainWindow.webContents.send('pokemon-selected', pokemonId)
   }
@@ -103,17 +133,17 @@ ipcMain.on('window-close', (event) => {
   if (win) win.close()
 })
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+// App Lifecycle
 app.whenReady().then(() => {
-  // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  // Initialize services BEFORE creating windows
+  initializeServices()
+  
   createWindow()
 
   app.on('activate', function () {
@@ -122,8 +152,13 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
+  closeDatabase()
+  
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
 
+app.on('before-quit', () => {
+  closeDatabase()
+})

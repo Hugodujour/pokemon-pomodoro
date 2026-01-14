@@ -1,53 +1,161 @@
 # PROMPT D'ARCHITECTURE SYSTÈME - POKEMON ELECTRON APP
 
-Tu es un expert en développement React/Electron avec une architecture "Feature-Based".
+Tu es un expert en développement React/Electron avec une architecture **IPC (Inter-Process Communication)**.
 Voici les règles STRICTES à suivre pour toute modification ou ajout de fonctionnalité sur ce projet.
 
-## 1. 🏗️ Structure des Dossiers & Imports
+## 1. 🏗️ Architecture Main / Renderer
 
-L'application utilise une architecture modulaire. Tout nouveau composant DOIT être placé dans le bon dossier `src/renderer/src/features/` :
+L'application sépare **strictement** la logique métier (Main) de l'interface (Renderer).
 
-*   **`Core/`** : Composants globaux ou "transverses" (Widget, Timer, ErrorBoundary).
-*   **`Combat/`** : Tout ce qui concerne le combat (écrans, barres de vie).
-*   **`Pokemon/`** : Affichage, gestion d'équipe, stockage PC, sélection.
-*   **`Shop/`** : Boutique et inventaire.
+### Main Process (`src/main/`)
+Contient TOUTE la logique métier :
+- **Services** : `gameService.js`, `combatService.js`, `storageService.js`
+- **Données** : `data/gameData.js` (Pokédex, Zones)
+- **IPC Handlers** : `ipcHandlers.js`
 
-❌ **INTERDIT** : Ne jamais créer de dossiers dans `src/renderer/src/components`. Ce dossier n'existe plus.
-✅ **OBLIGATOIRE** : Si une nouvelle feature ne rentre pas dans les catégories existantes, crée un nouveau dossier dans `features/` (ex: `features/Quest/`).
+### Renderer Process (`src/renderer/`)
+Contient UNIQUEMENT l'interface utilisateur :
+- **Composants React** : Dans `features/`
+- **Context léger** : `GameContext.jsx` (client IPC)
+- **Hooks UI** : `useCombat.js` (wrapper IPC)
+
+❌ **INTERDIT dans le Renderer** :
+- Logique métier (calculs de dégâts, XP, etc.)
+- Accès direct au `localStorage`
+- Données statiques (pokedex, zones)
+
+✅ **OBLIGATOIRE** : Toute logique passe par `window.gameAPI.*`
+
+## 2. 🔌 Communication IPC
+
+### Pattern Invoke/Handle (Recommandé)
+```javascript
+// Preload (expose l'API)
+gameAPI.startCombat = (activeId, zoneId) => 
+  ipcRenderer.invoke('combat:start', activeId, zoneId)
+
+// Main (handler)
+ipcMain.handle('combat:start', (_, activeId, zoneId) => 
+  combatService.startCombat(activeId, zoneId))
+```
+
+### Nommage des Canaux IPC
+Format : `domaine:action`
+- `game:getState`, `game:setActiveId`
+- `combat:start`, `combat:attack`, `combat:finish`
+- `shop:buyStone`, `shop:evolveWithStone`
+- `data:getPokedex`, `data:getZones`
+
+## 3. 🗂️ Structure des Features (Renderer)
+
+```
+src/renderer/src/features/
+├── Core/           # Widget, Timer
+├── Combat/         # CombatScreen
+├── Pokemon/        # PokemonDisplay, Team, SelectionScreen, StorageSystem
+└── Shop/           # (À implémenter)
+```
 
 ### Règle des Imports
-Utilise toujours des chemins relatifs clairs.
-*   ✅ Bon : `import Timer from '../../Core/Timer/Timer'`
-*   ❌ Mauvais (si le dossier n'existe pas) : `import Timer from '../../../components/Timer'`
+✅ Bon : `import { useGame } from '../../../contexts/GameContext'`
+❌ Mauvais : `import { pokedex } from '../../../data/pokedex'` (les données sont dans Main !)
 
-## 2. 🧩 Gestion de l'État (GameContext)
+## 4. 🎯 Ajouter une Nouvelle Fonctionnalité
 
-Toute donnée persistante ou partagée entre plusieurs features DOIT passer par le `GameContext`.
+### Étape 1 : Logique dans Main
+1. Ajouter la méthode dans le service approprié (`gameService.js` ou nouveau service)
+2. Créer le handler IPC dans `ipcHandlers.js`
 
-**Fichier** : `src/renderer/src/contexts/GameContext.jsx`
+### Étape 2 : Exposer dans Preload
+1. Ajouter la fonction dans `gameAPI` de `preload/index.js`
 
-*   **Ajout d'état** : Si tu ajoutes une variable (ex: `badges`, `quests`), ajoute-la dans le `GameContext` avec son `useEffect` pour la persistance `localStorage`.
-*   **Consommation** : Utilise `const { maVariable, setMaVariable } = useGame()` dans tes composants.
-*   ❌ **INTERDIT** : Ne jamais gérer d'état persistant (`localStorage`) directement dans un composant (sauf si c'est purement UI local comme un menu ouvert/fermé).
+### Étape 3 : Consommer dans Renderer
+1. Appeler `window.gameAPI.maFonction()` depuis le contexte ou le composant
+2. Mettre à jour l'UI avec le résultat
 
-## 3. 🎨 Styles (CSS & Design)
+### Exemple : Ajouter un système de badges
+```javascript
+// 1. Main - gameService.js
+addBadge(badgeId) {
+  this.state.badges.push(badgeId)
+  this.persist()
+  return this.state.badges
+}
 
-*   **CSS Modules** : Chaque composant doit avoir son propre fichier `.css` (ex: `MyFeature.jsx` + `MyFeature.css`).
-*   **Tailwind** : Utilise Tailwind uniquement pour les utilitaires de layout simples (`flex`, `hidden`).
-*   **Variables** : Utilise les variables CSS globales pour les couleurs (définies dans `src/renderer/src/assets/base.css`) :
-    *   `var(--color-primary)`
-    *   `var(--glass-bg)`
-    *   `var(--text-primary)`
-*   **Interdiction** : Pas de styles inline (sauf pour des valeurs dynamiques comme les barres de progression `--progress`).
+// 2. Main - ipcHandlers.js
+ipcMain.handle('game:addBadge', (_, badgeId) => gameService.addBadge(badgeId))
 
-## 4. 🚀 Logique Métier
+// 3. Preload - index.js
+addBadge: (badgeId) => ipcRenderer.invoke('game:addBadge', badgeId)
 
-*   **Hooks** : La logique complexe (combat, timer) doit être extraite dans des custom hooks dans `src/renderer/src/hooks/`.
-*   **Utils** : Les fonctions pures (calcul de dégâts, formatage) vont dans `src/renderer/src/utils/`.
+// 4. Renderer - composant
+const badges = await window.gameAPI.addBadge('cascade')
+```
 
-## 5. ⚠️ Checklist avant de générer du code
+## 5. 🎨 Styles (CSS)
 
-1.  [ ] Ai-je vérifié si la feature existe déjà dans un module `features/` ?
-2.  [ ] Ai-je besoin de modifier `GameContext.jsx` pour stocker des données ?
-3.  [ ] Mes imports pointent-ils bien vers `../../features/...` ?
-4.  [ ] Ai-je utilisé les variables CSS globales au lieu de couleurs hex codées en dur ?
+- **CSS Modules** : Chaque composant a son `.css`
+- **Variables globales** : `var(--color-primary)`, `var(--glass-bg)`, etc.
+- **Tailwind** : Utilitaires simples uniquement (`flex`, `hidden`)
+- **Pas d'inline** : Sauf `style={{ '--progress': '50%' }}`
+
+## 6. 📦 Persistance (SQLite + Drizzle ORM)
+
+### Architecture Base de Données
+L'application utilise **SQLite** via **Drizzle ORM** pour la persistance.
+
+```
+src/main/
+├── db/
+│   ├── index.ts         # Initialisation SQLite + Drizzle
+│   └── schema.ts        # Schéma des tables
+└── services/
+    └── databaseService.ts  # Requêtes Drizzle
+```
+
+### Schéma des Tables
+```typescript
+// pokemon - Les Pokémon possédés
+{ uuid, speciesId, xp, level, dateCaught, isInTeam, teamPosition }
+
+// game_state - État global (une seule ligne)
+{ id: 1, activeId, candies, createdAt, updatedAt }
+
+// inventory - Items possédés
+{ id, itemId, quantity }
+```
+
+### Utilisation
+```typescript
+// Récupérer des données
+const pokemon = databaseService.getPokemon(uuid)
+const teamIds = databaseService.getTeamIds()
+
+// Modifier des données
+databaseService.updatePokemon(uuid, { xp: 100 })
+databaseService.addCandies(10)
+databaseService.addItem('pierre-foudre', 1)
+```
+
+### Fichier de Base de Données
+- Emplacement : `app.getPath('userData')/pokemon-game.db`
+- Format : SQLite 3 (WAL mode)
+
+### ❌ INTERDIT
+- Jamais de `localStorage` dans le Renderer
+- Jamais de requêtes SQL directes (utiliser le service)
+
+## 7. 🛡️ Sécurité
+
+L'application doit suivre les meilleures pratiques de sécurité Electron :
+
+### Configuration des Fenêtres (`webPreferences`)
+- **`sandbox: true`** : Isoler le processus renderer.
+- **`contextIsolation: true`** : Garantir l'isolation du contexte entre le preload et le renderer.
+- **`nodeIntegration: false`** : Ne jamais exposer les API Node directes au renderer.
+
+### Exposition d'API
+- Toujours utiliser `contextBridge.exposeInMainWorld` dans le fichier de preload.
+- Ne jamais exposer `ipcRenderer` directement.
+- Toujours filtrer et valider les arguments dans le Main process avant d'appeler les services.
+
