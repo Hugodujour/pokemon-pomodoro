@@ -31,6 +31,8 @@
   transition: transform 0.3s;
   image-rendering: pixelated;
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 .pokemon-image:hover {

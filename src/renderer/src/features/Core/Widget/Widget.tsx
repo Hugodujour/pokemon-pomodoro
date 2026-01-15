@@ -290,7 +290,7 @@ function Widget() {
               <div className="widget-middle-section">
                 {!isAdventureRunning && (
                   <div className="candy-display clickable" title="Bonbons disponibles" onClick={giveCandy}>
-                    <img src={candyIcon} alt="candy" />
+                    <img src={candyIcon} alt="candy" draggable="false" />
                     <span className="candy-count">{candies}</span>
                     <span className="candy-plus">+</span>
                   </div>

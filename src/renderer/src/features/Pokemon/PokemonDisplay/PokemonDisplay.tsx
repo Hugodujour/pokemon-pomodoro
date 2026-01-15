@@ -144,7 +144,12 @@ export default function PokemonDisplay({
         <span className="pokemon-display-lvl">Lvl {level}</span>
       </div>
 
-      <img src={pokemonSrc} alt={displaySpecies} className={imgClass} />
+      <img 
+        src={pokemonSrc} 
+        alt={displaySpecies} 
+        className={imgClass} 
+        draggable="false" 
+      />
 
       {/* BARRE D'XP / TIMER */}
       <div className="xp-bar-container">
