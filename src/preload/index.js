@@ -21,6 +21,9 @@ const gameAPI = {
   setActiveId: (id) => ipcRenderer.invoke('game:setActiveId', id),
   setTeamIds: (teamIds) => ipcRenderer.invoke('game:setTeamIds', teamIds),
   pickStarter: (speciesId) => ipcRenderer.invoke('game:pickStarter', speciesId),
+  reorderPokemon: (uuids) => ipcRenderer.invoke('game:reorderPokemon', uuids),
+  setAdventureActive: (active) => ipcRenderer.invoke('game:setAdventureActive', active),
+  setCombatActive: (active) => ipcRenderer.invoke('game:setCombatActive', active),
 
   // ============ POKEMON ============
   updatePokemon: (uuid, updates) => ipcRenderer.invoke('game:updatePokemon', uuid, updates),

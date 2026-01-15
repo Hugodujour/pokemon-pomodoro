@@ -48,6 +48,8 @@ export function checkEvolution(speciesId: string, xp: number): string | null {
 export class GameService {
   private db: DatabaseService
   private listeners: ((state: any) => void)[] = []
+  private adventureActive: boolean = false
+  private combatActive: boolean = false
 
   constructor(databaseService: DatabaseService) {
     this.db = databaseService
@@ -57,7 +59,30 @@ export class GameService {
    * Retourne l'état complet du jeu.
    */
   getState() {
-    return this.db.getFullState()
+    const state = this.db.getFullState()
+    return {
+      ...state,
+      isAdventureActive: this.adventureActive,
+      isCombatActive: this.combatActive
+    }
+  }
+
+  /**
+   * Définit l'état de l'aventure.
+   */
+  setAdventureActive(active: boolean) {
+    if (this.adventureActive === active) return
+    this.adventureActive = active
+    this.notifyListeners()
+  }
+
+  /**
+   * Définit l'état du combat.
+   */
+  setCombatActive(active: boolean) {
+    if (this.combatActive === active) return
+    this.combatActive = active
+    this.notifyListeners()
   }
 
   /**
@@ -140,6 +165,14 @@ export class GameService {
    */
   getActivePokemon() {
     return this.db.getActivePokemon()
+  }
+
+  /**
+   * Réorganise les Pokémon dans le PC.
+   */
+  reorderPokemon(uuids: string[]) {
+    this.db.reorderPokemon(uuids)
+    this.notifyListeners()
   }
 
   // =============== TEAM MANAGEMENT ===============

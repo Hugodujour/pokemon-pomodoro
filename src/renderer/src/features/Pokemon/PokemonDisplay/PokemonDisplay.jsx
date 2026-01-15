@@ -13,7 +13,7 @@ function getLevel(xp) {
   return { level, current: remainingXp, required: level * 1 }
 }
 
-export default function PokemonDisplay({ name, xp, isAdventureRunning, timerState }) {
+export default function PokemonDisplay({ name, xp, isAdventureRunning, timerState, isBusy }) {
   const [displaySpecies, setDisplaySpecies] = useState(name)
   const [animPhase, setAnimPhase] = useState('idle')
 
@@ -66,6 +66,7 @@ export default function PokemonDisplay({ name, xp, isAdventureRunning, timerStat
   let imgClass = 'pokemon-image'
   if (animPhase === 'out') imgClass += ' anim-evo-out'
   if (animPhase === 'in') imgClass += ' anim-evo-in'
+  if (isBusy) imgClass += ' busy'
 
   return (
     <div className="pokemon-display-container">
@@ -97,5 +98,6 @@ PokemonDisplay.propTypes = {
   timerState: PropTypes.shape({
     current: PropTypes.number,
     total: PropTypes.number
-  })
+  }),
+  isBusy: PropTypes.bool
 }

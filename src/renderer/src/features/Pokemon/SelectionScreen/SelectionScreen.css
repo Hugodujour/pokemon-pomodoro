@@ -51,10 +51,7 @@
   line-height: 2rem;
   font-weight: 800;
   letter-spacing: -0.025em;
-  background: linear-gradient(to right, var(--color-primary), var(--text-primary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
   pointer-events: none;
 }
 
@@ -91,7 +88,7 @@
   padding: 0.625rem 1rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary);
+  color: var(--text-primary);
   cursor: pointer;
 }
 
@@ -102,4 +99,46 @@
   color: var(--text-primary);
 }
 
+/* Drag & Drop Feedback */
+.team-slot, .storage-item {
+  cursor: grab;
+}
 
+.team-slot:active, .storage-item:active {
+  cursor: grabbing;
+}
+
+[draggable="true"]:active {
+  opacity: 0.5;
+}
+
+.drop-zone:hover {
+  border-color: var(--color-primary-light);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+/* Game State Visuals */
+.is-busy .selection-title {
+  color: var(--color-danger);
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+/* Make everything look 'disabled' but clickable for viewing */
+.is-busy .team-slot:not(.active),
+.is-busy .storage-item,
+.is-busy .btn-toggle-storage {
+  opacity: 0.6;
+  filter: grayscale(0.7);
+  cursor: default;
+}
+
+.is-busy .team-slot.active {
+  border-color: var(--color-danger);
+  animation: pulse-busy-border 2s infinite;
+}
+
+@keyframes pulse-busy-border {
+  0% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.3); }
+  50% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+  100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.3); }
+}

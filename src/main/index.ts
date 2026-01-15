@@ -65,9 +65,6 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
-
-  // Setup IPC handlers after window is created
-  setupIpcHandlers(gameService, combatService, mainWindow)
 }
 
 function createSelectionWindow(): void {
@@ -143,6 +140,9 @@ app.whenReady().then(() => {
 
   // Initialize services BEFORE creating windows
   initializeServices()
+  
+  // Setup IPC handlers BEFORE creating windows to avoid race conditions
+  setupIpcHandlers(gameService, combatService, null)
   
   createWindow()
 

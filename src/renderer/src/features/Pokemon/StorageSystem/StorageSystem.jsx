@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import './StorageSystem.css'
 
-export default function StorageSystem({ storedPokemon, onWithdraw, visible }) {
+export default function StorageSystem({ storedPokemon, onWithdraw, visible, onDragStart, onDragEnd, onDragOver, onDrop }) {
   if (!visible) return null
 
   const pokemonImages = import.meta.glob('../../../assets/pokemon/*.{gif,png,jpg,jpeg}', {
@@ -20,9 +20,17 @@ export default function StorageSystem({ storedPokemon, onWithdraw, visible }) {
         <div
           key={pokemon.uuid}
           onClick={() => onWithdraw(pokemon.uuid)}
+          onDragStart={(e) => onDragStart(e, pokemon.uuid)}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+          onDrop={(e) => {
+            e.stopPropagation();
+            onDrop(pokemon.uuid);
+          }}
+          draggable
           className="storage-item"
         >
-          <img src={getPokemonImage(pokemon.speciesId)} alt={pokemon.label} className="storage-sprite" />
+          <img src={getPokemonImage(pokemon.speciesId)} alt={pokemon.label} className="storage-sprite" draggable="false" />
           <div className="storage-item-label">{pokemon.label}</div>
           <div className="storage-item-level">Lvl {pokemon.level}</div>
         </div>

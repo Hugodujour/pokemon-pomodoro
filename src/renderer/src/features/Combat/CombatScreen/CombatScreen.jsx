@@ -17,8 +17,11 @@ export default function CombatScreen({
   result,
   captured
 }) {
-  const logEndRef = useRef(null)
   
+  // Victory sequence state
+  // phases: 'fighting' -> 'throw_ball' -> 'shake_ball' -> 'caught' | 'broke_out' -> 'finished'
+  const [victoryPhase, setVictoryPhase] = useState('fighting')
+
   // Animation states
   const [animPlayer, setAnimPlayer] = useState(false)
   const [animOpponent, setAnimOpponent] = useState(false)
@@ -55,9 +58,22 @@ export default function CombatScreen({
     setPrevLogLength(log.length)
   }, [log, prevLogLength])
 
+  const logViewportRef = useRef(null)
+
   useEffect(() => {
-    logEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [log])
+    const scrollToBottom = () => {
+      if (logViewportRef.current) {
+        logViewportRef.current.scrollTop = logViewportRef.current.scrollHeight
+      }
+    }
+    
+    // Immediate scroll
+    scrollToBottom()
+    
+    // Small delay to account for potential layout shifts or status messages rendering
+    const timer = setTimeout(scrollToBottom, 50)
+    return () => clearTimeout(timer)
+  }, [log, victoryPhase])
 
   // Auto-combat effect
   useEffect(() => {
@@ -68,10 +84,6 @@ export default function CombatScreen({
       return () => clearInterval(timer)
     }
   }, [isFinished, onAttack])
-
-  // Victory sequence state
-  // phases: 'fighting' -> 'throw_ball' -> 'shake_ball' -> 'caught' | 'broke_out' -> 'finished'
-  const [victoryPhase, setVictoryPhase] = useState('fighting')
 
   useEffect(() => {
     if (isFinished) {
@@ -157,52 +169,80 @@ export default function CombatScreen({
   }
 
   return (
-    <div className="combat-slot-container">
-      {/* POKEBALL ANIMATION LAYER */}
-      <img src={pokeballIcon} alt="pokeball" className={getPokeballClass()} />
+    <div className="combat-screen-layout">
+      {/* TOP: POKEMON DISPLAY */}
+      <div className="combat-pokemon-top">
+        {/* POKEBALL ANIMATION LAYER */}
+        <img src={pokeballIcon} alt="pokeball" className={getPokeballClass()} />
 
-      {/* PLAYER (Left) */}
-      <div className="combat-fighter player">
-         <div className={`combat-sprite-container ${animPlayer ? 'anim-attack-player' : ''}`}>
-            <img src={getPokemonImage(playerPokemon.speciesId)} alt={playerPokemon.label} className="combat-sprite" />
-         </div>
-         <div className="combat-info">
-            <div className="combat-name">{playerPokemon.label} <span className="combat-lvl">Lvl {playerPokemon.level}</span></div>
-            <div className="combat-hp-bar">
-              <div className="combat-hp-fill" style={{ '--progress': `${Math.max(0, playerHpPercent)}%` }} />
-            </div>
-            <div className="combat-hp-text">{playerHp}/{maxPlayerHp}</div>
-         </div>
-      </div>
-
-      <div className="combat-vs">VS</div>
-
-      {/* OPPONENT (Right) */}
-      <div className="combat-fighter opponent">
-         <div className={getOpponentClass()}>
-            <img src={getPokemonImage(opponentPokemon.speciesId)} alt={opponentPokemon.label} className="combat-sprite" />
-         </div>
-         <div className="combat-info">
-            <div className="combat-name">{opponentPokemon.label} <span className="combat-lvl">Lvl {opponentPokemon.level}</span></div>
-            <div className="combat-hp-bar">
-              <div className="combat-hp-fill opponent-hp" style={{ '--progress': `${Math.max(0, opponentHpPercent)}%` }} />
-            </div>
-         </div>
-      </div>
-
-      {/* RESULT / CONTROLS */}
-      {victoryPhase === 'finished' && (
-        <div className="combat-footer">
-           {result === 'win' && (
-             <div className="capture-msg">
-                {captured ? 'Pokémon capturé !' : 'Il s\'est échappé...'}
-             </div>
-           )}
-           <button className="btn-return" onClick={onClose}>
-             {result === 'win' ? 'Retour' : 'Continuer'}
-           </button>
+        {/* PLAYER (Left) */}
+        <div className="combat-fighter player">
+           <div className={`combat-sprite-container ${animPlayer ? 'anim-attack-player' : ''}`}>
+              <img src={getPokemonImage(playerPokemon.speciesId)} alt={playerPokemon.label} className="combat-sprite" />
+           </div>
+           <div className="combat-info">
+              <div className="combat-name">{playerPokemon.label} <span className="combat-lvl">Lvl {playerPokemon.level}</span></div>
+              <div className="combat-hp-bar">
+                <div className="combat-hp-fill" style={{ '--progress': `${Math.max(0, playerHpPercent)}%` }} />
+              </div>
+              <div className="combat-hp-text">{playerHp}/{maxPlayerHp}</div>
+           </div>
         </div>
-      )}
+
+        <div className="combat-vs">VS</div>
+
+        {/* OPPONENT (Right) */}
+        <div className="combat-fighter opponent">
+           <div className={getOpponentClass()}>
+              <img src={getPokemonImage(opponentPokemon.speciesId)} alt={opponentPokemon.label} className="combat-sprite" />
+           </div>
+           <div className="combat-info">
+              <div className="combat-name">{opponentPokemon.label} <span className="combat-lvl">Lvl {opponentPokemon.level}</span></div>
+              <div className="combat-hp-bar">
+                <div className="combat-hp-fill opponent-hp" style={{ '--progress': `${Math.max(0, opponentHpPercent)}%` }} />
+              </div>
+           </div>
+        </div>
+      </div>
+
+      {/* MIDDLE: ACTION / RETURN BUTTON */}
+      <div className="combat-action-middle">
+        {victoryPhase === 'finished' && (
+          <div className="finished-container">
+            <button 
+              className={`btn-icon result-btn ${result === 'win' ? 'btn-primary' : 'btn-danger'}`} 
+              onClick={onClose}
+              title="Retour à l'accueil"
+            >
+              ↩
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* BOTTOM: LOGS */}
+      <div className="combat-logs-bottom">
+         <div className="logs-section">
+            <h4 className="logs-title">Détails du combat</h4>
+            <div className="logs-viewport" ref={logViewportRef}>
+               {log.map((line, i) => (
+                 <div key={i} className="log-line">{line}</div>
+               ))}
+               {victoryPhase === 'finished' && result === 'win' && (
+                <div className="log-line">
+                   {captured ? (
+                     <strong>{opponentPokemon.label} capturé !</strong>
+                   ) : (
+                     <strong>Le {opponentPokemon.label} sauvage s'est échappé...</strong>
+                   )}
+                 </div>
+               )}
+               {victoryPhase === 'finished' && result === 'flee' && (
+                 <div className="log-line">Vous avez pris la fuite.</div>
+               )}
+            </div>
+         </div>
+      </div>
     </div>
   )
 }

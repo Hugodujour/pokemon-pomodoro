@@ -44,12 +44,12 @@ export function GameProvider({ children }) {
     // Listen for state changes from Main process
     if (window.gameAPI?.onStateChange) {
       const unsubscribe = window.gameAPI.onStateChange((newState) => {
-        console.log('[GameContext] État mis à jour depuis Main:', newState);
+        console.log('[GameContext] REÇU DE MAIN:', newState.isAdventureActive ? 'AVENTURE ON' : 'AVENTURE OFF', newState.isCombatActive ? 'COMBAT ON' : 'COMBAT OFF');
         setState(newState);
       });
       return unsubscribe;
     }
-  }, [state]);
+  }, []);
 
 
   // --- SYNC WITH SELECTION WINDOW ---
@@ -91,6 +91,11 @@ export function GameProvider({ children }) {
 
   const setTeamIds = useCallback(async (teamIds) => {
     await window.gameAPI.setTeamIds(teamIds);
+    await refreshState();
+  }, [refreshState]);
+
+  const reorderPokemon = useCallback(async (uuids) => {
+    await window.gameAPI.reorderPokemon(uuids);
     await refreshState();
   }, [refreshState]);
 
@@ -193,6 +198,8 @@ export function GameProvider({ children }) {
     activeId: state.activeId,
     candies: state.candies,
     inventory: state.inventory,
+    isAdventureActive: state.isAdventureActive,
+    isCombatActive: state.isCombatActive,
 
     // Static data
     pokedex,
@@ -209,6 +216,7 @@ export function GameProvider({ children }) {
     updatePokemon,
     refreshState,
     pickStarter,
+    reorderPokemon,
 
     // Helpers
     getActiveInstance

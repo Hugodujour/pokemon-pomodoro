@@ -9,10 +9,18 @@ export class DatabaseService {
   // ============ POKEMON ============
   
   /**
-   * Récupère tous les Pokémon.
+   * Récupère tous les Pokémon, triés par équipe puis par position PC.
    */
   getAllPokemon(): Pokemon[] {
-    return getDb().select().from(schema.pokemon).all()
+    return getDb()
+      .select()
+      .from(schema.pokemon)
+      .orderBy(
+        desc(schema.pokemon.isInTeam), 
+        asc(schema.pokemon.teamPosition), 
+        asc(schema.pokemon.pcPosition)
+      )
+      .all()
   }
 
   /**
@@ -46,6 +54,7 @@ export class DatabaseService {
       .select()
       .from(schema.pokemon)
       .where(eq(schema.pokemon.isInTeam, false))
+      .orderBy(asc(schema.pokemon.pcPosition))
       .all()
   }
 
@@ -53,7 +62,17 @@ export class DatabaseService {
    * Ajoute un nouveau Pokémon.
    */
   addPokemon(data: NewPokemon): Pokemon {
-    getDb().insert(schema.pokemon).values(data).run()
+    // Determine next pcPosition
+    const lastPc = getDb()
+      .select({ pos: schema.pokemon.pcPosition })
+      .from(schema.pokemon)
+      .where(eq(schema.pokemon.isInTeam, false))
+      .orderBy(desc(schema.pokemon.pcPosition))
+      .limit(1)
+      .get()
+    
+    const nextPos = (lastPc?.pos ?? -1) + 1
+    getDb().insert(schema.pokemon).values({ ...data, pcPosition: nextPos }).run()
     return this.getPokemon(data.uuid)!
   }
 
@@ -77,6 +96,23 @@ export class DatabaseService {
       .delete(schema.pokemon)
       .where(eq(schema.pokemon.uuid, uuid))
       .run()
+  }
+
+  // ... (updatePokemon etc)
+
+  // ============ REORDERING ============
+
+  /**
+   * Met à jour l'ordre des Pokémon dans le PC.
+   */
+  reorderPokemon(uuids: string[]): void {
+    const db = getDb()
+    uuids.forEach((uuid, index) => {
+      db.update(schema.pokemon)
+        .set({ pcPosition: index })
+        .where(eq(schema.pokemon.uuid, uuid))
+        .run()
+    })
   }
 
   // ============ TEAM MANAGEMENT ============

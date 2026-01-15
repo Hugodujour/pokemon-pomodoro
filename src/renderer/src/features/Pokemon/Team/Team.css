@@ -38,6 +38,18 @@
   box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2);
 }
 
+.team-slot.active.busy {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 10px var(--color-danger);
+  animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.3); }
+  50% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+  100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.3); }
+}
+
 .team-slot:hover {
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.1);
@@ -62,6 +74,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
+  color: var(--text-primary);
 }
 
 .team-level {
@@ -90,4 +103,11 @@
 
 .team-slot:hover .btn-remove-team {
   opacity: 1;
+}
+
+.team-empty {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  opacity: 0.5;
 }

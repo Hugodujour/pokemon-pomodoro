@@ -8,7 +8,8 @@ export const pokemon = sqliteTable('pokemon', {
   level: integer('level').notNull().default(1),
   dateCaught: text('date_caught').notNull(),
   isInTeam: integer('is_in_team', { mode: 'boolean' }).notNull().default(false),
-  teamPosition: integer('team_position') // 0, 1, 2 for team slots, null if in PC
+  teamPosition: integer('team_position'), // 0, 1, 2 for team slots, null if in PC
+  pcPosition: integer('pc_position') // Sort order for the PC
 })
 
 // ============ GAME STATE TABLE ============

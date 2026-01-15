@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import './Team.css'
 
-export default function Team({ team, activeId, onSelect, onRemove }) {
+export default function Team({ team, activeId, onSelect, onRemove, onDragStart, onDragEnd, onDragOver, onDrop, isBusy }) {
   // Ensure we always have 3 slots for display
   const slots = [...team]
   while (slots.length < 3) {
@@ -30,11 +30,16 @@ export default function Team({ team, activeId, onSelect, onRemove }) {
           <div
             key={pokemon ? pokemon.uuid : `empty-${index}`}
             onClick={() => pokemon && onSelect(pokemon.uuid)}
-            className={`team-slot ${isFilled ? 'filled' : ''} ${isActive ? 'active' : ''}`}
+            onDragStart={(e) => pokemon && onDragStart(e, pokemon.uuid)}
+            onDragEnd={onDragEnd}
+            onDragOver={onDragOver}
+            onDrop={() => onDrop(pokemon ? pokemon.uuid : null, index)}
+            draggable={isFilled}
+            className={`team-slot ${isFilled ? 'filled' : ''} ${isActive ? 'active' : ''} ${isActive && isBusy ? 'busy' : ''}`}
           >
             {pokemon ? (
               <>
-                <img src={imgSrc} alt={pokemon.label} className="team-sprite" />
+                <img src={imgSrc} alt={pokemon.label} className="team-sprite" draggable="false" />
                 <div className="team-label">{pokemon.label}</div>
                 <div className="team-level">Lvl {pokemon.level}</div>
                 

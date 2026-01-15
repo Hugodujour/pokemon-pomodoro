@@ -11,6 +11,7 @@ export function setupIpcHandlers(
   combatService: CombatService, 
   mainWindow: BrowserWindow | null
 ) {
+  console.log('[IPC] Initialisation des handlers...');
   
   // =============== GAME STATE ===============
   
@@ -32,6 +33,18 @@ export function setupIpcHandlers(
 
   ipcMain.handle('game:pickStarter', (_, speciesId: string) => {
     return gameService.pickStarter(speciesId)
+  })
+
+  ipcMain.handle('game:reorderPokemon', (_, uuids: string[]) => {
+    return gameService.reorderPokemon(uuids)
+  })
+
+  ipcMain.handle('game:setAdventureActive', (_, active: boolean) => {
+    return gameService.setAdventureActive(active)
+  })
+
+  ipcMain.handle('game:setCombatActive', (_, active: boolean) => {
+    return gameService.setCombatActive(active)
   })
 
   // =============== POKEMON ===============
@@ -137,8 +150,10 @@ export function setupIpcHandlers(
 
   // Listener pour notifier le renderer des changements d'état
   gameService.addListener((newState) => {
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('game:stateChanged', newState)
-    }
+    BrowserWindow.getAllWindows().forEach((win) => {
+      if (!win.isDestroyed()) {
+        win.webContents.send('game:stateChanged', newState)
+      }
+    })
   })
 }

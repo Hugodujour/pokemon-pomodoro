@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import Timer from '../Timer/Timer';
 import PokemonDisplay from '../../Pokemon/PokemonDisplay/PokemonDisplay';
 import CombatScreen from '../../Combat/CombatScreen/CombatScreen';
@@ -90,13 +90,33 @@ function Widget() {
   };
 
   const handleCloseCombat = useCallback(async () => {
+    // Reset combat state via hook (IPC + local state)
     await closeCombat();
-    if (isAdventureRunning) {
-      timerRef.current.reset();
-      setIsAdventureRunning(false);
-    }
+    
+    // Ensure adventure is stopped and busy state is cleared
+    setIsAdventureRunning(false);
     setBusyPokemonId(null);
-  }, [closeCombat, isAdventureRunning]);
+    if (window.gameAPI?.setAdventureActive) {
+      window.gameAPI.setAdventureActive(false);
+    }
+    
+    if (timerRef.current) {
+      timerRef.current.reset();
+    }
+  }, [closeCombat]);
+
+  // --- SYNC STATUS TO MAIN ---
+  useEffect(() => {
+    if (window.gameAPI?.setCombatActive) {
+      window.gameAPI.setCombatActive(combatState.active);
+    }
+  }, [combatState.active]);
+
+  useEffect(() => {
+    if (window.gameAPI?.setAdventureActive) {
+      window.gameAPI.setAdventureActive(isAdventureRunning);
+    }
+  }, [isAdventureRunning]);
 
   const activeInstance = getActiveInstance();
   const activeSpeciesData = activeInstance ? pokedex.find(p => p.id === activeInstance.speciesId) : null;
@@ -153,64 +173,67 @@ function Widget() {
         </div>
       )}
 
-      <div className="active-pokemon-section">
-        {combatState.active && combatState.opponent && activeInstance && (
-          <CombatScreen
-            playerPokemon={{ 
-              label: activeSpeciesData?.label || activeInstance.speciesId, 
-              level: activeInstance.level, 
-              speciesId: activeInstance.speciesId 
-            }}
-            opponentPokemon={combatState.opponent}
-            log={combatState.log}
-            playerHp={combatState.playerHp}
-            maxPlayerHp={combatState.maxPlayerHp}
-            opponentHp={combatState.opponent.hp}
-            maxOpponentHp={combatState.opponent.maxHp}
-            onAttack={handleAttack}
-            onFlee={handleFlee}
-            isFinished={combatState.isFinished}
-            onClose={handleCloseCombat}
-            result={combatState.result}
-            captured={combatState.captured}
-          />
-        )}
-
-        {activeInstance && (
-          <div 
-            className={`pokemon-trigger ${combatState.active ? 'hidden' : 'block'}`}
-            onClick={!combatState.active ? handlePokemonClick : undefined} 
-            title="Cliquez pour changer de Pokémon"
-          >
-            <PokemonDisplay
-              name={activeInstance.speciesId.toUpperCase()}
-              xp={activeInstance.xp}
-              isAdventureRunning={isAdventureRunning}
-              timerState={timerState}
-            />
+      {combatState.active && combatState.opponent && activeInstance ? (
+        <CombatScreen
+          playerPokemon={{ 
+            label: activeSpeciesData?.label || activeInstance.speciesId, 
+            level: activeInstance.level, 
+            speciesId: activeInstance.speciesId 
+          }}
+          opponentPokemon={combatState.opponent}
+          log={combatState.log}
+          playerHp={combatState.playerHp}
+          maxPlayerHp={combatState.maxPlayerHp}
+          opponentHp={combatState.opponent.hp}
+          maxOpponentHp={combatState.opponent.maxHp}
+          onAttack={handleAttack}
+          onFlee={handleFlee}
+          isFinished={combatState.isFinished}
+          onClose={handleCloseCombat}
+          result={combatState.result}
+          captured={combatState.captured}
+        />
+      ) : (
+        <>
+          <div className="active-pokemon-section">
+            {activeInstance && (
+              <div 
+                className="pokemon-trigger"
+                onClick={handlePokemonClick} 
+                title="Cliquez pour changer de Pokémon"
+              >
+                <PokemonDisplay
+                  name={activeInstance.speciesId.toUpperCase()}
+                  xp={activeInstance.xp}
+                  isAdventureRunning={isAdventureRunning}
+                  timerState={timerState}
+                  isBusy={isAdventureRunning || combatState.active}
+                />
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      <div className="widget-middle-section">
-        {!isAdventureRunning && (
-          <div className="candy-display clickable" title="Bonbons disponibles" onClick={giveCandy}>
-            <img src={candyIcon} alt="candy" />
-            <span className="candy-count">{candies}</span>
-            <span className="candy-plus">+</span>
+          <div className="widget-middle-section">
+            {!isAdventureRunning && (
+              <div className="candy-display clickable" title="Bonbons disponibles" onClick={giveCandy}>
+                <img src={candyIcon} alt="candy" />
+                <span className="candy-count">{candies}</span>
+                <span className="candy-plus">+</span>
+              </div>
+            )}
+            <div className="hidden">
+              <Timer
+                ref={timerRef}
+                initialDuration={ADVENTURE_DURATION}
+                onFinish={handlePomodoroFinish}
+                onTick={handleTick}
+                onStart={handleTimerStart}
+                onUpdate={handleTimerUpdate}
+              />
+            </div>
           </div>
-        )}
-        <div className="hidden">
-          <Timer
-            ref={timerRef}
-            initialDuration={ADVENTURE_DURATION}
-            onFinish={handlePomodoroFinish}
-            onTick={handleTick}
-            onStart={handleTimerStart}
-            onUpdate={handleTimerUpdate}
-          />
-        </div>
-      </div>
+        </>
+      )}
 
       {!combatState.active && (
         <div className="adventure-controls">
