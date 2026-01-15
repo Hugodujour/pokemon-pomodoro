@@ -1,6 +1,27 @@
-import { useEffect, useRef, useState } from 'react'
-import PropTypes from 'prop-types'
-import './CombatScreen.css'
+import React, { useEffect, useRef, useState } from 'react';
+import './CombatScreen.css';
+
+interface CombatPokemon {
+  label: string;
+  level: number;
+  speciesId: string;
+}
+
+interface CombatScreenProps {
+  playerPokemon: CombatPokemon;
+  opponentPokemon: CombatPokemon & { hp: number; maxHp: number };
+  log: string[];
+  onAttack: () => void;
+  onFlee: () => void;
+  playerHp: number;
+  maxPlayerHp: number;
+  opponentHp: number;
+  maxOpponentHp: number;
+  isFinished: boolean;
+  onClose: () => void;
+  result: 'win' | 'lose' | 'flee' | string | null;
+  captured?: boolean;
+}
 
 export default function CombatScreen({ 
   playerPokemon, 
@@ -16,156 +37,150 @@ export default function CombatScreen({
   onClose,
   result,
   captured
-}) {
+}: CombatScreenProps): JSX.Element {
   
   // Victory sequence state
   // phases: 'fighting' -> 'throw_ball' -> 'shake_ball' -> 'caught' | 'broke_out' -> 'finished'
-  const [victoryPhase, setVictoryPhase] = useState('fighting')
+  const [victoryPhase, setVictoryPhase] = useState<'fighting' | 'throw_ball' | 'shake_ball' | 'caught' | 'broke_out' | 'finished'>('fighting');
 
   // Animation states
-  const [animPlayer, setAnimPlayer] = useState(false)
-  const [animOpponent, setAnimOpponent] = useState(false)
-  const [prevLogLength, setPrevLogLength] = useState(0)
+  const [animPlayer, setAnimPlayer] = useState(false);
+  const [animOpponent, setAnimOpponent] = useState(false);
+  const [prevLogLength, setPrevLogLength] = useState(0);
 
   useEffect(() => {
     if (log.length > prevLogLength) {
-      const newLines = log.slice(prevLogLength)
+      const newLines = log.slice(prevLogLength);
       
       // Check for keywords in French log messages
-      // Player: "XXX attaque ! ... inflige Y dégâts" -> Does NOT start with "L'ennemi"
-      // Opponent: "L'ennemi XXX attaque ! ... inflige Y dégâts"
-      
-      // Scan new lines for attack messages. Use findLast to get the latest action if multiple occurred.
-      // (Though typically only one attack happens per update)
-      const attackLog = newLines.slice().reverse().find(line => line.includes('inflige'))
+      const attackLog = newLines.slice().reverse().find(line => line.includes('inflige'));
       
       if (attackLog) {
-        // If it starts with "L'ennemi", it's opponent. Otherwise it's player.
-        // Or strictly: Player message format is "${playerFighter.label} attaque ! ..."
-        const isOpponent = attackLog.startsWith("L'ennemi")
+        const isOpponent = attackLog.startsWith("L'ennemi");
         
         if (isOpponent) {
              // Opponent attack
-             setAnimOpponent(true)
-             setTimeout(() => setAnimOpponent(false), 200)
+             setAnimOpponent(true);
+             setTimeout(() => setAnimOpponent(false), 200);
         } else {
              // Player attack
-             setAnimPlayer(true)
-             setTimeout(() => setAnimPlayer(false), 200)
+             setAnimPlayer(true);
+             setTimeout(() => setAnimPlayer(false), 200);
         }
       }
     }
-    setPrevLogLength(log.length)
-  }, [log, prevLogLength])
+    setPrevLogLength(log.length);
+  }, [log, prevLogLength]);
 
-  const logViewportRef = useRef(null)
+  const logViewportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const scrollToBottom = () => {
       if (logViewportRef.current) {
-        logViewportRef.current.scrollTop = logViewportRef.current.scrollHeight
+        logViewportRef.current.scrollTop = logViewportRef.current.scrollHeight;
       }
-    }
+    };
     
     // Immediate scroll
-    scrollToBottom()
+    scrollToBottom();
     
     // Small delay to account for potential layout shifts or status messages rendering
-    const timer = setTimeout(scrollToBottom, 50)
-    return () => clearTimeout(timer)
-  }, [log, victoryPhase])
+    const timer = setTimeout(scrollToBottom, 50);
+    return () => clearTimeout(timer);
+  }, [log, victoryPhase]);
 
   // Auto-combat effect
   useEffect(() => {
     if (!isFinished) {
       const timer = setInterval(() => {
-        onAttack()
-      }, 700)
-      return () => clearInterval(timer)
+        onAttack();
+      }, 700);
+      return () => clearInterval(timer);
     }
-  }, [isFinished, onAttack])
+    return undefined;
+  }, [isFinished, onAttack]);
 
   useEffect(() => {
     if (isFinished) {
       if (result === 'win') {
         // Capture Sequence
         const t1 = setTimeout(() => {
-          setVictoryPhase('throw_ball')
+          setVictoryPhase('throw_ball');
           
           const t2 = setTimeout(() => {
              // Ball hits -> Pokemon absorbed
-             setVictoryPhase('shake_ball')
+             setVictoryPhase('shake_ball');
 
              const t3 = setTimeout(() => {
-               // Shaking done -> Check result
-               if (captured) {
-                 setVictoryPhase('caught')
-                 setTimeout(() => setVictoryPhase('finished'), 800)
-               } else {
-                 setVictoryPhase('broke_out')
-                 setTimeout(() => setVictoryPhase('finished'), 1000) // Flee time
-               }
-             }, 2200) // 3 shakes * ~0.7s
-             return () => clearTimeout(t3)
+                // Shaking done -> Check result
+                if (captured) {
+                  setVictoryPhase('caught');
+                  setTimeout(() => setVictoryPhase('finished'), 800);
+                } else {
+                  setVictoryPhase('broke_out');
+                  setTimeout(() => setVictoryPhase('finished'), 1000); // Flee time
+                }
+             }, 2200); // 3 shakes * ~0.7s
+             return () => clearTimeout(t3);
 
-          }, 600) // Throw duration
-          return () => clearTimeout(t2)
-        }, 500) // HP bar wait
-        return () => clearTimeout(t1)
+          }, 600); // Throw duration
+          return () => clearTimeout(t2);
+        }, 500); // HP bar wait
+        return () => clearTimeout(t1);
       } else {
         // Flee or loss
-        setVictoryPhase('finished')
+        setVictoryPhase('finished');
       }
     } else {
-      setVictoryPhase('fighting')
+      setVictoryPhase('fighting');
     }
-  }, [isFinished, result, captured])
+    return undefined;
+  }, [isFinished, result, captured]);
 
   // Helper to get image URL
   const pokemonImages = import.meta.glob('../../../assets/pokemon/*.{gif,png,jpg,jpeg}', {
     eager: true
-  })
-  const pokeballIcon = import.meta.glob('../../../assets/icon/pokeball.png', { eager: true })['../../../assets/icon/pokeball.png'].default
+  });
+  const pokeballIcon = (import.meta.glob('../../../assets/icon/pokeball.png', { eager: true })['../../../assets/icon/pokeball.png'] as any).default;
 
-  const getPokemonImage = (speciesId) => {
-    return Object.entries(pokemonImages).find(([path]) =>
+  const getPokemonImage = (speciesId: string): string | undefined => {
+    return (Object.entries(pokemonImages).find(([path]) =>
       path.toLowerCase().includes(speciesId.toLowerCase())
-    )?.[1]?.default
+    )?.[1] as any)?.default;
   }
 
-  const playerHpPercent = (playerHp / maxPlayerHp) * 100
-  const opponentHpPercent = (opponentHp / maxOpponentHp) * 100
+  const playerHpPercent = (playerHp / maxPlayerHp) * 100;
+  const opponentHpPercent = (opponentHp / maxOpponentHp) * 100;
 
   // Animation Classes
   const getOpponentClass = () => {
-    let classes = 'combat-sprite-container '
-    if (animOpponent) classes += 'anim-attack-opponent '
+    let classes = 'combat-sprite-container ';
+    if (animOpponent) classes += 'anim-attack-opponent ';
     
     // Capture animations
     if (victoryPhase === 'throw_ball') {
        // Ball incoming.. nothing yet
     } else if (['shake_ball', 'caught'].includes(victoryPhase)) {
-       classes += 'anim-absorb ' // Shrink to 0
+       classes += 'anim-absorb '; // Shrink to 0
     } else if (victoryPhase === 'broke_out') {
-       classes += 'anim-breakout ' // Grow back
+       classes += 'anim-breakout '; // Grow back
     } else if (victoryPhase === 'finished' && result === 'win' && !captured) {
-       classes += 'anim-flee ' // Fade away
+       classes += 'anim-flee '; // Fade away
     } else if (victoryPhase === 'finished' && result === 'win' && captured) {
-       classes += 'anim-absorb ' // Stay hidden
+       classes += 'anim-absorb '; // Stay hidden
     }
     
-    return classes
+    return classes;
   }
 
   const getPokeballClass = () => {
-    let classes = 'pokeball-icon '
-    if (victoryPhase === 'throw_ball') classes += 'anim-throw '
-    else if (victoryPhase === 'shake_ball') classes += 'anim-shake '
-    else if (victoryPhase === 'caught') classes += 'anim-caught '
-    else if (victoryPhase === 'broke_out') classes += 'anim-breakout ' // Wait, ball should fade? No, ball breaks?
-    // Easy fix for breakout: just hide ball or make it disappear
-    else if (victoryPhase === 'finished' && captured) classes += 'anim-caught ' // Stay visible
-    return classes
+    let classes = 'pokeball-icon ';
+    if (victoryPhase === 'throw_ball') classes += 'anim-throw ';
+    else if (victoryPhase === 'shake_ball') classes += 'anim-shake ';
+    else if (victoryPhase === 'caught') classes += 'anim-caught ';
+    else if (victoryPhase === 'broke_out') classes += 'anim-breakout ';
+    else if (victoryPhase === 'finished' && captured) classes += 'anim-caught '; // Stay visible
+    return classes;
   }
 
   return (
@@ -183,7 +198,7 @@ export default function CombatScreen({
            <div className="combat-info">
               <div className="combat-name">{playerPokemon.label} <span className="combat-lvl">Lvl {playerPokemon.level}</span></div>
               <div className="combat-hp-bar">
-                <div className="combat-hp-fill" style={{ '--progress': `${Math.max(0, playerHpPercent)}%` }} />
+                <div className="combat-hp-fill" style={{ '--progress': `${Math.max(0, playerHpPercent)}%` } as React.CSSProperties} />
               </div>
               <div className="combat-hp-text">{playerHp}/{maxPlayerHp}</div>
            </div>
@@ -199,7 +214,7 @@ export default function CombatScreen({
            <div className="combat-info">
               <div className="combat-name">{opponentPokemon.label} <span className="combat-lvl">Lvl {opponentPokemon.level}</span></div>
               <div className="combat-hp-bar">
-                <div className="combat-hp-fill opponent-hp" style={{ '--progress': `${Math.max(0, opponentHpPercent)}%` }} />
+                <div className="combat-hp-fill opponent-hp" style={{ '--progress': `${Math.max(0, opponentHpPercent)}%` } as React.CSSProperties} />
               </div>
            </div>
         </div>
@@ -240,33 +255,12 @@ export default function CombatScreen({
                {victoryPhase === 'finished' && result === 'flee' && (
                  <div className="log-line">Vous avez pris la fuite.</div>
                )}
+               {victoryPhase === 'finished' && result === 'lose' && (
+                 <div className="log-line">Votre Pokémon est K.O...</div>
+               )}
             </div>
          </div>
       </div>
     </div>
-  )
-}
-
-CombatScreen.propTypes = {
-  playerPokemon: PropTypes.shape({
-    label: PropTypes.string,
-    level: PropTypes.number,
-    speciesId: PropTypes.string
-  }).isRequired,
-  opponentPokemon: PropTypes.shape({
-    label: PropTypes.string,
-    level: PropTypes.number,
-    speciesId: PropTypes.string
-  }).isRequired,
-  log: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onAttack: PropTypes.func.isRequired,
-  onFlee: PropTypes.func.isRequired,
-  playerHp: PropTypes.number.isRequired,
-  maxPlayerHp: PropTypes.number.isRequired,
-  opponentHp: PropTypes.number.isRequired,
-  maxOpponentHp: PropTypes.number.isRequired,
-  isFinished: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  result: PropTypes.string,
-  captured: PropTypes.bool
+  );
 }

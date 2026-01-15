@@ -12,9 +12,10 @@
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+
 .team-slot {
-  width: 7rem;
-  height: 9.5rem;
+  width: 7.5rem;
+  height: 10rem;
   border-radius: 1rem;
   display: flex;
   flex-direction: column;

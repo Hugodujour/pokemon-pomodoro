@@ -1,5 +1,5 @@
 import { ipcMain, BrowserWindow } from 'electron'
-import { pokedex, zones } from './data/gameData.js'
+import { pokedex, zones } from './data/gameData'
 import { GameService } from './services/gameService'
 import { CombatService } from './services/combatService'
 

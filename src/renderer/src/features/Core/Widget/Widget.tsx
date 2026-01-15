@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import Timer from '../Timer/Timer';
+import Timer, { TimerHandle } from '../Timer/Timer';
 import PokemonDisplay from '../../Pokemon/PokemonDisplay/PokemonDisplay';
 import CombatScreen from '../../Combat/CombatScreen/CombatScreen';
 import { useCombat } from '../../../hooks/useCombat';
@@ -7,7 +7,7 @@ import { useGame } from '../../../contexts/GameContext';
 import candyIcon from '../../../assets/icon/rare_candy.png';
 import './Widget.css';
 
-function Widget() {
+function Widget(): JSX.Element {
   const { 
     ownedPokemon, 
     activeId, 
@@ -24,11 +24,11 @@ function Widget() {
   const ADVENTURE_DURATION = 0.1 * 60;
 
   const [showShop, setShowShop] = useState(false);
-  const [busyPokemonId, setBusyPokemonId] = useState(null);
+  const [busyPokemonId, setBusyPokemonId] = useState<string | null>(null);
   const [selectedZone, setSelectedZone] = useState('forest');
   const [isAdventureRunning, setIsAdventureRunning] = useState(false);
   const [timerState, setTimerState] = useState({ current: ADVENTURE_DURATION, total: ADVENTURE_DURATION });
-  const timerRef = useRef();
+  const timerRef = useRef<TimerHandle>(null);
 
   // --- COMBAT (IPC) ---
   const { combatState, startCombat, handleAttack, handleFlee, closeCombat } = useCombat({
@@ -39,10 +39,8 @@ function Widget() {
   });
 
   // --- TIMER HANDLERS ---
-  const handleTick = useCallback(async (seconds) => {
-    // Candy generation is handled in Main process now, but we can trigger it here
-    // For simplicity, we'll add candies every tick via IPC
-    // This could be optimized to batch calls
+  const handleTick = useCallback(async (_seconds: number) => {
+    // Candy generation is handled in Main process now
   }, []);
 
   const handleTimerStart = useCallback(() => {
@@ -53,7 +51,7 @@ function Widget() {
     startCombat();
   }, [startCombat]);
 
-  const handleTimerUpdate = useCallback((rem, total) => {
+  const handleTimerUpdate = useCallback((rem: number, total: number) => {
     setTimerState({ current: rem, total });
   }, []);
 
@@ -135,7 +133,7 @@ function Widget() {
               const p = pokedex.find(pData => pData.id === id);
               // Dynamic image lookup
               const pokemonImages = import.meta.glob('../../../assets/pokemon/*.{gif,png}', { eager: true });
-              const src = Object.entries(pokemonImages).find(([path]) => path.toLowerCase().includes(id.toLowerCase()))?.[1]?.default;
+              const src = (Object.entries(pokemonImages).find(([path]) => path.toLowerCase().includes(id.toLowerCase()))?.[1] as any)?.default;
               
               return (
                 <div key={id} className="starter-card" onClick={() => window.gameAPI.pickStarter(id)}>
@@ -165,8 +163,8 @@ function Widget() {
             <div className="shop-actions">
               <div className="shop-inventory">Pierres Foudre possédées: {inventory['pierre-foudre'] || 0}</div>
               <button className="btn-primary w-full" onClick={handleBuyStone} disabled={candies < 50}>Acheter Pierre Foudre (50 🍬)</button>
-              {activeSpeciesData?.evolutions?.some(e => e.type === 'item' && inventory[e.item] > 0) && (
-                <button className="btn-primary w-full" onClick={handleEvolveWithStone} disabled={busyPokemonId === activeId}>Faire évoluer {activeInstance.speciesId}!</button>
+              {activeSpeciesData?.evolutions?.some(e => e.type === 'item' && (inventory[e.item!] || 0) > 0) && (
+                <button className="btn-primary w-full" onClick={handleEvolveWithStone} disabled={busyPokemonId === activeId}>Faire évoluer {activeInstance?.speciesId}!</button>
               )}
             </div>
           </div>
@@ -248,9 +246,9 @@ function Widget() {
             <button className="btn-primary btn-icon" onClick={() => setShowShop(true)} title="Ouvrir la boutique">🏪</button>
           ) : (
             !isAdventureRunning ? (
-              <button className="btn-primary btn-icon" onClick={() => { if (activeId) { setIsAdventureRunning(true); setBusyPokemonId(activeId); timerRef.current.start(); } }} title="Démarrer l'aventure">▶</button>
+              <button className="btn-primary btn-icon" onClick={() => { if (activeId) { setIsAdventureRunning(true); setBusyPokemonId(activeId); timerRef.current?.start(); } }} title="Démarrer l'aventure">▶</button>
             ) : (
-              <button className="btn-danger btn-icon" onClick={() => { setIsAdventureRunning(false); timerRef.current.reset(); setBusyPokemonId(null); }} title="Arrêter">⏹</button>
+              <button className="btn-danger btn-icon" onClick={() => { setIsAdventureRunning(false); timerRef.current?.reset(); setBusyPokemonId(null); }} title="Arrêter">⏹</button>
             )
           )}
         </div>

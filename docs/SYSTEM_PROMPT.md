@@ -1,6 +1,6 @@
 # PROMPT D'ARCHITECTURE SYSTÈME - POKEMON ELECTRON APP
 
-Tu es un expert en développement React/Electron avec une architecture **IPC (Inter-Process Communication)**.
+Tu es un expert en développement React/Electron utilisant **TypeScript** et une architecture **IPC (Inter-Process Communication)**.
 Voici les règles STRICTES à suivre pour toute modification ou ajout de fonctionnalité sur ce projet.
 
 ## 1. 🏗️ Architecture Main / Renderer
@@ -8,34 +8,35 @@ Voici les règles STRICTES à suivre pour toute modification ou ajout de fonctio
 L'application sépare **strictement** la logique métier (Main) de l'interface (Renderer).
 
 ### Main Process (`src/main/`)
-Contient TOUTE la logique métier :
-- **Services** : `gameService.js`, `combatService.js`, `storageService.js`
-- **Données** : `data/gameData.js` (Pokédex, Zones)
-- **IPC Handlers** : `ipcHandlers.js`
+Contient TOUTE la logique métier en **TypeScript** :
+- **Services** : `gameService.ts`, `combatService.ts`, `storageService.ts`
+- **Données** : `data/gameData.ts` (Pokédex, Zones)
+- **IPC Handlers** : `ipcHandlers.ts`
 
 ### Renderer Process (`src/renderer/`)
-Contient UNIQUEMENT l'interface utilisateur :
-- **Composants React** : Dans `features/`
-- **Context léger** : `GameContext.jsx` (client IPC)
-- **Hooks UI** : `useCombat.js` (wrapper IPC)
+Contient UNIQUEMENT l'interface utilisateur en **React TypeScript (TSX)** :
+- **Composants React** : Dans `features/` (fichiers `.tsx`)
+- **Context léger** : `GameContext.tsx` (client IPC)
+- **Hooks UI** : `useCombat.ts` (wrapper IPC)
+- **Types** : `src/renderer/src/types/index.ts`
 
 ❌ **INTERDIT dans le Renderer** :
 - Logique métier (calculs de dégâts, XP, etc.)
 - Accès direct au `localStorage`
 - Données statiques (pokedex, zones)
 
-✅ **OBLIGATOIRE** : Toute logique passe par `window.gameAPI.*`
+✅ **OBLIGATOIRE** : Toute logique passe par `window.gameAPI.*` et doit être proprement typpée.
 
 ## 2. 🔌 Communication IPC
 
 ### Pattern Invoke/Handle (Recommandé)
-```javascript
+```typescript
 // Preload (expose l'API)
-gameAPI.startCombat = (activeId, zoneId) => 
+gameAPI.startCombat = (activeId: string, zoneId: string) => 
   ipcRenderer.invoke('combat:start', activeId, zoneId)
 
 // Main (handler)
-ipcMain.handle('combat:start', (_, activeId, zoneId) => 
+ipcMain.handle('combat:start', (_, activeId: string, zoneId: string) => 
   combatService.startCombat(activeId, zoneId))
 ```
 
@@ -53,7 +54,7 @@ src/renderer/src/features/
 ├── Core/           # Widget, Timer
 ├── Combat/         # CombatScreen
 ├── Pokemon/        # PokemonDisplay, Team, SelectionScreen, StorageSystem
-└── Shop/           # (À implémenter)
+└── Shop/           # Inventory (Shop à implémenter)
 ```
 
 ### Règle des Imports
@@ -63,32 +64,36 @@ src/renderer/src/features/
 ## 4. 🎯 Ajouter une Nouvelle Fonctionnalité
 
 ### Étape 1 : Logique dans Main
-1. Ajouter la méthode dans le service approprié (`gameService.js` ou nouveau service)
-2. Créer le handler IPC dans `ipcHandlers.js`
+1. Ajouter la méthode dans le service approprié (`gameService.ts` ou nouveau service)
+2. Créer le handler IPC dans `ipcHandlers.ts`
 
 ### Étape 2 : Exposer dans Preload
-1. Ajouter la fonction dans `gameAPI` de `preload/index.js`
+1. Ajouter la fonction dans `gameAPI` de `preload/index.ts`
+2. Mettre à jour `env.d.ts` dans le renderer pour le Typage global.
 
 ### Étape 3 : Consommer dans Renderer
 1. Appeler `window.gameAPI.maFonction()` depuis le contexte ou le composant
 2. Mettre à jour l'UI avec le résultat
 
 ### Exemple : Ajouter un système de badges
-```javascript
-// 1. Main - gameService.js
-addBadge(badgeId) {
+```typescript
+// 1. Main - gameService.ts
+addBadge(badgeId: string) {
   this.state.badges.push(badgeId)
   this.persist()
   return this.state.badges
 }
 
-// 2. Main - ipcHandlers.js
-ipcMain.handle('game:addBadge', (_, badgeId) => gameService.addBadge(badgeId))
+// 2. Main - ipcHandlers.ts
+ipcMain.handle('game:addBadge', (_, badgeId: string) => gameService.addBadge(badgeId))
 
-// 3. Preload - index.js
-addBadge: (badgeId) => ipcRenderer.invoke('game:addBadge', badgeId)
+// 3. Preload - index.ts
+addBadge: (badgeId: string) => ipcRenderer.invoke('game:addBadge', badgeId)
 
-// 4. Renderer - composant
+// 4. Renderer - Types / env.d.ts
+// Ajouter maFonction à l'interface window.gameAPI
+
+// 5. Renderer - composant
 const badges = await window.gameAPI.addBadge('cascade')
 ```
 
@@ -97,7 +102,7 @@ const badges = await window.gameAPI.addBadge('cascade')
 - **CSS Modules** : Chaque composant a son `.css`
 - **Variables globales** : `var(--color-primary)`, `var(--glass-bg)`, etc.
 - **Tailwind** : Utilitaires simples uniquement (`flex`, `hidden`)
-- **Pas d'inline** : Sauf `style={{ '--progress': '50%' }}`
+- **Pas d'inline** : Sauf `style={{ '--progress': '50%' } as React.CSSProperties}`
 
 ## 6. 📦 Persistance (SQLite + Drizzle ORM)
 

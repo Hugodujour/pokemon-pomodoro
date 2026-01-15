@@ -1,18 +1,37 @@
-import PropTypes from 'prop-types'
-import './StorageSystem.css'
+import React from 'react';
+import { PokemonInstance } from '../../../types';
+import './StorageSystem.css';
 
-export default function StorageSystem({ storedPokemon, onWithdraw, visible, onDragStart, onDragEnd, onDragOver, onDrop }) {
-  if (!visible) return null
+interface StorageSystemProps {
+  storedPokemon: PokemonInstance[];
+  onWithdraw: (uuid: string) => void;
+  visible?: boolean;
+  onDragStart: (e: React.DragEvent, uuid: string) => void;
+  onDragEnd: () => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: (targetUuid: string) => void;
+}
+
+export default function StorageSystem({ 
+  storedPokemon, 
+  onWithdraw, 
+  visible, 
+  onDragStart, 
+  onDragEnd, 
+  onDragOver, 
+  onDrop 
+}: StorageSystemProps): JSX.Element | null {
+  if (!visible) return null;
 
   const pokemonImages = import.meta.glob('../../../assets/pokemon/*.{gif,png,jpg,jpeg}', {
     eager: true
-  })
+  });
 
-  const getPokemonImage = (speciesId) => {
-    return Object.entries(pokemonImages).find(([path]) =>
+  const getPokemonImage = (speciesId: string): string | undefined => {
+    return (Object.entries(pokemonImages).find(([path]) =>
       path.toLowerCase().includes(speciesId.toLowerCase())
-    )?.[1]?.default
-  }
+    )?.[1] as any)?.default;
+  };
 
   return (
     <div className="storage-grid">
@@ -41,17 +60,5 @@ export default function StorageSystem({ storedPokemon, onWithdraw, visible, onDr
         </div>
       )}
     </div>
-  )
-}
-
-StorageSystem.propTypes = {
-  storedPokemon: PropTypes.arrayOf(
-    PropTypes.shape({
-      uuid: PropTypes.string.isRequired,
-      label: PropTypes.string.isRequired,
-      level: PropTypes.number.isRequired
-    })
-  ).isRequired,
-  onWithdraw: PropTypes.func.isRequired,
-  visible: PropTypes.bool
+  );
 }

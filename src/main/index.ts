@@ -34,14 +34,15 @@ function initializeServices(): void {
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
-    width: 250,
-    height: 350,
+    width: 350,  /* Reverted to 350 */
+    height: 450, /* Reverted to 450 */
     show: false,
     autoHideMenuBar: true,
     transparent: true,
     frame: false,
     hasShadow: false,
     resizable: false,
+    backgroundColor: '#00000000',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true,
@@ -49,6 +50,13 @@ function createWindow(): void {
       nodeIntegration: false
     }
   })
+
+  // Native material disabled to allow rounded corner masking
+  /*
+  if (process.platform === 'win32') {
+    mainWindow.setBackgroundMaterial('acrylic')
+  }
+  */
 
   mainWindow.on('ready-to-show', () => {
     console.log('[Main] Fenetre principale prete')
@@ -74,8 +82,8 @@ function createSelectionWindow(): void {
   }
 
   selectionWindow = new BrowserWindow({
-    width: 450,
-    height: 600,
+    width: 700,  /* Widened for 3-column PC and Team */
+    height: 750, /* Increased height for better scrolling */
     show: false,
     autoHideMenuBar: true,
     frame: false,
@@ -83,6 +91,7 @@ function createSelectionWindow(): void {
     hasShadow: false,
     titleBarStyle: 'hidden',
     resizable: true,
+    backgroundColor: '#00000000',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true,
@@ -90,6 +99,10 @@ function createSelectionWindow(): void {
       nodeIntegration: false
     }
   })
+
+  if (process.platform === 'win32') {
+    // selectionWindow.setBackgroundMaterial('acrylic')
+  }
 
   selectionWindow.on('ready-to-show', () => {
     selectionWindow?.show()

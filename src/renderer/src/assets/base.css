@@ -1,9 +1,9 @@
 :root {
-  /* Glassmorphism - Refined for USER preference */
-  --glass-bg: rgba(17, 24, 39, 0.8); /* Gray 900 at 80% */
-  --glass-blur: 12px; 
-  --glass-saturate: 120%;
-  --glass-border: rgba(243, 244, 246, 0.2); /* Gray 100 subtle */
+  /* Glassmorphism - optimal balance */
+  --glass-bg: rgba(15, 23, 42, 0.9); 
+  --glass-blur: 20px; 
+  --glass-saturate: 150%;
+  --glass-border: rgba(255, 255, 255, 0.15); 
   --glass-shadow: rgba(0, 0, 0, 0.4);
   
   /* Unified Color System - No more hardcoded color names in variables */
@@ -43,10 +43,16 @@ ul {
   list-style: none;
 }
 
+html, body {
+  background: transparent !important;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 body {
   min-height: 100vh;
   color: var(--color-text);
-  background: var(--color-background);
   line-height: 1.6;
   font-family:
     Inter,

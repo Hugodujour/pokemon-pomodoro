@@ -1,12 +1,20 @@
 import { useState, useCallback } from 'react'
+import { CombatState, GameState } from '../types'
+
+interface UseCombatProps {
+  activeId: string | null;
+  busyPokemonId: string | null;
+  selectedZone: string;
+  refreshState: () => Promise<GameState>;
+}
 
 /**
  * Hook de combat utilisant IPC pour toute la logique.
  * L'état du combat est géré localement mais toutes les opérations
  * passent par le Main process via window.gameAPI.
  */
-export const useCombat = ({ activeId, busyPokemonId, selectedZone, refreshState }) => {
-  const [combatState, setCombatState] = useState({
+export const useCombat = ({ activeId, busyPokemonId, selectedZone, refreshState }: UseCombatProps) => {
+  const [combatState, setCombatState] = useState<CombatState>({
     active: false,
     opponent: null,
     player: null,
@@ -38,6 +46,7 @@ export const useCombat = ({ activeId, busyPokemonId, selectedZone, refreshState 
           result: null,
           captured: false,
           turn: state.turn,
+          // @ts-ignore - playerId might be needed but not in base state
           playerId: state.playerId
         })
       }

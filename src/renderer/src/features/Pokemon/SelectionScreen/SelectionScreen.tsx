@@ -1,10 +1,16 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Team from '../Team/Team';
 import StorageSystem from '../StorageSystem/StorageSystem';
 import { useGame } from '../../../contexts/GameContext';
+import { PokemonInstance } from '../../../types';
 import './SelectionScreen.css';
 
-function SelectionScreen() {
+interface DraggedItem {
+  uuid: string;
+  source: 'team' | 'storage';
+}
+
+function SelectionScreen(): JSX.Element {
   const { 
     ownedPokemon, 
     teamIds, 
@@ -22,7 +28,7 @@ function SelectionScreen() {
     if (!instance) return null;
     const data = pokedex.find(p => p.id === instance.speciesId);
     return { ...instance, label: data ? data.label : '???' };
-  }).filter(Boolean);
+  }).filter((p): p is PokemonInstance => p !== null);
 
   const storageList = ownedPokemon.filter(p => !teamIds.includes(p.uuid)).map(instance => {
     const data = pokedex.find(p => p.id === instance.speciesId);
@@ -30,18 +36,17 @@ function SelectionScreen() {
   });
 
   const [showStorage, setShowStorage] = useState(false);
-  const [draggedItem, setDraggedItem] = useState(null);
+  const [draggedItem, setDraggedItem] = useState<DraggedItem | null>(null);
 
-  const handleDragStart = (e, uuid, source) => {
+  const handleDragStart = (_e: React.DragEvent, uuid: string, source: 'team' | 'storage') => {
     setDraggedItem({ uuid, source });
-    e.dataTransfer.setData('text/plain', uuid);
   };
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
 
-  const handleDropOnTeam = async (targetUuid, targetIndex) => {
+  const handleDropOnTeam = async (targetUuid: string | null, targetIndex: number | null) => {
     if (!draggedItem) return;
     
     const { uuid, source } = draggedItem;
@@ -76,13 +81,13 @@ function SelectionScreen() {
       }
     }
 
-    const uniqueTeam = [...new Set(newTeam.filter(Boolean))].slice(0, 3);
+    const uniqueTeam = [...new Set(newTeam.filter(Boolean))].slice(0, 3) as string[];
     await setTeamIds(uniqueTeam);
-    if (window.api) window.api.selectPokemon(activeId, false);
+    if (window.api && activeId) window.api.selectPokemon(activeId, false);
     setDraggedItem(null);
   };
 
-  const handleDropOnStorage = async (targetUuid = null) => {
+  const handleDropOnStorage = async (targetUuid: string | null = null) => {
     if (!draggedItem) return;
     const { uuid, source } = draggedItem;
 
@@ -98,7 +103,7 @@ function SelectionScreen() {
         if (activeId === uuid) {
           await setActiveId(newTeam[0]);
         }
-        if (window.api) window.api.selectPokemon(activeId, false);
+        if (window.api && activeId) window.api.selectPokemon(activeId, false);
       }
     } else if (source === 'storage') {
       if (isAdventureActive || isCombatActive) {
@@ -122,7 +127,7 @@ function SelectionScreen() {
     setDraggedItem(null);
   };
 
-  const handleSelectActive = async (id) => {
+  const handleSelectActive = async (id: string) => {
     if (isAdventureActive || isCombatActive) return;
     await setActiveId(id);
     if (window.api) {
@@ -130,16 +135,16 @@ function SelectionScreen() {
     }
   };
 
-  const handleWithdraw = async (uuid) => {
+  const handleWithdraw = async (uuid: string) => {
     if (isAdventureActive || isCombatActive) return;
     if (teamIds.length < 3) {
       const newTeam = [...teamIds, uuid];
       await setTeamIds(newTeam);
-      if (window.api) window.api.selectPokemon(activeId, false);
+      if (window.api && activeId) window.api.selectPokemon(activeId, false);
     }
   };
 
-  const handleRemoveFromTeam = async (uuid) => {
+  const handleRemoveFromTeam = async (uuid: string) => {
     if (isAdventureActive || isCombatActive) return;
 
     if (teamIds.length > 1) {
@@ -151,7 +156,7 @@ function SelectionScreen() {
         newActive = newTeam[0];
         await setActiveId(newActive);
       }
-      if (window.api) window.api.selectPokemon(newActive, false);
+      if (window.api && newActive) window.api.selectPokemon(newActive, false);
     }
   };
 
@@ -161,7 +166,7 @@ function SelectionScreen() {
     <div className={`selection-screen ${isBusy ? 'is-busy' : ''}`}>
       <div className="selection-header">
         <h2 className="selection-title">{isBusy ? 'Pokémon en mission...' : 'Choisir un Pokémon'}</h2>
-        <button className="selection-close" onClick={() => window.api.selectPokemon(activeId)}>×</button>
+        <button className="selection-close" onClick={() => activeId && window.api.selectPokemon(activeId)}>×</button>
       </div>
       
       <Team 

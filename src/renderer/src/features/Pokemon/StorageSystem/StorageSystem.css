@@ -6,16 +6,24 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
   padding: 0.5rem;
+  justify-items: center;
 }
 
 .storage-item {
+  width: 7.5rem;
+  height: 10rem;
   padding: 0.5rem;
-  border-radius: 0.5rem;
+  border-radius: 1rem;
   cursor: pointer;
   text-align: center;
   transition: all 0.2s;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
 }
 
 .storage-item:hover {

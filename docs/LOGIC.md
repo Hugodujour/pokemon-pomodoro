@@ -1,20 +1,23 @@
 # Documentation de la Logique Métier
 
-Cette section couvre les services et la logique de jeu, situés dans le **Main Process** (`src/main/`).
+Cette section couvre les services et la logique de jeu, situés dans le **Main Process** (`src/main/`). Tout le code est écrit en **TypeScript**.
 
-## 1. Architecture des Services
+## 1. Architecture des Services (TypeScript)
 
 Toute la logique métier réside dans le Main Process pour des raisons de sécurité et de performance.
 
 ```
 src/main/
 ├── services/
-│   ├── storageService.js   # Persistance fichier
-│   ├── gameService.js      # État du jeu
-│   └── combatService.js    # Logique de combat
+│   ├── databaseService.ts  # Persistance via Drizzle SQL
+│   ├── gameService.ts      # État du jeu
+│   └── combatService.ts    # Logique de combat
 ├── data/
-│   └── gameData.js         # Pokédex + Zones
-└── ipcHandlers.js          # Points d'entrée IPC
+│   └── gameData.ts         # Pokédex + Zones
+├── db/
+│   ├── schema.ts           # Schéma DB
+│   └── index.ts            # Connexion DB
+└── ipcHandlers.ts          # Points d'entrée IPC
 ```
 
 ---
