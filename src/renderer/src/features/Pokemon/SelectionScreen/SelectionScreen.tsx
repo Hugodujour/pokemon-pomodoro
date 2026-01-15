@@ -10,7 +10,7 @@ interface DraggedItem {
   source: 'team' | 'storage';
 }
 
-function SelectionScreen(): JSX.Element {
+function SelectionScreen() {
   const { 
     ownedPokemon, 
     teamIds, 
@@ -27,12 +27,14 @@ function SelectionScreen(): JSX.Element {
     const instance = ownedPokemon.find(p => p.uuid === id);
     if (!instance) return null;
     const data = pokedex.find(p => p.id === instance.speciesId);
-    return { ...instance, label: data ? data.label : '???' };
-  }).filter((p): p is PokemonInstance => p !== null);
+    const label = instance.nickname || (data ? data.label : instance.speciesId.toUpperCase());
+    return { ...instance, label, types: data?.types } as any;
+  }).filter((p): p is any => p !== null);
 
   const storageList = ownedPokemon.filter(p => !teamIds.includes(p.uuid)).map(instance => {
     const data = pokedex.find(p => p.id === instance.speciesId);
-    return { ...instance, label: data ? data.label : '???' };
+    const label = instance.nickname || (data ? data.label : instance.speciesId.toUpperCase());
+    return { ...instance, label, types: data?.types } as any;
   });
 
   const [showStorage, setShowStorage] = useState(false);
@@ -72,7 +74,7 @@ function SelectionScreen(): JSX.Element {
       }
     } else if (source === 'team') {
       const oldIndex = newTeam.indexOf(uuid);
-      const actualTargetIndex = targetUuid ? newTeam.indexOf(targetUuid) : targetIndex;
+      const actualTargetIndex = targetUuid ? newTeam.indexOf(targetUuid) : (targetIndex !== null ? targetIndex : -1);
 
       if (oldIndex !== -1 && actualTargetIndex !== -1 && oldIndex !== actualTargetIndex) {
         const temp = newTeam[actualTargetIndex];
@@ -166,7 +168,13 @@ function SelectionScreen(): JSX.Element {
     <div className={`selection-screen ${isBusy ? 'is-busy' : ''}`}>
       <div className="selection-header">
         <h2 className="selection-title">{isBusy ? 'Pokémon en mission...' : 'Choisir un Pokémon'}</h2>
-        <button className="selection-close" onClick={() => activeId && window.api.selectPokemon(activeId)}>×</button>
+        <button className="selection-close" onClick={() => {
+          if (activeId) {
+            window.api.selectPokemon(activeId);
+          } else {
+            window.api.close();
+          }
+        }}>×</button>
       </div>
       
       <Team 

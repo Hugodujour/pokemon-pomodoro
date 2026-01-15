@@ -12,6 +12,8 @@ interface PokemonDisplayProps {
   isAdventureRunning?: boolean;
   timerState?: TimerState;
   isBusy?: boolean;
+  nickname?: string;
+  onRename?: (newName: string) => void;
 }
 
 // Inline level calculation (logic moved to Main process)
@@ -30,10 +32,14 @@ export default function PokemonDisplay({
   xp, 
   isAdventureRunning, 
   timerState, 
-  isBusy 
-}: PokemonDisplayProps): JSX.Element {
+  isBusy,
+  nickname,
+  onRename
+}: PokemonDisplayProps) {
   const [displaySpecies, setDisplaySpecies] = useState(name);
   const [animPhase, setAnimPhase] = useState<'idle' | 'in' | 'out'>('idle');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(nickname || name);
 
   useEffect(() => {
     if (name !== displaySpecies) {
@@ -53,6 +59,11 @@ export default function PokemonDisplay({
     }
     return undefined;
   }, [name, displaySpecies]);
+
+  // Update edit value if nickname changes externally
+  useEffect(() => {
+    setEditValue(nickname || name);
+  }, [nickname, name]);
 
   const pokemonImages = import.meta.glob('../../../assets/pokemon/*.{gif,png,jpg,jpeg}', {
     eager: true
@@ -81,16 +92,56 @@ export default function PokemonDisplay({
     percent = Math.floor((current / required) * 100);
   }
 
+  const handleSave = () => {
+    if (onRename) {
+      onRename(editValue.trim());
+    }
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSave();
+    if (e.key === 'Escape') {
+      setEditValue(nickname || name);
+      setIsEditing(false);
+    }
+  };
+
   // Determine Class
   let imgClass = 'pokemon-image';
   if (animPhase === 'out') imgClass += ' anim-evo-out';
   if (animPhase === 'in') imgClass += ' anim-evo-in';
   if (isBusy) imgClass += ' busy';
 
+  const displayName = nickname || displaySpecies;
+
   return (
     <div className="pokemon-display-container">
       <div className="pokemon-display-name">
-        {displaySpecies} <span className="pokemon-display-lvl">Lvl {level}</span>
+        {isEditing ? (
+          <input
+            autoFocus
+            className="pokemon-name-input"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={handleSave}
+            onKeyDown={handleKeyDown}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ) : (
+          <span 
+            className={onRename ? 'editable-name' : ''} 
+            onClick={(e) => {
+              if (onRename) {
+                e.stopPropagation();
+                setIsEditing(true);
+              }
+            }}
+          >
+            {displayName}
+          </span>
+        )}
+        <span className="pokemon-display-lvl">Lvl {level}</span>
       </div>
 
       <img src={pokemonSrc} alt={displaySpecies} className={imgClass} />

@@ -73,6 +73,10 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  mainWindow.on('closed', () => {
+    mainWindow = null
+  })
 }
 
 function createSelectionWindow(): void {
@@ -125,10 +129,10 @@ ipcMain.on('open-selection-window', () => {
 })
 
 ipcMain.on('pokemon-selected', (_event, pokemonId: string, shouldClose = true) => {
-  if (mainWindow) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('pokemon-selected', pokemonId)
   }
-  if (shouldClose && selectionWindow) {
+  if (shouldClose && selectionWindow && !selectionWindow.isDestroyed()) {
     selectionWindow.close()
   }
 })
@@ -141,6 +145,29 @@ ipcMain.on('window-minimize', (event) => {
 ipcMain.on('window-close', (event) => {
   const win = BrowserWindow.fromWebContents(event.sender)
   if (win) win.close()
+})
+
+ipcMain.on('window-toggle-minimalist', (event, isMinimalist: boolean) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  if (!win) return
+
+  const { screen } = require('electron')
+  const primaryDisplay = screen.getPrimaryDisplay()
+  const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize
+
+  if (isMinimalist) {
+    const minWidth = 180
+    const minHeight = 100
+    win.setSize(minWidth, minHeight)
+    win.setPosition(screenWidth - minWidth - 20, screenHeight - minHeight - 20)
+    win.setAlwaysOnTop(true)
+  } else {
+    const normalWidth = 350
+    const normalHeight = 450
+    win.setSize(normalWidth, normalHeight)
+    win.center()
+    win.setAlwaysOnTop(false)
+  }
 })
 
 // App Lifecycle

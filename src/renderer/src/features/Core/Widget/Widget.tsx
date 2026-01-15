@@ -5,9 +5,10 @@ import CombatScreen from '../../Combat/CombatScreen/CombatScreen';
 import { useCombat } from '../../../hooks/useCombat';
 import { useGame } from '../../../contexts/GameContext';
 import candyIcon from '../../../assets/icon/rare_candy.png';
+import exclamationIcon from '../../../assets/icon/exclamation.png';
 import './Widget.css';
 
-function Widget(): JSX.Element {
+function Widget() {
   const { 
     ownedPokemon, 
     activeId, 
@@ -17,7 +18,8 @@ function Widget(): JSX.Element {
     zones,
     getActiveInstance,
     refreshState,
-    useCandy
+    useCandy,
+    updatePokemon
   } = useGame();
 
   // --- LOCAL UI STATE ---
@@ -28,6 +30,7 @@ function Widget(): JSX.Element {
   const [selectedZone, setSelectedZone] = useState('forest');
   const [isAdventureRunning, setIsAdventureRunning] = useState(false);
   const [timerState, setTimerState] = useState({ current: ADVENTURE_DURATION, total: ADVENTURE_DURATION });
+  const [isMinimalist, setIsMinimalist] = useState(false);
   const timerRef = useRef<TimerHandle>(null);
 
   // --- COMBAT (IPC) ---
@@ -82,10 +85,22 @@ function Widget(): JSX.Element {
   }, [busyPokemonId, activeId, getActiveInstance, refreshState]);
 
   const handlePokemonClick = () => {
+    if (isMinimalist) {
+      toggleMinimalist();
+      return;
+    }
     if (window.api) {
       window.api.openSelectionWindow();
     }
   };
+
+  const toggleMinimalist = useCallback(() => {
+    const nextMode = !isMinimalist;
+    setIsMinimalist(nextMode);
+    if (window.api?.toggleMinimalist) {
+      window.api.toggleMinimalist(nextMode);
+    }
+  }, [isMinimalist]);
 
   const handleCloseCombat = useCallback(async () => {
     // Reset combat state via hook (IPC + local state)
@@ -119,6 +134,12 @@ function Widget(): JSX.Element {
   const activeInstance = getActiveInstance();
   const activeSpeciesData = activeInstance ? pokedex.find(p => p.id === activeInstance.speciesId) : null;
 
+  const handleRename = useCallback(async (newName: string) => {
+    if (activeId) {
+      await updatePokemon(activeId, { nickname: newName });
+    }
+  }, [activeId, updatePokemon]);
+
   if (ownedPokemon.length === 0) {
     const starterOptions = ['bulbizarre', 'carapuce', 'salameche', 'pikachu'];
     return (
@@ -149,110 +170,170 @@ function Widget(): JSX.Element {
   }
 
   return (
-    <div className="app-container">
-      <div className="window-controls">
-        <button className="win-btn minimize" onClick={() => window.api?.minimize()} title="Réduire">−</button>
-        <button className="win-btn close" onClick={() => window.api?.close()} title="Fermer">×</button>
-      </div>
-
-      {showShop && (
-        <div className="modal-overlay" onClick={() => setShowShop(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowShop(false)}>×</button>
-            <h4 className="shop-title">Boutique Pokémon</h4>
-            <div className="shop-actions">
-              <div className="shop-inventory">Pierres Foudre possédées: {inventory['pierre-foudre'] || 0}</div>
-              <button className="btn-primary w-full" onClick={handleBuyStone} disabled={candies < 50}>Acheter Pierre Foudre (50 🍬)</button>
-              {activeSpeciesData?.evolutions?.some(e => e.type === 'item' && (inventory[e.item!] || 0) > 0) && (
-                <button className="btn-primary w-full" onClick={handleEvolveWithStone} disabled={busyPokemonId === activeId}>Faire évoluer {activeInstance?.speciesId}!</button>
-              )}
-            </div>
-          </div>
+    <div className={`app-container ${isMinimalist ? 'minimal' : ''} ${isAdventureRunning ? 'running' : ''} ${combatState.active ? 'in-combat' : ''}`}>
+      {/* --- WINDOW CONTROLS (Normal mode only) --- */}
+      {!isMinimalist && (
+        <div className="window-controls">
+          {!combatState.active && (
+            <button className="win-btn minimize-mode" onClick={toggleMinimalist} title="Mode Minimaliste">
+              🖼️
+            </button>
+          )}
+          <button className="win-btn minimize" onClick={() => window.api?.minimize()} title="Réduire">−</button>
+          <button className="win-btn close" onClick={() => window.api?.close()} title="Fermer">×</button>
         </div>
       )}
 
-      {combatState.active && combatState.opponent && activeInstance ? (
-        <CombatScreen
-          playerPokemon={{ 
-            label: activeSpeciesData?.label || activeInstance.speciesId, 
-            level: activeInstance.level, 
-            speciesId: activeInstance.speciesId 
-          }}
-          opponentPokemon={combatState.opponent}
-          log={combatState.log}
-          playerHp={combatState.playerHp}
-          maxPlayerHp={combatState.maxPlayerHp}
-          opponentHp={combatState.opponent.hp}
-          maxOpponentHp={combatState.opponent.maxHp}
-          onAttack={handleAttack}
-          onFlee={handleFlee}
-          isFinished={combatState.isFinished}
-          onClose={handleCloseCombat}
-          result={combatState.result}
-          captured={combatState.captured}
-        />
-      ) : (
-        <>
-          <div className="active-pokemon-section">
-            {activeInstance && (
-              <div 
-                className="pokemon-trigger"
-                onClick={handlePokemonClick} 
-                title="Cliquez pour changer de Pokémon"
-              >
-                <PokemonDisplay
-                  name={activeInstance.speciesId.toUpperCase()}
-                  xp={activeInstance.xp}
-                  isAdventureRunning={isAdventureRunning}
-                  timerState={timerState}
-                  isBusy={isAdventureRunning || combatState.active}
-                />
-              </div>
-            )}
+      {/* --- MINIMALIST LAYOUT --- */}
+      {isMinimalist && (
+        combatState.active ? (
+          <div 
+            className="minimal-box combat-box" 
+            onClick={(e) => { e.stopPropagation(); toggleMinimalist(); }} 
+            title="Combat disponible !"
+            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+          >
+             <img src={exclamationIcon} alt="!" className="minimal-exclamation-img" />
           </div>
-
-          <div className="widget-middle-section">
-            {!isAdventureRunning && (
-              <div className="candy-display clickable" title="Bonbons disponibles" onClick={giveCandy}>
-                <img src={candyIcon} alt="candy" />
-                <span className="candy-count">{candies}</span>
-                <span className="candy-plus">+</span>
+        ) : (
+          <>
+            <div className="minimal-box pokemon-box" onClick={handlePokemonClick}>
+              <div className="minimal-timer">
+                {isAdventureRunning ? `${String(Math.floor(timerState.current / 60)).padStart(2, '0')}:${String(timerState.current % 60).padStart(2, '0')}` : ''}
               </div>
-            )}
-            <div className="hidden">
-              <Timer
-                ref={timerRef}
-                initialDuration={ADVENTURE_DURATION}
-                onFinish={handlePomodoroFinish}
-                onTick={handleTick}
-                onStart={handleTimerStart}
-                onUpdate={handleTimerUpdate}
-              />
+              <div className="minimal-pokemon-slot">
+                {activeInstance && (
+                  <img 
+                    src={(Object.entries(import.meta.glob('../../../assets/pokemon/*.{gif,png}', { eager: true })).find(([path]) => path.toLowerCase().includes(activeInstance!.speciesId.toLowerCase()))?.[1] as any)?.default} 
+                    alt="poke" 
+                    className="minimal-poke-img" 
+                    draggable="false"
+                  />
+                )}
+              </div>
             </div>
-          </div>
+
+            <div className="minimal-box control-box">
+              <div className="minimal-controls">
+                {!isAdventureRunning ? (
+                  <button className="min-btn-play" onClick={() => { if (activeId) { setIsAdventureRunning(true); setBusyPokemonId(activeId); timerRef.current?.start(); } }}>▶</button>
+                ) : (
+                  <button className="min-btn-stop" onClick={() => { setIsAdventureRunning(false); timerRef.current?.reset(); setBusyPokemonId(null); }}>⏹</button>
+                )}
+              </div>
+            </div>
+          </>
+        )
+      )}
+
+      {/* --- NORMAL LAYOUT --- */}
+      {!isMinimalist && (
+        <>
+          {showShop && (
+            <div className="modal-overlay" onClick={() => setShowShop(false)}>
+              <div className="modal-content" onClick={e => e.stopPropagation()}>
+                <button className="modal-close" onClick={() => setShowShop(false)}>×</button>
+                <h4 className="shop-title">Boutique Pokémon</h4>
+                <div className="shop-actions">
+                  <div className="shop-inventory">Pierres Foudre possédées: {inventory['pierre-foudre'] || 0}</div>
+                  <button className="btn-primary w-full" onClick={handleBuyStone} disabled={candies < 50}>Acheter Pierre Foudre (50 🍬)</button>
+                  {activeSpeciesData?.evolutions?.some(e => e.type === 'item' && (inventory[e.item!] || 0) > 0) && (
+                    <button className="btn-primary w-full" onClick={handleEvolveWithStone} disabled={busyPokemonId === activeId}>Faire évoluer {activeInstance?.speciesId}!</button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {combatState.active && combatState.opponent && activeInstance ? (
+            <CombatScreen
+              playerPokemon={{ 
+                label: activeSpeciesData?.label || activeInstance.speciesId, 
+                level: activeInstance.level, 
+                speciesId: activeInstance.speciesId 
+              }}
+              opponentPokemon={combatState.opponent}
+              log={combatState.log}
+              playerHp={combatState.playerHp}
+              maxPlayerHp={combatState.maxPlayerHp}
+              opponentHp={combatState.opponent.hp}
+              maxOpponentHp={combatState.opponent.maxHp}
+              onAttack={handleAttack}
+              onFlee={handleFlee}
+              isFinished={combatState.isFinished}
+              onClose={handleCloseCombat}
+              result={combatState.result}
+              captured={combatState.captured}
+            />
+          ) : (
+            <>
+              <div className="active-pokemon-section">
+                {activeInstance && (
+                  <div 
+                    className="pokemon-trigger"
+                    onClick={handlePokemonClick} 
+                    title="Cliquez pour changer de Pokémon"
+                  >
+                    <PokemonDisplay
+                      name={activeInstance.speciesId.toUpperCase()}
+                      xp={activeInstance.xp}
+                      isAdventureRunning={isAdventureRunning}
+                      timerState={timerState}
+                      isBusy={isAdventureRunning || combatState.active}
+                      nickname={activeInstance.nickname}
+                      onRename={handleRename}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="widget-middle-section">
+                {!isAdventureRunning && (
+                  <div className="candy-display clickable" title="Bonbons disponibles" onClick={giveCandy}>
+                    <img src={candyIcon} alt="candy" />
+                    <span className="candy-count">{candies}</span>
+                    <span className="candy-plus">+</span>
+                  </div>
+                )}
+              </div>
+
+              {!combatState.active && (
+                <div className="adventure-controls">
+                  <select value={selectedZone} onChange={e => { setSelectedZone(e.target.value); setShowShop(false); }} disabled={isAdventureRunning} title="Choisir une zone">
+                    {zones.map(z => (
+                      <option key={z.id} value={z.id}>
+                        {z.label} {z.type === 'city' ? '🏙️' : '🌲'}
+                      </option>
+                    ))}
+                  </select>
+
+                  {zones.find(z => z.id === selectedZone)?.type === 'city' ? (
+                    <button className="btn-primary btn-icon" onClick={() => setShowShop(true)} title="Ouvrir la boutique">🏪</button>
+                  ) : (
+                    !isAdventureRunning ? (
+                      <button className="btn-primary btn-icon" onClick={() => { if (activeId) { setIsAdventureRunning(true); setBusyPokemonId(activeId); timerRef.current?.start(); } }} title="Démarrer l'aventure">▶</button>
+                    ) : (
+                      <button className="btn-danger btn-icon" onClick={() => { setIsAdventureRunning(false); timerRef.current?.reset(); setBusyPokemonId(null); }} title="Arrêter">⏹</button>
+                    )
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </>
       )}
 
-      {!combatState.active && (
-        <div className="adventure-controls">
-          <select value={selectedZone} onChange={e => { setSelectedZone(e.target.value); setShowShop(false); }} disabled={isAdventureRunning} title="Choisir une zone">
-            {zones.map(z => (
-              <option key={z.id} value={z.id}>
-                {z.label} {z.type === 'city' ? '🏙️' : '🌲'}
-              </option>
-            ))}
-          </select>
-          {zones.find(z => z.id === selectedZone)?.type === 'city' ? (
-            <button className="btn-primary btn-icon" onClick={() => setShowShop(true)} title="Ouvrir la boutique">🏪</button>
-          ) : (
-            !isAdventureRunning ? (
-              <button className="btn-primary btn-icon" onClick={() => { if (activeId) { setIsAdventureRunning(true); setBusyPokemonId(activeId); timerRef.current?.start(); } }} title="Démarrer l'aventure">▶</button>
-            ) : (
-              <button className="btn-danger btn-icon" onClick={() => { setIsAdventureRunning(false); timerRef.current?.reset(); setBusyPokemonId(null); }} title="Arrêter">⏹</button>
-            )
-          )}
-        </div>
-      )}
+      {/* --- PERSISTENT TIMER (Logic Only) --- */}
+      <div className="hidden">
+        <Timer
+          ref={timerRef}
+          initialDuration={ADVENTURE_DURATION}
+          onFinish={handlePomodoroFinish}
+          onTick={handleTick}
+          onStart={handleTimerStart}
+          onUpdate={handleTimerUpdate}
+        />
+      </div>
     </div>
   );
 }

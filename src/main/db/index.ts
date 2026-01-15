@@ -44,18 +44,20 @@ function createTablesIfNotExist() {
       date_caught TEXT NOT NULL,
       is_in_team INTEGER NOT NULL DEFAULT 0,
       team_position INTEGER,
-      pc_position INTEGER
+      pc_position INTEGER,
+      nickname TEXT
     );
     
-    -- Attempt to add pc_position if it doesn't exist (for existing DBs)
-    -- SQLite doesn't have "IF NOT EXISTS" for ADD COLUMN, so we use a try-catch pattern or check pragma
+    -- Attempt to add columns if they don't exist (for existing DBs)
   `);
 
   try {
     sqlite.exec('ALTER TABLE pokemon ADD COLUMN pc_position INTEGER;');
-  } catch (e) {
-    // Column probably already exists
-  }
+  } catch (e) { /* ignore */ }
+
+  try {
+    sqlite.exec('ALTER TABLE pokemon ADD COLUMN nickname TEXT;');
+  } catch (e) { /* ignore */ }
 
   sqlite.exec(`
     CREATE TABLE IF NOT EXISTS game_state (

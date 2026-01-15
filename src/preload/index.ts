@@ -10,7 +10,8 @@ const windowAPI = {
     return () => ipcRenderer.removeListener('pokemon-selected', subscription)
   },
   minimize: () => ipcRenderer.send('window-minimize'),
-  close: () => ipcRenderer.send('window-close')
+  close: () => ipcRenderer.send('window-close'),
+  toggleMinimalist: (isMinimalist: boolean) => ipcRenderer.send('window-toggle-minimalist', isMinimalist)
 }
 
 // New Game API

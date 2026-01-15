@@ -8,6 +8,7 @@ export interface PokemonInstance {
   teamPosition: number | null;
   pcPosition: number | null;
   label?: string; // Optinal label from pokedex
+  nickname?: string;
 }
 
 export interface PokedexEntry {

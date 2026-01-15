@@ -8,6 +8,7 @@ declare global {
       onPokemonSelected: (callback: (pokemonId: string) => void) => () => void;
       minimize: () => void;
       close: () => void;
+      toggleMinimalist: (isMinimalist: boolean) => void;
     };
     gameAPI: {
       getState: () => Promise<any>;

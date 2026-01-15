@@ -227,6 +227,7 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   /* uses btn-primary base */
   background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-hover) 100%);
   box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+  border-radius: 0.75rem;
 }
 
 .btn-danger:hover {
@@ -319,4 +320,113 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   font-size: 0.75rem;
   font-weight: 600;
   color: #f1f5f9;
+}
+/* --- ULTRA-MINIMALIST UNIFIED MODE --- */
+.app-container.minimal {
+  width: 130px !important;
+  height: 64px !important;
+  margin: 18px !important;
+  padding: 6px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 8px !important;
+  border-radius: 12px !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: none !important; /* Removed shadow */
+  -webkit-app-region: drag !important;
+  overflow: visible !important;
+}
+
+.minimal-box {
+  width: 50px !important;
+  height: 50px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important; /* Centered contents */
+  align-items: center !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  box-sizing: border-box !important;
+  -webkit-app-region: no-drag !important;
+  position: relative;
+}
+
+/* State Colors */
+.control-box {
+  transition: all 0.3s ease !important;
+}
+
+.min-btn-play {
+  color: var(--color-primary-light) !important; /* Primary color when clickable */
+}
+
+.min-btn-stop {
+  color: #ef4444 !important; /* Danger color when stop */
+}
+
+.minimal-timer {
+  position: absolute;
+  top: 2px;
+  font-size: 10px !important;
+  font-weight: 950 !important;
+  color: #fff !important;
+  width: 100%;
+  text-align: center;
+  pointer-events: none;
+}
+
+.minimal-pokemon-slot {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  cursor: pointer !important; /* Added pointer */
+}
+
+.minimal-poke-img {
+  width: 38px !important;
+  height: 38px !important;
+  object-fit: contain !important;
+  -webkit-user-drag: none !important;
+  user-select: none !important;
+}
+
+.minimal-controls {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.minimal-controls button {
+  background: none !important;
+  border: none !important;
+  font-size: 20px !important; /* Larger icon */
+  cursor: pointer !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Combat Box Special Style */
+.combat-box {
+  width: 110px !important;
+  background: rgba(239, 68, 68, 0.4) !important;
+  animation: pulse-mini-combat 0.6s infinite alternate !important;
+}
+
+.minimal-exclamation-img {
+  width: 32px !important;
+  height: 32px !important;
+  filter: drop-shadow(0 0 5px white);
+}
+
+@keyframes pulse-mini-combat {
+  from { background: rgba(239, 68, 68, 0.4); transform: scale(1); }
+  to { background: rgba(239, 68, 68, 0.8); transform: scale(1.1); }
 }
