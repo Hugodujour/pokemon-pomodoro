@@ -4,11 +4,15 @@ declare global {
   interface Window {
     api: {
       openSelectionWindow: () => void;
+      closeSelectionWindow: () => void;
       selectPokemon: (pokemonId: string, shouldClose?: boolean) => void;
       onPokemonSelected: (callback: (pokemonId: string) => void) => () => void;
       minimize: () => void;
       close: () => void;
       toggleMinimalist: (isMinimalist: boolean) => void;
+      openMapWindow: () => void;
+      selectZone: (zoneId: string) => void;
+      onZoneSelected: (callback: (zoneId: string) => void) => () => void;
     };
     gameAPI: {
       getState: () => Promise<any>;

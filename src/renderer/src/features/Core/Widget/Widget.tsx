@@ -131,8 +131,46 @@ function Widget() {
     }
   }, [isAdventureRunning]);
 
+  useEffect(() => {
+    if (window.api?.onZoneSelected) {
+      const unsubscribe = window.api.onZoneSelected((zoneId: string) => {
+        setSelectedZone(zoneId);
+      });
+      return unsubscribe;
+    }
+    return undefined;
+  }, []);
+
   const activeInstance = getActiveInstance();
   const activeSpeciesData = activeInstance ? pokedex.find(p => p.id === activeInstance.speciesId) : null;
+
+  const getTypeBackground = (types: string[] = []) => {
+    if (!types || types.length === 0) return {};
+    
+    const colors: Record<string, string> = {
+      electric: 'rgba(250, 204, 21, 0.4)',
+      grass: 'rgba(74, 222, 128, 0.4)',
+      poison: 'rgba(167, 139, 250, 0.4)',
+      fire: 'rgba(248, 113, 113, 0.4)',
+      flying: 'rgba(147, 197, 253, 0.4)',
+      water: 'rgba(96, 165, 250, 0.4)',
+      rock: 'rgba(168, 162, 158, 0.4)',
+      ground: 'rgba(251, 191, 36, 0.4)',
+      bug: 'rgba(167, 185, 28, 0.4)',
+      normal: 'rgba(168, 168, 120, 0.4)'
+    };
+
+    if (types.length >= 2) {
+      const c1 = colors[types[0]] || 'rgba(255, 255, 255, 0.05)';
+      const c2 = colors[types[1]] || 'rgba(255, 255, 255, 0.05)';
+      return { 
+        background: `linear-gradient(135deg, ${c1} 0%, ${c1} 50%, ${c2} 50%, ${c2} 100%)` 
+      } as React.CSSProperties;
+    }
+
+    const type = types[0];
+    return { background: colors[type] || 'rgba(255, 255, 255, 0.05)' } as React.CSSProperties;
+  };
 
   const handleRename = useCallback(async (newName: string) => {
     if (activeId) {
@@ -173,14 +211,36 @@ function Widget() {
     <div className={`app-container ${isMinimalist ? 'minimal' : ''} ${isAdventureRunning ? 'running' : ''} ${combatState.active ? 'in-combat' : ''}`}>
       {/* --- WINDOW CONTROLS (Normal mode only) --- */}
       {!isMinimalist && (
-        <div className="window-controls">
+        <div className="app-header">
           {!combatState.active && (
-            <button className="win-btn minimize-mode" onClick={toggleMinimalist} title="Mode Minimaliste">
-              🖼️
-            </button>
+             <div className="header-zone-label">
+                {zones.find(z => z.id === selectedZone)?.label}
+             </div>
           )}
-          <button className="win-btn minimize" onClick={() => window.api?.minimize()} title="Réduire">−</button>
-          <button className="win-btn close" onClick={() => window.api?.close()} title="Fermer">×</button>
+          <div className="window-controls">
+            {!combatState.active && (
+              <button 
+                className="win-btn minimize-mode" 
+                onClick={toggleMinimalist} 
+                title="Mode Minimaliste"
+                style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+              >
+                🖼️
+              </button>
+            )}
+            <button 
+              className="win-btn minimize" 
+              onClick={() => window.api?.minimize()} 
+              title="Réduire"
+              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            >−</button>
+            <button 
+              className="win-btn close" 
+              onClick={() => window.api?.close()} 
+              title="Fermer"
+              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            >×</button>
+          </div>
         </div>
       )}
 
@@ -201,7 +261,7 @@ function Widget() {
               <div className="minimal-timer">
                 {isAdventureRunning ? `${String(Math.floor(timerState.current / 60)).padStart(2, '0')}:${String(timerState.current % 60).padStart(2, '0')}` : ''}
               </div>
-              <div className="minimal-pokemon-slot">
+              <div className="minimal-pokemon-slot" style={getTypeBackground(activeSpeciesData?.types)}>
                 {activeInstance && (
                   <img 
                     src={(Object.entries(import.meta.glob('../../../assets/pokemon/*.{gif,png}', { eager: true })).find(([path]) => path.toLowerCase().includes(activeInstance!.speciesId.toLowerCase()))?.[1] as any)?.default} 
@@ -216,7 +276,14 @@ function Widget() {
             <div className="minimal-box control-box">
               <div className="minimal-controls">
                 {!isAdventureRunning ? (
-                  <button className="min-btn-play" onClick={() => { if (activeId) { setIsAdventureRunning(true); setBusyPokemonId(activeId); timerRef.current?.start(); } }}>▶</button>
+                  <button className="min-btn-play" onClick={() => { 
+                    if (activeId) { 
+                      setIsAdventureRunning(true); 
+                      setBusyPokemonId(activeId); 
+                      window.api?.closeSelectionWindow();
+                      timerRef.current?.start(); 
+                    } 
+                  }}>▶</button>
                 ) : (
                   <button className="min-btn-stop" onClick={() => { setIsAdventureRunning(false); timerRef.current?.reset(); setBusyPokemonId(null); }}>⏹</button>
                 )}
@@ -267,66 +334,87 @@ function Widget() {
             />
           ) : (
             <>
-              <div className="active-pokemon-section">
-                {activeInstance && (
-                  <div 
-                    className="pokemon-trigger"
-                    onClick={handlePokemonClick} 
-                    title="Cliquez pour changer de Pokémon"
-                  >
-                    <PokemonDisplay
-                      name={activeInstance.speciesId.toUpperCase()}
-                      xp={activeInstance.xp}
-                      isAdventureRunning={isAdventureRunning}
-                      timerState={timerState}
-                      isBusy={isAdventureRunning || combatState.active}
-                      nickname={activeInstance.nickname}
-                      onRename={handleRename}
-                      types={activeSpeciesData?.types || []}
-                    />
-                  </div>
-                )}
+              <div className="main-content-row">
+                <div className="side-controls left">
+                  {/* Always show controls, disable candy if running */}
+                   <>
+                    <button 
+                      className="action-btn-square candy-btn" 
+                      title={isAdventureRunning ? "Indisponible en mission" : "Bonbons disponibles"} 
+                      onClick={giveCandy}
+                      disabled={isAdventureRunning}
+                    >
+                      <img src={candyIcon} alt="candy" draggable="false" />
+                      <span className="candy-count-badge">{candies}</span>
+                    </button>
+                    <button className="action-btn-square settings-btn" title="Paramètres" onClick={() => { /* Open Settings */ }}>
+                      ⚙️
+                    </button>
+                  </>
+                </div>
+
+                <div className="active-pokemon-section">
+                  {activeInstance && (
+                    <div 
+                      className="pokemon-trigger"
+                      onClick={handlePokemonClick} 
+                      title="Cliquez pour changer de Pokémon"
+                    >
+                      <PokemonDisplay
+                        name={activeInstance.speciesId.toUpperCase()}
+                        xp={activeInstance.xp}
+                        isAdventureRunning={isAdventureRunning}
+                        timerState={timerState}
+                        isBusy={isAdventureRunning || combatState.active}
+                        nickname={activeInstance.nickname}
+                        onRename={handleRename}
+                        types={activeSpeciesData?.types || []}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="side-controls right">
+                  {!combatState.active && (
+                    <>
+                      <button 
+                        className="action-btn-square map-btn" 
+                        onClick={() => window.api?.openMapWindow()} 
+                        disabled={isAdventureRunning}
+                        title={`Zone: ${zones.find(z => z.id === selectedZone)?.label || 'Inconnue'}`}
+                      >
+                        🗺️
+                      </button>
+
+                      {zones.find(z => z.id === selectedZone)?.type === 'city' ? (
+                        <button className="action-btn-square map-btn" onClick={() => setShowShop(true)} title="Ouvrir la boutique">🏪</button>
+                      ) : (
+                        !isAdventureRunning ? (
+                          <button className="action-btn-square play-btn" onClick={() => { 
+                            if (activeId) { 
+                              setIsAdventureRunning(true); 
+                              setBusyPokemonId(activeId); 
+                              window.api?.closeSelectionWindow();
+                              timerRef.current?.start(); 
+                              if (!isMinimalist) toggleMinimalist();
+                            } 
+                          }} title="Démarrer l'aventure">▶</button>
+                        ) : (
+                          <button className="action-btn-square stop-btn" onClick={() => { setIsAdventureRunning(false); timerRef.current?.reset(); setBusyPokemonId(null); }} title="Arrêter">⏹</button>
+                        )
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
 
               <div className="widget-middle-section">
-                {!isAdventureRunning && (
-                  <div className="candy-display clickable" title="Bonbons disponibles" onClick={giveCandy}>
-                    <img src={candyIcon} alt="candy" draggable="false" />
-                    <span className="candy-count">{candies}</span>
-                    <span className="candy-plus">+</span>
-                  </div>
-                )}
+                 {/* Zone label moved to header */}
               </div>
 
-              {!combatState.active && (
-                <div className="adventure-controls">
-                  <select value={selectedZone} onChange={e => { setSelectedZone(e.target.value); setShowShop(false); }} disabled={isAdventureRunning} title="Choisir une zone">
-                    {zones.map(z => (
-                      <option key={z.id} value={z.id}>
-                        {z.label} {z.type === 'city' ? '🏙️' : '🌲'}
-                      </option>
-                    ))}
-                  </select>
-
-                  {zones.find(z => z.id === selectedZone)?.type === 'city' ? (
-                    <button className="btn-primary btn-icon" onClick={() => setShowShop(true)} title="Ouvrir la boutique">🏪</button>
-                  ) : (
-                    !isAdventureRunning ? (
-                      <button className="btn-primary btn-icon" onClick={() => { 
-                        if (activeId) { 
-                          setIsAdventureRunning(true); 
-                          setBusyPokemonId(activeId); 
-                          timerRef.current?.start(); 
-                          // Auto-minimalist
-                          if (!isMinimalist) toggleMinimalist();
-                        } 
-                      }} title="Démarrer l'aventure">▶</button>
-                    ) : (
-                      <button className="btn-danger btn-icon" onClick={() => { setIsAdventureRunning(false); timerRef.current?.reset(); setBusyPokemonId(null); }} title="Arrêter">⏹</button>
-                    )
-                  )}
-                </div>
-              )}
+              <div className="adventure-controls">
+                  {/* Controls moved to side-controls */}
+              </div>
             </>
           )}
         </>

@@ -159,6 +159,7 @@ export default function PokemonDisplay({
             onBlur={handleSave}
             onKeyDown={handleKeyDown}
             onClick={(e) => e.stopPropagation()}
+            maxLength={16}
           />
         ) : (
           <span 

@@ -167,7 +167,7 @@ function SelectionScreen() {
   return (
     <div className={`selection-screen ${isBusy ? 'is-busy' : ''}`}>
       <div className="selection-header">
-        <h2 className="selection-title">{isBusy ? 'Pokémon en mission...' : 'Choisir un Pokémon'}</h2>
+        <h2 className="selection-title">{isBusy ? '⚠️ MISSION EN COURS' : '⚡️ GESTION POKÉMON'}</h2>
         <button className="selection-close" onClick={() => {
           if (activeId) {
             window.api.selectPokemon(activeId);

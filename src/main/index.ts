@@ -11,6 +11,7 @@ import { setupIpcHandlers } from './ipcHandlers'
 
 let mainWindow: BrowserWindow | null = null
 let selectionWindow: BrowserWindow | null = null
+let mapWindow: BrowserWindow | null = null
 
 // Services
 let databaseService: DatabaseService
@@ -123,9 +124,67 @@ function createSelectionWindow(): void {
   selectionWindow.loadURL(url)
 }
 
+function createMapWindow(): void {
+  if (mapWindow) {
+    mapWindow.focus()
+    return
+  }
+
+  mapWindow = new BrowserWindow({
+    width: 600,
+    height: 500,
+    show: false,
+    autoHideMenuBar: true,
+    frame: false,
+    transparent: true,
+    hasShadow: false,
+    resizable: false,
+    backgroundColor: '#00000000',
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      sandbox: true,
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  })
+
+  mapWindow.on('ready-to-show', () => {
+    mapWindow?.show()
+  })
+
+  mapWindow.on('closed', () => {
+    mapWindow = null
+  })
+
+  const url = is.dev && process.env['ELECTRON_RENDERER_URL'] 
+    ? `${process.env['ELECTRON_RENDERER_URL']}#map`
+    : `file://${join(__dirname, '../renderer/index.html')}#map`
+
+  mapWindow.loadURL(url)
+}
+
 // IPC Handlers for Window Management
 ipcMain.on('open-selection-window', () => {
   createSelectionWindow()
+})
+
+ipcMain.on('close-selection-window', () => {
+  if (selectionWindow && !selectionWindow.isDestroyed()) {
+    selectionWindow.close()
+  }
+})
+
+ipcMain.on('open-map-window', () => {
+  createMapWindow()
+})
+
+ipcMain.on('zone-selected', (_event, zoneId: string) => {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('zone-selected', zoneId)
+  }
+  if (mapWindow && !mapWindow.isDestroyed()) {
+    mapWindow.close()
+  }
 })
 
 ipcMain.on('pokemon-selected', (_event, pokemonId: string, shouldClose = true) => {

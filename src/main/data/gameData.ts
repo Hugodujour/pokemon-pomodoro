@@ -113,37 +113,49 @@ export const zones = [
     id: 'bourg-palette',
     label: 'Bourg Palette',
     type: 'city',
-    pokemon: []
+    pokemon: [],
+    x: 100,
+    y: 320
   },
   {
     id: 'jadielle',
     label: 'Jadielle',
     type: 'city',
-    pokemon: []
+    pokemon: [],
+    x: 100,
+    y: 200
   },
   {
     id: 'forest',
     label: 'Forêt de Jadielle',
     type: 'wild',
-    pokemon: ['pikachu', 'bulbizarre']
+    pokemon: ['pikachu', 'bulbizarre'],
+    x: 100,
+    y: 120
   },
   {
     id: 'cave',
     label: 'Mont Sélénite',
     type: 'wild',
-    pokemon: ['nidoran-f', 'nidoran-m', 'nosferapti', 'racaillou']
+    pokemon: ['nidoran-f', 'nidoran-m', 'nosferapti', 'racaillou'],
+    x: 250,
+    y: 80
   },
   {
     id: 'sea',
     label: 'Route 19',
     type: 'wild',
-    pokemon: ['carapuce', 'hypotrempe', 'magicarp', 'tentacool']
+    pokemon: ['carapuce', 'hypotrempe', 'magicarp', 'tentacool'],
+    x: 100,
+    y: 400
   },
   {
     id: 'test',
     label: 'Zone TEST',
     type: 'wild',
     pokemon: ['pikachu'],
+    x: 350,
+    y: 200,
     fixedLevel: 1
   }
 ]

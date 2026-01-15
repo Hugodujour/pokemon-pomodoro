@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import Widget from './features/Core/Widget/Widget';
 import SelectionScreen from './features/Pokemon/SelectionScreen/SelectionScreen';
+import WorldMap from './features/Core/WorldMap/WorldMap';
 import { GameProvider } from './contexts/GameContext';
 
-function App(): JSX.Element {
+function App() {
   const [route, setRoute] = useState<string>(window.location.hash);
 
   useEffect(() => {
@@ -12,9 +13,11 @@ function App(): JSX.Element {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  let content: JSX.Element;
+  let content;
   if (route === '#selection') {
     content = <SelectionScreen />;
+  } else if (route === '#map') {
+    content = <WorldMap />;
   } else {
     content = <Widget />;
   }

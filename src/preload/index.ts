@@ -3,6 +3,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 // Window management API
 const windowAPI = {
   openSelectionWindow: () => ipcRenderer.send('open-selection-window'),
+  closeSelectionWindow: () => ipcRenderer.send('close-selection-window'),
   selectPokemon: (pokemonId: string, shouldClose: boolean = true) => ipcRenderer.send('pokemon-selected', pokemonId, shouldClose),
   onPokemonSelected: (callback: (pokemonId: string) => void) => {
     const subscription = (_event: any, pokemonId: string) => callback(pokemonId)
@@ -11,7 +12,14 @@ const windowAPI = {
   },
   minimize: () => ipcRenderer.send('window-minimize'),
   close: () => ipcRenderer.send('window-close'),
-  toggleMinimalist: (isMinimalist: boolean) => ipcRenderer.send('window-toggle-minimalist', isMinimalist)
+  toggleMinimalist: (isMinimalist: boolean) => ipcRenderer.send('window-toggle-minimalist', isMinimalist),
+  openMapWindow: () => ipcRenderer.send('open-map-window'),
+  selectZone: (zoneId: string) => ipcRenderer.send('zone-selected', zoneId),
+  onZoneSelected: (callback: (zoneId: string) => void) => {
+    const subscription = (_event: any, zoneId: string) => callback(zoneId)
+    ipcRenderer.on('zone-selected', subscription)
+    return () => ipcRenderer.removeListener('zone-selected', subscription)
+  }
 }
 
 // New Game API

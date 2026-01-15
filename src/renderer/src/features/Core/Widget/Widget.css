@@ -3,13 +3,13 @@
 
 .app-container {
   width: calc(100vw - 4rem);
-  height: calc(100vh - 4rem);
+  height: fit-content;
   margin: 2rem;
-  padding: 1rem;
+  padding: 0 0 2.5rem 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0;
   overflow: hidden;
   box-sizing: border-box;
   border-radius: 20px;
@@ -38,11 +38,10 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
 .active-pokemon-section {
   flex: none;
   padding: 0;
-  margin-top: 3.5rem;
+  margin: 0; 
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
   position: relative;
 }
 
@@ -59,54 +58,137 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   gap: 0.25rem;
 }
 
-.candy-display {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.8rem;
-  margin: 0;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  border: 1px solid var(--glass-border);
-  z-index: 10;
-  background: rgba(17, 24, 39, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 4px 12px var(--glass-shadow);
+/* Old candy-display is replaced by candy-btn */
+.candy-btn {
+  /* Inherits action-btn-square */
+  background: rgba(168, 85, 247, 0.2) !important;
+  border: 1px solid rgba(168, 85, 247, 0.4) !important;
+  position: relative;
+  cursor: pointer;
 }
 
-.candy-display img {
-  width: 0.875rem;
-  height: 0.875rem;
+.candy-btn:hover {
+  background: rgba(168, 85, 247, 0.3) !important;
 }
 
-/* Right Section (Adventure/Actions) */
+.candy-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.8);
+}
+
+.candy-btn img {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.candy-count-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: rgba(168, 85, 247, 0.9);
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.settings-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: var(--text-primary) !important;
+}
+
+.settings-btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
 .adventure-controls {
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.375rem;
+  gap: 0.5rem;
   flex: 1 1 0%;
 }
 
-.adventure-controls select {
-  padding: 0.375rem 0.5rem;
-  font-size: 0.75rem;
-  width: 100%;
-  border-radius: 0.5rem;
-  background: rgba(30, 41, 59, 0.7);
-  color: var(--text-primary);
-  border: 1px solid var(--glass-border);
-  outline: none;
-  backdrop-filter: blur(4px);
+.action-btn-square {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  font-size: 1.25rem !important;
+  border-radius: 0.75rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   transition: all 0.2s;
+  cursor: pointer;
 }
 
-.adventure-controls select:hover {
-  background: rgba(30, 41, 59, 0.9);
-  border-color: var(--color-primary-light);
+.map-btn {
+  /* Inherits action-btn-square */
+  background: rgba(99, 102, 241, 0.2) !important;
+  border: 1px solid rgba(99, 102, 241, 0.4) !important;
+  color: #fff !important;
+}
+
+.map-btn:hover {
+  background: rgba(99, 102, 241, 0.3) !important;
+}
+
+.play-btn {
+  /* Inherits action-btn-square */
+  background: rgba(34, 197, 94, 0.2) !important;
+  border: 1px solid rgba(34, 197, 94, 0.4) !important;
+  color: #4ade80 !important;
+}
+
+.play-btn:hover {
+  background: rgba(34, 197, 94, 0.3) !important;
+}
+
+.stop-btn {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border: 1px solid rgba(239, 68, 68, 0.4) !important;
+  color: #f87171 !important;
+}
+
+.stop-btn:hover {
+  background: rgba(239, 68, 68, 0.3) !important;
+}
+
+.main-content-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.side-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  /* Removed position: relative */
+}
+
+.selected-zone-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--glass-border);
+  white-space: nowrap;
 }
 
 /* Modals */
@@ -162,24 +244,65 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   transform: scale(1.05);
 }
 
-.window-controls {
+.app-header {
+  width: 100%;
+  padding: 16px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  border-bottom: 1px solid var(--glass-border);
+  box-sizing: border-box;
+  position: relative; /* For absolute centering of title */
+  overflow: visible; /* Allow label to overlap border */
+  margin-bottom: 1.5rem;
+}
+
+.header-zone-label {
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
+  top: 100%; /* Position at the bottom edge of header */
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center horizontally and vertically on the line */
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  background: var(--glass-bg); /* Match container bg to hide the line behind text */
+  padding: 0 10px;
+  border-radius: 99px;
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid var(--glass-border);
+}
+
+.app-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.window-controls {
   display: flex;
   gap: 0.5rem;
-  z-index: 1000;
-  -webkit-app-region: no-drag;
 }
 
 .win-btn {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 32px;
+  height: 32px;
   font-size: 1.25rem;
-  color: white;
+  color: var(--text-primary);
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -189,7 +312,6 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
 
 .win-btn:hover {
   background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
   transform: scale(1.05);
 }
 
@@ -363,11 +485,39 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
 }
 
 .min-btn-play {
-  color: var(--color-primary-light) !important; /* Primary color when clickable */
+  /* Use same style as normal play button */
+  background: rgba(34, 197, 94, 0.2) !important;
+  border: 1px solid rgba(34, 197, 94, 0.4) !important;
+  color: #4ade80 !important;
+  border-radius: 8px !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s !important;
+}
+
+.min-btn-play:hover {
+  background: rgba(34, 197, 94, 0.3) !important;
 }
 
 .min-btn-stop {
-  color: #ef4444 !important; /* Danger color when stop */
+  /* Use same style as normal stop button */
+  background: rgba(239, 68, 68, 0.2) !important;
+  border: 1px solid rgba(239, 68, 68, 0.4) !important;
+  color: #f87171 !important;
+  border-radius: 8px !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s !important;
+}
+
+.min-btn-stop:hover {
+  background: rgba(239, 68, 68, 0.3) !important;
 }
 
 .minimal-timer {
@@ -388,6 +538,9 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   width: 100% !important;
   height: 100% !important;
   cursor: pointer !important; /* Added pointer */
+  background: rgba(0, 0, 0, 0.2); /* Generic glassy bg, overridable by inline style */
+  border-radius: 6px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 .minimal-poke-img {
@@ -404,15 +557,10 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
 }
 
 .minimal-controls button {
-  background: none !important;
-  border: none !important;
-  font-size: 20px !important; /* Larger icon */
+  /* Reset default button styles, specific styles applied via classes above */
+  font-size: 20px !important;
   cursor: pointer !important;
-  width: 100% !important;
-  height: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  padding: 0 !important;
 }
 
 /* Combat Box Special Style */
