@@ -206,15 +206,18 @@
 /* ... LOG LINE STYLES ... */
 .log-line {
   line-height: 1.2;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
   border-left: 2px solid transparent;
   padding-left: 0.4rem;
+  transition: all 0.2s;
 }
 
-.log-line:last-of-type {
-  color: var(--color-primary-light);
-  font-weight: 800;
-  border-left-color: var(--color-primary);
+.log-line:last-child {
+  color: #ffffff;
+  font-weight: 950;
+  border-left-color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 .log-line strong {

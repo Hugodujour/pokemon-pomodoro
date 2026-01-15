@@ -282,6 +282,7 @@ function Widget() {
                       isBusy={isAdventureRunning || combatState.active}
                       nickname={activeInstance.nickname}
                       onRename={handleRename}
+                      types={activeSpeciesData?.types || []}
                     />
                   </div>
                 )}

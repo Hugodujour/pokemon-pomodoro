@@ -38,10 +38,12 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
 .active-pokemon-section {
   flex: none;
   padding: 0;
-  margin-top: 2rem; /* Increased space for window controls */
+  margin-top: 3.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  position: relative;
 }
 
 /* Middle Section (Candy, Timer, Controls) */

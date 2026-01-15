@@ -14,6 +14,7 @@ interface PokemonDisplayProps {
   isBusy?: boolean;
   nickname?: string;
   onRename?: (newName: string) => void;
+  types?: string[];
 }
 
 // Inline level calculation (logic moved to Main process)
@@ -34,7 +35,8 @@ export default function PokemonDisplay({
   timerState, 
   isBusy,
   nickname,
-  onRename
+  onRename,
+  types
 }: PokemonDisplayProps) {
   const [displaySpecies, setDisplaySpecies] = useState(name);
   const [animPhase, setAnimPhase] = useState<'idle' | 'in' | 'out'>('idle');
@@ -115,8 +117,38 @@ export default function PokemonDisplay({
 
   const displayName = nickname || displaySpecies;
 
+  const getBackgroundStyle = () => {
+    if (!types || types.length === 0) return {};
+    
+    const colors: Record<string, string> = {
+      electric: 'rgba(250, 204, 21, 0.4)',
+      grass: 'rgba(74, 222, 128, 0.4)',
+      poison: 'rgba(167, 139, 250, 0.4)',
+      fire: 'rgba(248, 113, 113, 0.4)',
+      flying: 'rgba(147, 197, 253, 0.4)',
+      water: 'rgba(96, 165, 250, 0.4)',
+      rock: 'rgba(168, 162, 158, 0.4)',
+      ground: 'rgba(251, 191, 36, 0.4)',
+      bug: 'rgba(167, 185, 28, 0.4)',
+      normal: 'rgba(168, 168, 120, 0.4)'
+    };
+
+    if (types.length >= 2) {
+      const c1 = colors[types[0]] || 'rgba(255, 255, 255, 0.05)';
+      const c2 = colors[types[1]] || 'rgba(255, 255, 255, 0.05)';
+      return { 
+        background: `linear-gradient(135deg, ${c1} 0%, ${c1} 50%, ${c2} 50%, ${c2} 100%)` 
+      } as React.CSSProperties;
+    }
+
+    const type = types[0];
+    return { background: colors[type] || 'rgba(255, 255, 255, 0.05)' } as React.CSSProperties;
+  };
+
   return (
-    <div className="pokemon-display-container">
+    <div className={`pokemon-display-container ${isBusy ? 'busy' : ''}`} style={getBackgroundStyle()}>
+      <div className="pokemon-level-badge">Lvl {level}</div>
+
       <div className="pokemon-display-name">
         {isEditing ? (
           <input
@@ -141,7 +173,6 @@ export default function PokemonDisplay({
             {displayName}
           </span>
         )}
-        <span className="pokemon-display-lvl">Lvl {level}</span>
       </div>
 
       <img 
