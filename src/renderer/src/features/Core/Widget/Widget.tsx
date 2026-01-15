@@ -311,7 +311,15 @@ function Widget() {
                     <button className="btn-primary btn-icon" onClick={() => setShowShop(true)} title="Ouvrir la boutique">🏪</button>
                   ) : (
                     !isAdventureRunning ? (
-                      <button className="btn-primary btn-icon" onClick={() => { if (activeId) { setIsAdventureRunning(true); setBusyPokemonId(activeId); timerRef.current?.start(); } }} title="Démarrer l'aventure">▶</button>
+                      <button className="btn-primary btn-icon" onClick={() => { 
+                        if (activeId) { 
+                          setIsAdventureRunning(true); 
+                          setBusyPokemonId(activeId); 
+                          timerRef.current?.start(); 
+                          // Auto-minimalist
+                          if (!isMinimalist) toggleMinimalist();
+                        } 
+                      }} title="Démarrer l'aventure">▶</button>
                     ) : (
                       <button className="btn-danger btn-icon" onClick={() => { setIsAdventureRunning(false); timerRef.current?.reset(); setBusyPokemonId(null); }} title="Arrêter">⏹</button>
                     )
