@@ -180,13 +180,50 @@ function Widget() {
 
   if (ownedPokemon.length === 0) {
     const starterOptions = ['bulbizarre', 'carapuce', 'salameche', 'pikachu'];
+
+    const getTypeBackground = (types: string[] = []) => {
+      if (!types || types.length === 0) return {};
+      
+      const colors: Record<string, string> = {
+        electric: 'rgba(250, 204, 21, 0.4)',
+        grass: 'rgba(74, 222, 128, 0.4)',
+        poison: 'rgba(167, 139, 250, 0.4)',
+        fire: 'rgba(248, 113, 113, 0.4)',
+        flying: 'rgba(147, 197, 253, 0.4)',
+        water: 'rgba(96, 165, 250, 0.4)',
+        rock: 'rgba(168, 162, 158, 0.4)',
+        ground: 'rgba(251, 191, 36, 0.4)',
+        bug: 'rgba(167, 185, 28, 0.4)',
+        normal: 'rgba(168, 168, 120, 0.4)'
+      };
+  
+      if (types.length >= 2) {
+        const c1 = colors[types[0]] || 'rgba(255, 255, 255, 0.05)';
+        const c2 = colors[types[1]] || 'rgba(255, 255, 255, 0.05)';
+        return { 
+          background: `linear-gradient(135deg, ${c1} 0%, ${c1} 50%, ${c2} 50%, ${c2} 100%)` 
+        } as React.CSSProperties;
+      }
+  
+      const type = types[0];
+      return { background: colors[type] || 'rgba(255, 255, 255, 0.05)' } as React.CSSProperties;
+    };
+
     return (
       <div className="app-container">
-        <div className="window-controls">
-          <button className="win-btn close" onClick={() => window.api?.close()} title="Fermer">×</button>
+        <div className="app-header" style={{ justifyContent: 'space-between' }}>
+           <div className="header-zone-label">CHOISISSEZ VOTRE STARTER</div>
+           <div className="window-controls">
+              <button 
+                className="win-btn close" 
+                onClick={() => window.api?.close()} 
+                title="Fermer"
+                style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+              >×</button>
+           </div>
         </div>
+        
         <div className="starter-selection">
-          <h4 className="starter-title">Choisissez votre starter</h4>
           <div className="starter-grid">
             {starterOptions.map(id => {
               const p = pokedex.find(pData => pData.id === id);
@@ -195,7 +232,13 @@ function Widget() {
               const src = (Object.entries(pokemonImages).find(([path]) => path.toLowerCase().includes(id.toLowerCase()))?.[1] as any)?.default;
               
               return (
-                <div key={id} className="starter-card" onClick={() => window.gameAPI.pickStarter(id)}>
+                <div 
+                  key={id} 
+                  className="starter-card" 
+                  onClick={() => window.gameAPI.pickStarter(id)}
+                  style={getTypeBackground(p?.types)}
+                >
+                  <div className="starter-level">Lvl 5</div>
                   <img src={src} alt={id} className="starter-img" />
                   <span className="starter-label">{p?.label}</span>
                 </div>
@@ -218,6 +261,12 @@ function Widget() {
              </div>
           )}
           <div className="window-controls">
+            <button 
+              className="win-btn minimize" 
+              onClick={() => window.api?.minimize()} 
+              title="Réduire"
+              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            >−</button>
             {!combatState.active && (
               <button 
                 className="win-btn minimize-mode" 
@@ -225,15 +274,9 @@ function Widget() {
                 title="Mode Minimaliste"
                 style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
               >
-                🖼️
+                🗗
               </button>
             )}
-            <button 
-              className="win-btn minimize" 
-              onClick={() => window.api?.minimize()} 
-              title="Réduire"
-              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-            >−</button>
             <button 
               className="win-btn close" 
               onClick={() => window.api?.close()} 

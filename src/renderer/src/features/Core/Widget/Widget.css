@@ -27,6 +27,10 @@
   -webkit-user-select: none;
 }
 
+.app-container.in-combat {
+  height: calc(100vh - 4rem) !important;
+}
+
 /* Make interactive elements non-draggable and responsive */
 button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   -webkit-app-region: no-drag;
@@ -389,61 +393,87 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
 
 /* --- STARTER SELECTION --- */
 .starter-selection {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  flex: 1; /* Take remaining height */
+  overflow-y: auto;
+}
+
+.starter-title {
+  /* Removed or Hidden if using app-header now */
+  display: none;
+}
+
+.starter-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  width: 100%;
+  padding: 1rem;
+}
+
+.starter-card {
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  width: 100%;
-  gap: 1.5rem;
-}
-
-.starter-title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  text-align: center;
-  color: var(--text-primary);
-  text-shadow: 0 0 10px rgba(0,0,0,0.5);
-}
-
-.starter-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  width: 100%;
-}
-
-.starter-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: rgba(17, 24, 39, 0.4);
-  border: 1px solid var(--glass-border);
-  border-radius: 1rem;
-  padding: 0.75rem;
-  cursor: pointer;
+  position: relative;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--glass-bg); /* Fallback */
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 0.25rem;
+  cursor: pointer;
   -webkit-app-region: no-drag;
 }
 
 .starter-card:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-5px);
-  border-color: var(--color-primary-light);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  transform: scale(1.08);
+  filter: brightness(1.2);
+  z-index: 10;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 .starter-img {
-  width: 3.5rem;
-  height: 3.5rem;
+  width: 4.2rem;
+  height: 4.2rem;
+  object-fit: contain;
   image-rendering: pixelated;
-  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  margin-bottom: 2px;
 }
 
 .starter-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #f1f5f9;
+  font-weight: 800;
+  font-size: 0.65rem;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.starter-level {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: white;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 1px 4px;
+  border-radius: 4px;
+  pointer-events: none;
 }
 /* --- ULTRA-MINIMALIST UNIFIED MODE --- */
 .app-container.minimal {

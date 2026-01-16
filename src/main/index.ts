@@ -34,15 +34,24 @@ function initializeServices(): void {
 }
 
 function createWindow(): void {
+  const { screen } = require('electron')
+  const primaryDisplay = screen.getPrimaryDisplay()
+  const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize
+  const width = 350
+  const height = 450
+
   mainWindow = new BrowserWindow({
-    width: 350,  /* Reverted to 350 */
-    height: 450, /* Reverted to 450 */
+    width: width,
+    height: height,
+    x: screenWidth - width - 20,
+    y: screenHeight - height - 20,
     show: false,
     autoHideMenuBar: true,
     transparent: true,
     frame: false,
     hasShadow: false,
     resizable: false,
+    alwaysOnTop: true,
     backgroundColor: '#00000000',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -51,6 +60,9 @@ function createWindow(): void {
       nodeIntegration: false
     }
   })
+  
+  // Force highest priority
+  mainWindow.setAlwaysOnTop(true, 'screen-saver')
 
   // Native material disabled to allow rounded corner masking
   /*
@@ -87,7 +99,7 @@ function createSelectionWindow(): void {
   }
 
   selectionWindow = new BrowserWindow({
-    width: 700,  /* Widened for 3-column PC and Team */
+    width: 600,  /* Adjusted width */
     height: 750, /* Increased height for better scrolling */
     show: false,
     autoHideMenuBar: true,
@@ -96,6 +108,7 @@ function createSelectionWindow(): void {
     hasShadow: false,
     titleBarStyle: 'hidden',
     resizable: true,
+    alwaysOnTop: true,
     backgroundColor: '#00000000',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -104,6 +117,8 @@ function createSelectionWindow(): void {
       nodeIntegration: false
     }
   })
+  
+  selectionWindow.setAlwaysOnTop(true, 'screen-saver')
 
   if (process.platform === 'win32') {
     // selectionWindow.setBackgroundMaterial('acrylic')
@@ -139,6 +154,7 @@ function createMapWindow(): void {
     transparent: true,
     hasShadow: false,
     resizable: false,
+    alwaysOnTop: true,
     backgroundColor: '#00000000',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -147,6 +163,8 @@ function createMapWindow(): void {
       nodeIntegration: false
     }
   })
+  
+  mapWindow.setAlwaysOnTop(true, 'screen-saver')
 
   mapWindow.on('ready-to-show', () => {
     mapWindow?.show()
@@ -219,14 +237,14 @@ ipcMain.on('window-toggle-minimalist', (event, isMinimalist: boolean) => {
     const minHeight = 100
     win.setSize(minWidth, minHeight)
     win.setPosition(screenWidth - minWidth - 20, screenHeight - minHeight - 20)
-    win.setAlwaysOnTop(true)
   } else {
     const normalWidth = 350
     const normalHeight = 450
     win.setSize(normalWidth, normalHeight)
-    win.center()
-    win.setAlwaysOnTop(false)
+    win.setPosition(screenWidth - normalWidth - 20, screenHeight - normalHeight - 20)
   }
+  // Force screen-saver level to ensure it stays on top of everything
+  win.setAlwaysOnTop(true, 'screen-saver')
 })
 
 // App Lifecycle
