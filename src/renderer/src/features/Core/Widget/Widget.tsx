@@ -261,7 +261,9 @@ function Widget() {
       {/* --- WINDOW CONTROLS (Normal mode only) --- */}
       {!isMinimalist && (
         <div className="app-header">
-          {!combatState.active && (
+          {combatState.active ? (
+             <div className="header-zone-label">COMBAT EN COURS</div>
+          ) : (
              <div className="header-zone-label">
                 {zones.find(z => z.id === selectedZone)?.label}
              </div>

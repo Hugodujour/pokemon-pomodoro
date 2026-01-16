@@ -172,7 +172,7 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   justify-content: center;
   gap: 1.5rem;
   width: 100%;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
 }
 
 .side-controls {

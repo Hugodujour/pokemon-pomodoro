@@ -37,7 +37,7 @@ export default function CombatScreen({
   onClose,
   result,
   captured
-}: CombatScreenProps): JSX.Element {
+}: CombatScreenProps): React.ReactElement {
   
   // Victory sequence state
   // phases: 'fighting' -> 'throw_ball' -> 'shake_ball' -> 'caught' | 'broke_out' -> 'finished'
@@ -204,7 +204,19 @@ export default function CombatScreen({
            </div>
         </div>
 
-        <div className="combat-vs">VS</div>
+        <div className="combat-vs">
+          {victoryPhase === 'finished' ? (
+            <button 
+              className={`btn-icon result-btn ${result === 'win' ? 'btn-primary' : 'btn-danger'}`} 
+              onClick={onClose}
+              title="Retour à l'accueil"
+            >
+              ↩
+            </button>
+          ) : (
+            "VS"
+          )}
+        </div>
 
         {/* OPPONENT (Right) */}
         <div className="combat-fighter opponent">
@@ -222,44 +234,35 @@ export default function CombatScreen({
 
       {/* MIDDLE: ACTION / RETURN BUTTON */}
       <div className="combat-action-middle">
-        {victoryPhase === 'finished' && (
-          <div className="finished-container">
-            <button 
-              className={`btn-icon result-btn ${result === 'win' ? 'btn-primary' : 'btn-danger'}`} 
-              onClick={onClose}
-              title="Retour à l'accueil"
-            >
-              ↩
-            </button>
-          </div>
-        )}
+        {/* Actions or additional UI could go here */}
       </div>
 
       {/* BOTTOM: LOGS */}
+      <div className="section-divider">
+         <div className="header-zone-label">Détails du combat</div>
+      </div>
+
       <div className="combat-logs-bottom">
-         <div className="logs-section">
-            <h4 className="logs-title">Détails du combat</h4>
-            <div className="logs-viewport" ref={logViewportRef}>
-               {log.map((line, i) => (
-                 <div key={i} className="log-line">{line}</div>
-               ))}
-               {victoryPhase === 'finished' && result === 'win' && (
-                <div className="log-line">
-                   {captured ? (
-                     <strong>{opponentPokemon.label} capturé !</strong>
-                   ) : (
-                     <strong>Le {opponentPokemon.label} sauvage s'est échappé...</strong>
-                   )}
-                 </div>
+        <div className="logs-viewport" ref={logViewportRef}>
+           {log.map((line, i) => (
+             <div key={i} className="log-line">{line}</div>
+           ))}
+           {victoryPhase === 'finished' && result === 'win' && (
+            <div className="log-line">
+               {captured ? (
+                 <strong>{opponentPokemon.label} capturé !</strong>
+               ) : (
+                 <strong>Le {opponentPokemon.label} sauvage s'est échappé...</strong>
                )}
-               {victoryPhase === 'finished' && result === 'flee' && (
-                 <div className="log-line">Vous avez pris la fuite.</div>
-               )}
-               {victoryPhase === 'finished' && result === 'lose' && (
-                 <div className="log-line">Votre Pokémon est K.O...</div>
-               )}
-            </div>
-         </div>
+             </div>
+           )}
+           {victoryPhase === 'finished' && result === 'flee' && (
+             <div className="log-line">Vous avez pris la fuite.</div>
+           )}
+           {victoryPhase === 'finished' && result === 'lose' && (
+             <div className="log-line">Votre Pokémon est K.O...</div>
+           )}
+        </div>
       </div>
     </div>
   );

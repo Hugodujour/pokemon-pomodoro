@@ -37,7 +37,6 @@ function SelectionScreen() {
     return { ...instance, label, types: data?.types } as any;
   });
 
-  const [showStorage, setShowStorage] = useState(false);
   const [draggedItem, setDraggedItem] = useState<DraggedItem | null>(null);
 
   const handleDragStart = (_e: React.DragEvent, uuid: string, source: 'team' | 'storage') => {
@@ -166,38 +165,50 @@ function SelectionScreen() {
 
   return (
     <div className={`selection-screen ${isBusy ? 'is-busy' : ''}`}>
-      <div className="selection-header">
-        <h2 className="selection-title">{isBusy ? 'AVENTURE EN COURS' : 'GESTION DE L\'ÉQUIPE'}</h2>
-        <button className="selection-close" onClick={() => {
-          if (activeId) {
-            window.api.selectPokemon(activeId);
-          } else {
-            window.api.close();
-          }
-        }}>×</button>
+      <div className="app-header">
+        <div className="header-zone-label">
+          {isBusy ? 'AVENTURE EN COURS' : 'GESTION DE L\'ÉQUIPE'}
+        </div>
+        <div className="window-controls">
+          <button 
+            className="win-btn minimize" 
+            onClick={() => window.api?.minimize()} 
+            title="Réduire"
+          >−</button>
+          <button className="win-btn close" onClick={() => {
+            if (activeId) {
+              window.api.selectPokemon(activeId);
+            } else {
+              window.api.close();
+            }
+          }}>×</button>
+        </div>
       </div>
       
-      <Team 
-        team={teamList} 
-        activeId={activeId} 
-        onSelect={handleSelectActive} 
-        onRemove={handleRemoveFromTeam}
-        onDragStart={(e, uuid) => handleDragStart(e, uuid, 'team')}
-        onDragEnd={() => setDraggedItem(null)}
-        onDragOver={handleDragOver}
-        onDrop={handleDropOnTeam}
-        isBusy={isAdventureActive || isCombatActive}
-      />
+      <div className="selection-content">
+        <Team 
+          team={teamList} 
+          activeId={activeId} 
+          onSelect={handleSelectActive} 
+          onRemove={handleRemoveFromTeam}
+          onDragStart={(e, uuid) => handleDragStart(e, uuid, 'team')}
+          onDragEnd={() => setDraggedItem(null)}
+          onDragOver={handleDragOver}
+          onDrop={handleDropOnTeam}
+          isBusy={isAdventureActive || isCombatActive}
+        />
+      </div>
 
-      <div 
-        className="storage-section drop-zone"
-        onDragOver={handleDragOver}
-        onDrop={() => handleDropOnStorage(null)}
-      >
-        <button className="btn-toggle-storage" onClick={() => setShowStorage(prev => !prev)}>
-          {showStorage ? 'Fermer PC' : 'Accéder au PC'}
-        </button>
-        {showStorage && (
+      <div className="section-divider">
+        <div className="header-zone-label">POKÉMON STOCKÉS (PC)</div>
+      </div>
+      
+      <div className="selection-content">
+        <div 
+          className="storage-section drop-zone"
+          onDragOver={handleDragOver}
+          onDrop={() => handleDropOnStorage(null)}
+        >
           <StorageSystem 
             storedPokemon={storageList} 
             onWithdraw={handleWithdraw} 
@@ -207,7 +218,7 @@ function SelectionScreen() {
             onDragOver={handleDragOver}
             onDrop={(targetUuid) => handleDropOnStorage(targetUuid)}
           />
-        )}
+        </div>
       </div>
     </div>
   );

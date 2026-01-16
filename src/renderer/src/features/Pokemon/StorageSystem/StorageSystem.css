@@ -16,19 +16,12 @@
   position: relative;
   border-radius: 0.75rem;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   background: var(--type-bg, var(--glass-bg));
   border: 1px solid var(--glass-border);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-}
-
-.storage-item:hover {
-  transform: scale(1.08);
-  filter: brightness(1.2);
-  z-index: 10;
 }
 
 .storage-sprite {
