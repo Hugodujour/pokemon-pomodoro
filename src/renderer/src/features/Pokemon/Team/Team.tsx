@@ -31,7 +31,7 @@ export default function Team({
     slots.push(null);
   }
 
-  const pokemonImages = import.meta.glob('../../../assets/pokemon/*.{gif,png,jpg,jpeg}', {
+  const pokemonImages = import.meta.glob('../../../assets/pokemon/large/*.{gif,png,jpg,jpeg}', {
     eager: true
   });
 

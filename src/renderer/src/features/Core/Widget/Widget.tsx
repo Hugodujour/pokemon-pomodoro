@@ -234,7 +234,7 @@ function Widget() {
             {starterOptions.map(id => {
               const p = pokedex.find(pData => pData.id === id);
               // Dynamic image lookup
-              const pokemonImages = import.meta.glob('../../../assets/pokemon/*.{gif,png}', { eager: true });
+              const pokemonImages = import.meta.glob('../../../assets/pokemon/large/*.{gif,png}', { eager: true });
               const src = (Object.entries(pokemonImages).find(([path]) => path.toLowerCase().includes(id.toLowerCase()))?.[1] as any)?.default;
               
               return (
@@ -315,7 +315,7 @@ function Widget() {
               <div className="minimal-pokemon-slot" style={getTypeBackground(activeSpeciesData?.types)}>
                 {activeInstance && (
                   <img 
-                    src={(Object.entries(import.meta.glob('../../../assets/pokemon/*.{gif,png}', { eager: true })).find(([path]) => path.toLowerCase().includes(activeInstance!.speciesId.toLowerCase()))?.[1] as any)?.default} 
+                    src={(Object.entries(import.meta.glob('../../../assets/pokemon/mini/*.{gif,png}', { eager: true })).find(([path]) => path.toLowerCase().includes(activeInstance!.speciesId.toLowerCase()))?.[1] as any)?.default} 
                     alt="poke" 
                     className="minimal-poke-img" 
                     draggable="false"

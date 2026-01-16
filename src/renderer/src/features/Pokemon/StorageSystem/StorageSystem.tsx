@@ -23,7 +23,7 @@ export default function StorageSystem({
 }: StorageSystemProps) {
   if (!visible) return null;
 
-  const pokemonImages = import.meta.glob('../../../assets/pokemon/*.{gif,png,jpg,jpeg}', {
+  const pokemonImages = import.meta.glob('../../../assets/pokemon/mini/*.{gif,png,jpg,jpeg}', {
     eager: true
   });
 

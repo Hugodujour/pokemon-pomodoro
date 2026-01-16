@@ -138,7 +138,7 @@ export default function CombatScreen({
   }, [isFinished, result, captured]);
 
   // Helper to get image URL
-  const pokemonImages = import.meta.glob('../../../assets/pokemon/*.{gif,png,jpg,jpeg}', {
+  const pokemonImages = import.meta.glob('../../../assets/pokemon/large/*.{gif,png,jpg,jpeg}', {
     eager: true
   });
   const pokeballIcon = (import.meta.glob('../../../assets/icon/pokeball.png', { eager: true })['../../../assets/icon/pokeball.png'] as any).default;

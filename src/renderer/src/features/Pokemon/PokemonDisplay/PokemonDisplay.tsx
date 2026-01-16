@@ -67,7 +67,7 @@ export default function PokemonDisplay({
     setEditValue(nickname || name);
   }, [nickname, name]);
 
-  const pokemonImages = import.meta.glob('../../../assets/pokemon/*.{gif,png,jpg,jpeg}', {
+  const pokemonImages = import.meta.glob('../../../assets/pokemon/large/*.{gif,png,jpg,jpeg}', {
     eager: true
   });
 
