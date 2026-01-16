@@ -187,7 +187,11 @@ export default function PokemonDisplay({
       <div className="xp-bar-container">
         <div
           className={`xp-bar-fill ${isTimer ? 'timer' : 'xp'}`}
-          style={{ '--progress': percent + '%' } as React.CSSProperties}
+          style={{ 
+            width: `${percent}%`,
+            minWidth: percent > 0 ? '5%' : '0%',
+            zIndex: 10
+          } as React.CSSProperties}
         />
       </div>
 

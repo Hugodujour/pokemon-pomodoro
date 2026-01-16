@@ -101,25 +101,30 @@
 }
 
 .xp-bar-container {
+  position: relative;
   width: 85%;
   height: 6px;
+  min-height: 6px;
   background: rgba(0, 0, 0, 0.6);
   border-radius: 99px;
-  overflow: hidden;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
-  margin-top: 4px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  display: block;
+  flex-shrink: 0;
 }
 
 .xp-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
   height: 100%;
-  width: var(--progress, 0%);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 99px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
 }
 
 .xp-bar-fill.xp {
-  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+  background: linear-gradient(90deg, #1994ff 0%, #17f0ff 100%) !important;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
 }
 
 .xp-bar-fill.timer {

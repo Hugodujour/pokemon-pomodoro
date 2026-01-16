@@ -147,7 +147,10 @@ export class GameService {
     const owned = this.db.getAllPokemon()
     if (owned.length > 0) return null // Starter déjà choisi
 
-    const pokemon = this.addPokemon(speciesId, 1)
+    const pokemon = this.addPokemon(speciesId, 5)
+    // Give initial XP (2) so the bar isn't empty (2/5 = 40% filled)
+    this.giveXp(pokemon.uuid, 2)
+
     this.db.setActiveId(pokemon.uuid)
     this.notifyListeners()
     return pokemon
