@@ -211,9 +211,15 @@ function Widget() {
 
     return (
       <div className="app-container">
-        <div className="app-header" style={{ justifyContent: 'space-between' }}>
+        <div className="app-header">
            <div className="header-zone-label">CHOISISSEZ VOTRE STARTER</div>
            <div className="window-controls">
+              <button 
+                className="win-btn minimize" 
+                onClick={() => window.api?.minimize()} 
+                title="Réduire"
+                style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+              >−</button>
               <button 
                 className="win-btn close" 
                 onClick={() => window.api?.close()} 
