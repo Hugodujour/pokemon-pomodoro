@@ -4,7 +4,8 @@
 .combat-screen-layout {
   width: 100%;
   height: 100%;
-  padding: 0;
+  padding: 0 2rem;
+  /* Added side padding */
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -13,71 +14,200 @@
   position: relative;
 }
 
+/* MIDDLE: ACTIONS / RETURN (Unused) */
+.combat-action-middle {
+  display: none;
+}
+
 /* TOP: POKEMON */
 .combat-pokemon-top {
   flex: none;
   width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+  /* Increased height for the diagonal layout space */
+  min-height: 180px;
   position: relative;
-  min-height: 80px;
-  padding: 0 1.5rem 0 1.5rem; /* Reduced top/bottom padding */
+  padding: 0;
   box-sizing: border-box;
+
+  /* Zone Background */
+  background-image: url('../../../assets/zone/grassy.png');
+  background-size: cover;
+  background-position: center bottom;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+  margin-bottom: 0.25rem;
+  overflow: hidden;
+  /* Clip everything inside */
 }
 
-/* MIDDLE: ACTIONS / RETURN */
-.combat-action-middle {
-  flex: none;
+/* Common Fighter Container */
+.combat-fighter {
+  position: absolute;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
+  align-items: flex-end;
+  /* Align sprites and boxes at bottom of their line */
+  gap: 1rem;
 }
 
-.finished-container {
-  width: 100%;
+/* OPPONENT CONFIG */
+.combat-fighter.opponent {
+  top: 1.5rem;
+  right: 1.5rem;
+  flex-direction: row;
+  /* Info Left, Sprite Right */
+  align-items: center;
+}
+
+.combat-fighter.opponent .combat-sprite {
+  width: 5rem;
+  /* Larger sprites */
+  height: 5rem;
+}
+
+/* PLAYER CONFIG */
+.combat-fighter.player {
+  bottom: 1rem;
+  left: 1.5rem;
+  flex-direction: row;
+  /* Sprite Left, Info Right */
+  align-items: center;
+  /* Align center vertically so box and sprite look connected */
+}
+
+.combat-fighter.player .combat-sprite {
+  width: 6rem;
+  /* Even larger back sprite */
+  height: 6rem;
+  /* Shift down slightly to look "closer" */
+  transform: translateY(10px);
+}
+
+/* SPRITE CONTAINER & SHADOW */
+.combat-sprite-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.shadow-oval {
+  position: absolute;
+  bottom: 0px;
+  width: 80%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  filter: blur(2px);
+  z-index: 0;
+}
+
+.combat-sprite {
+  position: relative;
+  z-index: 10;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* INFO PANELS (Gen 4/5 Style) */
+.combat-info-panel {
+  background: rgba(23, 23, 23, 0.7);
+  /* Dark semi-transparent */
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px 16px 8px 16px;
+  /* Stylized corners */
+  padding: 0.5rem 0.75rem;
+  min-width: 140px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin: 1.5rem 0;
-  animation: slideDownFade 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 2px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  position: relative;
+  font-family: 'Pokemon GB', sans-serif;
 }
 
-@keyframes slideDownFade {
-  from { transform: translateY(-10px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
+/* Add a little arrow/connector or just keep it floating */
 
-.result-btn {
-  width: 3rem !important;
-  height: 2.25rem !important;
-  padding: 0 !important;
-  font-size: 1.25rem !important;
-  border-radius: 0.75rem !important;
+.combat-info-top {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+  gap: 0.5rem;
 }
 
-.result-btn.btn-primary {
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4) !important;
+.combat-name {
+  font-weight: 700;
+  font-size: 0.65rem;
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #000;
 }
 
-.result-btn.btn-danger {
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4) !important;
+.combat-gender {
+  font-size: 0.6rem;
+  color: #60a5fa;
+  /* Blue for male default */
 }
 
-.result-btn:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
+.combat-lvl {
+  font-size: 0.6rem;
+  color: #fbbf24;
+  margin-left: auto;
 }
 
-.result-btn:active {
-  transform: translateY(0);
+.combat-hp-container {
+  width: 100%;
+  background: #334155;
+  border-radius: 99px;
+  height: 6px;
+  border: 1px solid #475569;
+  position: relative;
+  margin-top: 2px;
+}
+
+.combat-hp-bar {
+  width: 100%;
+  height: 100%;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.combat-hp-fill {
+  height: 100%;
+  width: var(--progress, 0%);
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+  transition: width 0.3s ease;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+.combat-hp-fill.opponent-hp {
+  background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+}
+
+.combat-hp-text {
+  font-size: 0.5rem;
+  color: #ffffff;
+  text-align: right;
+  margin-top: 2px;
+  text-shadow: 1px 1px 0 #000;
+  position: absolute;
+  right: 0;
+  bottom: -12px;
+}
+
+.combat-exp-bar {
+  width: 100%;
+  height: 2px;
+  background: #0ea5e9;
+  margin-top: 2px;
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+/* Remove old styles references if unused */
+.combat-vs {
+  display: none;
 }
 
 /* BOTTOM: LOGS */
@@ -85,6 +215,7 @@
   flex: 1;
   width: 100%;
   min-height: 0;
+  /* Let flex handle height to prevent overflow clipped */
   display: flex;
   flex-direction: column;
   padding: 0 1rem;
@@ -94,7 +225,7 @@
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 /* Reusing your existing styles with vertical tweaks */
@@ -103,7 +234,8 @@
   width: 100%;
   height: 1px;
   background: var(--glass-border);
-  margin: 1.5rem 0; /* Unified spacing */
+  margin: 0.25rem 0;
+  /* Unified spacing reduced */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -122,7 +254,7 @@
   border-radius: 99px;
   white-space: nowrap;
   pointer-events: none;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   border: 1px solid var(--glass-border);
   z-index: 10;
 }
@@ -131,10 +263,12 @@
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  height: 0; /* Flexbox trick to ensure the container uses scroll instead of growing */
+  height: 0;
+  /* Flexbox trick to ensure the container uses scroll instead of growing */
   padding: 0.5rem;
-  font-family: inherit;
-  font-size: 0.75rem;
+  font-family: 'Pokemon GB', sans-serif;
+  font-size: 0.6rem;
+  /* Slightly smaller for the blocky font */
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -142,92 +276,6 @@
   scrollbar-color: var(--glass-border) transparent;
 }
 
-/* ... (the rest of the spray/animation styles should remain as is, 
-   but make sure they are included in the final file) ... */
-   
-.combat-fighter {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  flex: 1;
-}
-
-.combat-sprite-container {
-  flex-shrink: 0;
-}
-
-.combat-sprite {
-  width: 3.5rem;
-  height: 3.5rem;
-  object-fit: contain;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 4px 4px rgba(0,0,0,0.4));
-}
-
-.combat-fighter.player .combat-sprite {
-  transform: scaleX(-1);
-}
-
-.combat-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.combat-name {
-  font-weight: 700;
-  font-size: 0.75rem;
-  white-space: nowrap;
-  color: var(--text-primary);
-}
-
-.combat-lvl {
-  font-size: 0.7em;
-  margin-left: 0.2rem;
-  color: var(--color-primary-light);
-}
-
-.combat-hp-bar {
-  width: 100%;
-  height: 4px;
-  border-radius: 99px;
-  background: var(--glass-border);
-  overflow: hidden;
-  margin: 2px 0;
-}
-
-.combat-hp-fill {
-  height: 100%;
-  width: var(--progress, 0%);
-  background: var(--color-danger);
-  transition: width 0.3s ease;
-}
-
-.combat-hp-text {
-  font-size: 0.6rem;
-  color: var(--text-primary);
-  opacity: 0.9;
-}
-
-.combat-vs {
-  font-weight: 900;
-  font-size: 0.7rem;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 3rem;
-}
-
-.combat-vs:not(:has(button)) {
-  opacity: 0.4;
-}
-
-.combat-vs button {
-  animation: slideDownFade 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
 
 /* ... LOG LINE STYLES ... */
 .log-line {
@@ -261,8 +309,17 @@
 }
 
 @keyframes throw-ball-anim {
-  0% { left: 20%; bottom: 20%; transform: scale(0.5) rotate(0deg); }
-  100% { left: 77%; bottom: 35%; transform: scale(1) rotate(720deg); }
+  0% {
+    left: 20%;
+    bottom: 20%;
+    transform: scale(0.5) rotate(0deg);
+  }
+
+  100% {
+    left: 77%;
+    bottom: 35%;
+    transform: scale(1) rotate(720deg);
+  }
 }
 
 .anim-throw {
@@ -272,47 +329,108 @@
 
 .anim-shake {
   display: block;
-  left: 77%; bottom: 35%;
+  left: 77%;
+  bottom: 35%;
   animation: shake-ball-anim 0.7s 3 ease-in-out;
 }
+
 @keyframes shake-ball-anim {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-20deg); }
-  75% { transform: rotate(20deg); }
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-20deg);
+  }
+
+  75% {
+    transform: rotate(20deg);
+  }
 }
 
 .anim-caught {
   display: block;
-  left: 77%; bottom: 35%;
+  left: 77%;
+  bottom: 35%;
 }
 
 @keyframes attack-player {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(30px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(30px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
 }
+
 @keyframes attack-opponent {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-30px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-30px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
 }
-.anim-attack-player { animation: attack-player 0.2s; }
-.anim-attack-opponent { animation: attack-opponent 0.2s; }
+
+.anim-attack-player {
+  animation: attack-player 0.2s;
+}
+
+.anim-attack-opponent {
+  animation: attack-opponent 0.2s;
+}
 
 @keyframes absorb-pokemon-anim {
-  0% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(0); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
 }
-.anim-absorb { animation: absorb-pokemon-anim 0.4s forwards; }
+
+.anim-absorb {
+  animation: absorb-pokemon-anim 0.4s forwards;
+}
 
 @keyframes breakout-anim {
-  0% { transform: scale(0); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
-.anim-breakout { animation: breakout-anim 0.4s forwards; }
+
+.anim-breakout {
+  animation: breakout-anim 0.4s forwards;
+}
 
 @keyframes flee-fade {
-  to { transform: translateX(20px); opacity: 0; }
+  to {
+    transform: translateX(20px);
+    opacity: 0;
+  }
 }
-.anim-flee { animation: flee-fade 0.5s forwards; }
 
+.anim-flee {
+  animation: flee-fade 0.5s forwards;
+}

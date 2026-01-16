@@ -13,6 +13,7 @@ declare global {
       openMapWindow: () => void;
       selectZone: (zoneId: string) => void;
       onZoneSelected: (callback: (zoneId: string) => void) => () => void;
+      setCombatMode: (inCombat: boolean) => void;
     };
     gameAPI: {
       getState: () => Promise<any>;

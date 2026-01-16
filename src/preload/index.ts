@@ -19,7 +19,8 @@ const windowAPI = {
     const subscription = (_event: any, zoneId: string) => callback(zoneId)
     ipcRenderer.on('zone-selected', subscription)
     return () => ipcRenderer.removeListener('zone-selected', subscription)
-  }
+  },
+  setCombatMode: (inCombat: boolean) => ipcRenderer.send('window-set-combat-mode', inCombat)
 }
 
 // New Game API
