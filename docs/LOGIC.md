@@ -80,6 +80,9 @@ export const inventory = sqliteTable('inventory', {
 - `getInventory()` / `addItem(id, qty)` / `useItem(id)`
 
 
+## 3. GameService
+**Chemin :** `src/main/services/gameService.ts`
+
 Gère l'état global du jeu.
 
 ### État Géré
@@ -117,7 +120,7 @@ Gère l'état global du jeu.
 
 ## 4. CombatService
 
-**Chemin :** `src/main/services/combatService.js`
+**Chemin :** `src/main/services/combatService.ts`
 
 Gère toute la logique de combat.
 
@@ -171,7 +174,7 @@ damage = floor(basePower * 0.5 * (level/10) * STAB * effectiveness * random)
 
 ## 5. Données Statiques
 
-**Chemin :** `src/main/data/gameData.js`
+**Chemin :** `src/main/data/gameData.ts`
 
 ### Pokédex
 ```javascript
@@ -200,7 +203,7 @@ damage = floor(basePower * 0.5 * (level/10) * STAB * effectiveness * random)
 
 ## 6. IPC Handlers
 
-**Chemin :** `src/main/ipcHandlers.js`
+**Chemin :** `src/main/ipcHandlers.ts`
 
 Expose les services au Renderer via IPC.
 

@@ -77,7 +77,7 @@ src/
 4. **Renderer** reçoit l'état et met à jour l'UI
 
 ### Gestion de l'État
-L'état est **stocké dans le Main Process** et persisté dans un fichier JSON (`userData/game-data.json`).
+L'état est **stocké dans le Main Process** et persisté dans une base de données SQLite (`userData/pokemon-game.db`) via Drizzle ORM.
 
 Le `GameContext` dans le Renderer est un **client léger** qui :
 - Charge l'état initial via `window.gameAPI.getState()`
@@ -97,7 +97,7 @@ Le `GameContext` dans le Renderer est un **client léger** qui :
 - Récompenses (XP, bonbons, capture) distribuées via IPC.
 
 ### Persistance
-- **Fichier JSON** dans `app.getPath('userData')`.
+- **SQLite (better-sqlite3)** dans `app.getPath('userData')`.
 - Pas de `localStorage` (plus sécurisé, pas de limite de taille).
 - Synchronisation multi-fenêtres via IPC natif.
 

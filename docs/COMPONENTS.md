@@ -5,7 +5,7 @@ Ces composants sont **purement visuels** et appellent `window.gameAPI` pour tout
 
 ## 1. Widget Component
 
-**Chemin :** `src/renderer/src/features/Core/Widget/Widget.jsx`
+**Chemin :** `src/renderer/src/features/Core/Widget/Widget.tsx`
 
 Le composant racine de l'interface "overlay".
 
@@ -33,7 +33,7 @@ const {
 
 ## 2. CombatScreen
 
-**Chemin :** `src/renderer/src/features/Combat/CombatScreen/CombatScreen.jsx`
+**Chemin :** `src/renderer/src/features/Combat/CombatScreen/CombatScreen.tsx`
 
 L'écran de combat en overlay.
 
@@ -60,7 +60,7 @@ L'écran de combat en overlay.
 
 ## 3. PokemonDisplay
 
-**Chemin :** `src/renderer/src/features/Pokemon/PokemonDisplay/PokemonDisplay.jsx`
+**Chemin :** `src/renderer/src/features/Pokemon/PokemonDisplay/PokemonDisplay.tsx`
 
 Affiche le sprite et la barre de progression.
 
@@ -83,7 +83,7 @@ Utilise des classes CSS `anim-evo-out` et `anim-evo-in` pour l'effet de transfor
 
 ## 4. SelectionScreen
 
-**Chemin :** `src/renderer/src/features/Pokemon/SelectionScreen/SelectionScreen.jsx`
+**Chemin :** `src/renderer/src/features/Pokemon/SelectionScreen/SelectionScreen.tsx`
 
 Fenêtre Electron séparée pour la gestion d'équipe.
 
@@ -104,7 +104,7 @@ window.api.selectPokemon(id)    // Notifie le Widget
 
 ## 5. Team
 
-**Chemin :** `src/renderer/src/features/Pokemon/Team/Team.jsx`
+**Chemin :** `src/renderer/src/features/Pokemon/Team/Team.tsx`
 
 Affiche les slots d'équipe (max 3).
 
@@ -120,7 +120,7 @@ Affiche les slots d'équipe (max 3).
 
 ## 6. StorageSystem
 
-**Chemin :** `src/renderer/src/features/Pokemon/StorageSystem/StorageSystem.jsx`
+**Chemin :** `src/renderer/src/features/Pokemon/StorageSystem/StorageSystem.tsx`
 
 Grille de stockage PC.
 
@@ -135,7 +135,7 @@ Grille de stockage PC.
 
 ## 7. Timer
 
-**Chemin :** `src/renderer/src/features/Core/Timer/Timer.jsx`
+**Chemin :** `src/renderer/src/features/Core/Timer/Timer.tsx`
 
 Composant Timer avec imperative handle.
 
@@ -158,7 +158,7 @@ timerRef.current.pause()    // Met en pause
 
 ## 8. GameContext
 
-**Chemin :** `src/renderer/src/contexts/GameContext.jsx`
+**Chemin :** `src/renderer/src/contexts/GameContext.tsx`
 
 Client léger IPC pour l'état du jeu.
 
@@ -187,7 +187,7 @@ Toute action **mute** l'état via IPC, puis `refreshState()` recharge depuis le 
 
 ## 9. useCombat Hook
 
-**Chemin :** `src/renderer/src/hooks/useCombat.js`
+**Chemin :** `src/renderer/src/hooks/useCombat.ts`
 
 Hook pour gérer les combats via IPC.
 
