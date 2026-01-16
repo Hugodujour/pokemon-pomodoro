@@ -45,7 +45,9 @@ npm run build:win
 
 ## 📚 Documentation Détaillée
 
-La documentation technique se trouve dans le dossier `docs/` :
+La documentation technique complète commence ici : [**Index Technique**](docs/INDEX.md).
+
+Vous pouvez aussi accéder directement aux sections :
 
 - [**Architecture IPC**](docs/ARCHITECTURE_IPC.md) : Communication Main/Renderer et structure du code.
 - [**Logique Métier**](docs/LOGIC.md) : Services (Game, Combat, DB) et structures de données.
