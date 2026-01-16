@@ -200,7 +200,7 @@ function SelectionScreen() {
       </div>
 
       <div className="section-divider">
-        <div className="header-zone-label">POKéMONs STOCKES (PC)</div>
+        <div className="header-zone-label">POKéMONs EN STOCK (PC)</div>
       </div>
       
       <div className="selection-content">
