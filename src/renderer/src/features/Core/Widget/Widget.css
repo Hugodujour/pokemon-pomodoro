@@ -100,14 +100,21 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-.settings-btn {
+.pokedex-btn {
   background: rgba(255, 255, 255, 0.1) !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
   color: var(--text-primary) !important;
 }
 
-.settings-btn:hover {
+.pokedex-btn:hover {
   background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.pokedex-btn:disabled {
+  opacity: 0.4;
+  filter: grayscale(1);
+  cursor: not-allowed !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 .adventure-controls {
@@ -133,6 +140,13 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   cursor: pointer;
 }
 
+.btn-icon-img {
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+  pointer-events: none;
+}
+
 .map-btn {
   /* Inherits action-btn-square */
   background: rgba(99, 102, 241, 0.2) !important;
@@ -142,6 +156,13 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
 
 .map-btn:hover {
   background: rgba(99, 102, 241, 0.3) !important;
+}
+
+.map-btn:disabled {
+  opacity: 0.4;
+  filter: grayscale(1);
+  cursor: not-allowed !important;
+  border-color: rgba(99, 102, 241, 0.2) !important;
 }
 
 .play-btn {
@@ -266,10 +287,9 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   top: 100%; /* Position at the bottom edge of header */
   left: 50%;
   transform: translate(-50%, -50%); /* Center horizontally and vertically on the line */
-  font-size: 0.65rem;
-  font-weight: 800;
+  font-size: 0.5rem;
+  font-family: 'Pokemon GB', sans-serif;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
   color: var(--text-secondary);
   background: var(--glass-bg); /* Match container bg to hide the line behind text */
   padding: 0 10px;
@@ -277,7 +297,6 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   white-space: nowrap;
   pointer-events: none;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   border: 1px solid var(--glass-border);
 }
 
@@ -610,3 +629,45 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   from { background: rgba(239, 68, 68, 0.4); transform: scale(1); }
   to { background: rgba(239, 68, 68, 0.8); transform: scale(1.1); }
 }
+
+.help-box-container {
+  margin: 0 1.5rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch; /* Stretches to fill the app-container width */
+}
+
+.help-box-title {
+  font-family: 'Pokemon GB', sans-serif;
+  font-size: 0.45rem;
+  color: #fff;
+  opacity: 0.8;
+  margin-left: 4px;
+  margin-bottom: 6px;
+}
+
+/* Pokemon Style Help Box */
+.pokemon-help-box {
+  padding: 4px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  height: 4.5rem;
+  width: 100%; /* Fill the container */
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.help-box-content {
+  color: var(--text-primary);
+  font-family: 'Pokemon GB', sans-serif;
+  font-size: 0.65rem;
+  line-height: 2;
+  padding: 0 1rem;
+}
+

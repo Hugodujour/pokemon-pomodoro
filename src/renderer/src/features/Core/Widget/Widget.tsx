@@ -6,7 +6,23 @@ import { useCombat } from '../../../hooks/useCombat';
 import { useGame } from '../../../contexts/GameContext';
 import candyIcon from '../../../assets/icon/rare_candy.png';
 import exclamationIcon from '../../../assets/icon/exclamation.png';
+import startIcon from '../../../assets/icon/start.png';
+import stopIcon from '../../../assets/icon/stop.png';
+import pokedexIcon from '../../../assets/icon/pokedex.png';
+import mapIcon from '../../../assets/icon/map.png';
 import './Widget.css';
+
+const HOVER_MESSAGES = {
+  IDLE: "Aucune action en cours.",
+  CANDY: "Donner un SUPER BONBON (+40 XP).",
+  POKEDEX: "Consulter le POKEDEX (Indisponible)",
+  STORAGE: "Gérer l'équipe et le stockage.",
+  MAP: "Changer de zone (Indisponible)",
+  SHOP: "Aller à la boutique du Bourg",
+  ADVENTURE_START: "Chercher un POKéMON sauvage.",
+  ADVENTURE_STOP: "Interrompre la mission en cours",
+  RENAME: "Changer le nom du POKéMON."
+};
 
 function Widget() {
   const { 
@@ -28,6 +44,7 @@ function Widget() {
   const [showShop, setShowShop] = useState(false);
   const [busyPokemonId, setBusyPokemonId] = useState<string | null>(null);
   const [selectedZone, setSelectedZone] = useState('forest');
+  const [hoverText, setHoverText] = useState(HOVER_MESSAGES.IDLE);
   const [isAdventureRunning, setIsAdventureRunning] = useState(false);
   const [timerState, setTimerState] = useState({ current: ADVENTURE_DURATION, total: ADVENTURE_DURATION });
   const [isMinimalist, setIsMinimalist] = useState(false);
@@ -109,6 +126,11 @@ function Widget() {
     // Ensure adventure is stopped and busy state is cleared
     setIsAdventureRunning(false);
     setBusyPokemonId(null);
+    setIsMinimalist(false); // Return to home screen
+    if (window.api?.toggleMinimalist) {
+      window.api.toggleMinimalist(false);
+    }
+    
     if (window.gameAPI?.setAdventureActive) {
       window.gameAPI.setAdventureActive(false);
     }
@@ -116,7 +138,7 @@ function Widget() {
     if (timerRef.current) {
       timerRef.current.reset();
     }
-  }, [closeCombat]);
+  }, [closeCombat, setIsMinimalist]);
 
   // --- SYNC STATUS TO MAIN ---
   useEffect(() => {
@@ -234,7 +256,7 @@ function Widget() {
             {starterOptions.map(id => {
               const p = pokedex.find(pData => pData.id === id);
               // Dynamic image lookup
-              const pokemonImages = import.meta.glob('../../../assets/pokemon/large/*.{gif,png}', { eager: true });
+              const pokemonImages = import.meta.glob('../../../assets/pokemon/mini/*.{gif,png}', { eager: true });
               const src = (Object.entries(pokemonImages).find(([path]) => path.toLowerCase().includes(id.toLowerCase()))?.[1] as any)?.default;
               
               return (
@@ -287,8 +309,14 @@ function Widget() {
             )}
             <button 
               className="win-btn close" 
-              onClick={() => window.api?.close()} 
-              title="Fermer"
+              onClick={() => {
+                if (combatState.active) {
+                  handleCloseCombat();
+                } else {
+                  window.api?.close();
+                }
+              }} 
+              title={combatState.active ? "Quitter le combat" : "Fermer"}
               style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
             >×</button>
           </div>
@@ -334,9 +362,13 @@ function Widget() {
                       window.api?.closeSelectionWindow();
                       timerRef.current?.start(); 
                     } 
-                  }}>▶</button>
+                  }} title="Démarrer l'aventure">
+                    <img src={startIcon} alt="play" className="btn-icon-img" draggable="false" />
+                  </button>
                 ) : (
-                  <button className="min-btn-stop" onClick={() => { setIsAdventureRunning(false); timerRef.current?.reset(); setBusyPokemonId(null); }}>⏹</button>
+                  <button className="min-btn-stop" onClick={() => { setIsAdventureRunning(false); timerRef.current?.reset(); setBusyPokemonId(null); }} title="Arrêter">
+                    <img src={stopIcon} alt="stop" className="btn-icon-img" draggable="false" />
+                  </button>
                 )}
               </div>
             </div>
@@ -391,26 +423,34 @@ function Widget() {
                    <>
                     <button 
                       className="action-btn-square candy-btn" 
-                      title={isAdventureRunning ? "Indisponible en mission" : "Bonbons disponibles"} 
                       onClick={giveCandy}
                       disabled={isAdventureRunning}
-                    >
-                      <img src={candyIcon} alt="candy" draggable="false" />
-                      <span className="candy-count-badge">{candies}</span>
-                    </button>
-                    <button className="action-btn-square settings-btn" title="Paramètres" onClick={() => { /* Open Settings */ }}>
-                      ⚙️
-                    </button>
+                       onMouseEnter={() => setHoverText(HOVER_MESSAGES.CANDY)}
+                       onMouseLeave={() => setHoverText(HOVER_MESSAGES.IDLE)}
+                     >
+                       <img src={candyIcon} alt="candy" draggable="false" />
+                       <span className="candy-count-badge">{candies}</span>
+                     </button>
+                      <button 
+                        className="action-btn-square pokedex-btn" 
+                        disabled 
+                        onClick={() => { /* Open Pokedex */ }}
+                        onMouseEnter={() => setHoverText(HOVER_MESSAGES.POKEDEX)}
+                        onMouseLeave={() => setHoverText(HOVER_MESSAGES.IDLE)}
+                      >
+                       <img src={pokedexIcon} alt="pokedex" className="btn-icon-img" draggable="false" />
+                     </button>
                   </>
                 </div>
 
                 <div className="active-pokemon-section">
                   {activeInstance && (
                     <div 
-                      className="pokemon-trigger"
-                      onClick={handlePokemonClick} 
-                      title="Cliquez pour changer de Pokémon"
-                    >
+                       className="pokemon-trigger"
+                       onClick={handlePokemonClick} 
+                       onMouseEnter={() => setHoverText(HOVER_MESSAGES.STORAGE)}
+                       onMouseLeave={() => setHoverText(HOVER_MESSAGES.IDLE)}
+                     >
                       <PokemonDisplay
                         name={activeInstance.speciesId.toUpperCase()}
                         xp={activeInstance.xp}
@@ -419,6 +459,8 @@ function Widget() {
                         isBusy={isAdventureRunning || combatState.active}
                         nickname={activeInstance.nickname}
                         onRename={handleRename}
+                        onNameMouseEnter={() => setHoverText(HOVER_MESSAGES.RENAME)}
+                        onNameMouseLeave={() => setHoverText(HOVER_MESSAGES.STORAGE)}
                         types={activeSpeciesData?.types || []}
                       />
                     </div>
@@ -428,17 +470,25 @@ function Widget() {
                 <div className="side-controls right">
                   {!combatState.active && (
                     <>
-                      <button 
-                        className="action-btn-square map-btn" 
-                        onClick={() => window.api?.openMapWindow()} 
-                        disabled={isAdventureRunning}
-                        title={`Zone: ${zones.find(z => z.id === selectedZone)?.label || 'Inconnue'}`}
+                      <button
+                        className="action-btn-square map-btn"
+                        onClick={() => window.api?.openMapWindow()}
+                        disabled
+                        onMouseEnter={() => setHoverText(HOVER_MESSAGES.MAP)}
+                        onMouseLeave={() => setHoverText(HOVER_MESSAGES.IDLE)}
                       >
-                        🗺️
-                      </button>
-
-                      {zones.find(z => z.id === selectedZone)?.type === 'city' ? (
-                        <button className="action-btn-square map-btn" onClick={() => setShowShop(true)} title="Ouvrir la boutique">🏪</button>
+                         <img src={mapIcon} alt="map" className="btn-icon-img" draggable="false" />
+                       </button>
+ 
+                       {zones.find(z => z.id === selectedZone)?.type === 'city' ? (
+                         <button 
+                           className="action-btn-square map-btn" 
+                           onClick={() => setShowShop(true)} 
+                           onMouseEnter={() => setHoverText(HOVER_MESSAGES.SHOP)}
+                           onMouseLeave={() => setHoverText(HOVER_MESSAGES.IDLE)}
+                         >
+                          🏪
+                        </button>
                       ) : (
                         !isAdventureRunning ? (
                           <button className="action-btn-square play-btn" onClick={() => { 
@@ -449,9 +499,21 @@ function Widget() {
                               timerRef.current?.start(); 
                               if (!isMinimalist) toggleMinimalist();
                             } 
-                          }} title="Démarrer l'aventure">▶</button>
-                        ) : (
-                          <button className="action-btn-square stop-btn" onClick={() => { setIsAdventureRunning(false); timerRef.current?.reset(); setBusyPokemonId(null); }} title="Arrêter">⏹</button>
+                          }} 
+                           onMouseEnter={() => setHoverText(HOVER_MESSAGES.ADVENTURE_START)}
+                           onMouseLeave={() => setHoverText(HOVER_MESSAGES.IDLE)}
+                           >
+                             <img src={startIcon} alt="play" className="btn-icon-img" draggable="false" />
+                           </button>
+                         ) : (
+                           <button 
+                             className="action-btn-square stop-btn" 
+                             onClick={() => { setIsAdventureRunning(false); timerRef.current?.reset(); setBusyPokemonId(null); }} 
+                             onMouseEnter={() => setHoverText(HOVER_MESSAGES.ADVENTURE_STOP)}
+                             onMouseLeave={() => setHoverText(HOVER_MESSAGES.IDLE)}
+                           >
+                            <img src={stopIcon} alt="stop" className="btn-icon-img" draggable="false" />
+                          </button>
                         )
                       )}
                     </>
@@ -463,9 +525,19 @@ function Widget() {
                  {/* Zone label moved to header */}
               </div>
 
-              <div className="adventure-controls">
-                  {/* Controls moved to side-controls */}
-              </div>
+               <div className="adventure-controls">
+                   {/* Controls moved to side-controls */}
+               </div>
+
+               {/* POKEMON DIALOG BOX */}
+               <div className="help-box-container">
+                 <div className="help-box-title">ACTION</div>
+                 <div className="pokemon-help-box">
+                    <div className="help-box-content">
+                      {hoverText}
+                    </div>
+                 </div>
+               </div>
             </>
           )}
         </>

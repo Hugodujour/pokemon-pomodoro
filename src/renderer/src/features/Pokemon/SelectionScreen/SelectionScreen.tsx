@@ -167,13 +167,13 @@ function SelectionScreen() {
     <div className={`selection-screen ${isBusy ? 'is-busy' : ''}`}>
       <div className="app-header">
         <div className="header-zone-label">
-          {isBusy ? 'AVENTURE EN COURS' : 'GESTION DE L\'ÉQUIPE'}
+          {isBusy ? 'AVENTURE EN COURS' : 'GESTION DE L\'EQUIPE'}
         </div>
         <div className="window-controls">
           <button 
             className="win-btn minimize" 
             onClick={() => window.api?.minimize()} 
-            title="Réduire"
+            title="Reduire"
           >−</button>
           <button className="win-btn close" onClick={() => {
             if (activeId) {
@@ -200,7 +200,7 @@ function SelectionScreen() {
       </div>
 
       <div className="section-divider">
-        <div className="header-zone-label">POKÉMON STOCKÉS (PC)</div>
+        <div className="header-zone-label">POKéMONs STOCKES (PC)</div>
       </div>
       
       <div className="selection-content">

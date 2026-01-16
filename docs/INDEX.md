@@ -125,6 +125,12 @@ window.gameAPI.addCandies(amount)
 window.gameAPI.buyStone()              // Achète une pierre
 ```
 
+### Guides Spécifiques
+- [Composants UI](./COMPONENTS.md)
+- [Logique Métier](./LOGIC.md)
+- [Architecture IPC](./ARCHITECTURE_IPC.md)
+- [Charte Graphique & UI Design](./UI_DESIGN.md)
+
 ## 5. Commandes Utiles
 - `npm run dev` : Lance l'application en développement
 - `npm run build` : Construit pour la production

@@ -100,10 +100,12 @@ function initializeGameState() {
 /**
  * Ferme proprement la connexion à la base de données.
  */
-export function closeDatabase() {
+export function closeDatabase(reason: string = 'Inconnu') {
   if (sqlite) {
     sqlite.close()
-    console.log('[Database] Connexion fermee')
+    sqlite = null as any
+    db = null as any
+    console.log(`[Database] Connexion fermee (Raison: ${reason})`)
   }
 }
 

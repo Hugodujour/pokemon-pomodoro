@@ -37,8 +37,8 @@ function createWindow(): void {
   const { screen } = require('electron')
   const primaryDisplay = screen.getPrimaryDisplay()
   const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize
-  const width = 350
-  const height = 450
+  const width = 380
+  const height = 550
 
   mainWindow = new BrowserWindow({
     width: width,
@@ -94,6 +94,7 @@ function createWindow(): void {
 
 function createSelectionWindow(): void {
   if (selectionWindow) {
+    if (selectionWindow.isMinimized()) selectionWindow.restore()
     selectionWindow.focus()
     return
   }
@@ -141,6 +142,7 @@ function createSelectionWindow(): void {
 
 function createMapWindow(): void {
   if (mapWindow) {
+    if (mapWindow.isMinimized()) mapWindow.restore()
     mapWindow.focus()
     return
   }
@@ -238,8 +240,8 @@ ipcMain.on('window-toggle-minimalist', (event, isMinimalist: boolean) => {
     win.setSize(minWidth, minHeight)
     win.setPosition(screenWidth - minWidth - 20, screenHeight - minHeight - 20)
   } else {
-    const normalWidth = 350
-    const normalHeight = 450
+    const normalWidth = 380
+    const normalHeight = 550
     win.setSize(normalWidth, normalHeight)
     win.setPosition(screenWidth - normalWidth - 20, screenHeight - normalHeight - 20)
   }
@@ -269,7 +271,7 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
-  closeDatabase()
+  closeDatabase('window-all-closed')
   
   if (process.platform !== 'darwin') {
     app.quit()
@@ -277,5 +279,5 @@ app.on('window-all-closed', () => {
 })
 
 app.on('before-quit', () => {
-  closeDatabase()
+  closeDatabase('before-quit')
 })

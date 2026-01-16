@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Pokemon GB';
+  src: url('./police/Pokemon_GB.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   /* Glassmorphism - optimal balance */
   --glass-bg: rgba(15, 23, 42, 0.9); 

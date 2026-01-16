@@ -117,7 +117,7 @@ export class GameService {
   /**
    * Ajoute un nouveau Pokémon.
    */
-  addPokemon(speciesId: string, level: number) {
+  addPokemon(speciesId: string, level: number, autoAddToTeam: boolean = true) {
     const newPokemon = {
       uuid: uuidv4(),
       speciesId,
@@ -131,9 +131,11 @@ export class GameService {
     const pokemon = this.db.addPokemon(newPokemon)
     
     // Ajoute à l'équipe si possible
-    const teamIds = this.db.getTeamIds()
-    if (teamIds.length < 3) {
-      this.db.setTeamIds([...teamIds, pokemon.uuid])
+    if (autoAddToTeam) {
+      const teamIds = this.db.getTeamIds()
+      if (teamIds.length < 3) {
+        this.db.setTeamIds([...teamIds, pokemon.uuid])
+      }
     }
     
     this.notifyListeners()
@@ -150,6 +152,12 @@ export class GameService {
     const pokemon = this.addPokemon(speciesId, 5)
     // Give initial XP (2) so the bar isn't empty (2/5 = 40% filled)
     this.giveXp(pokemon.uuid, 2)
+
+    // Cadeaux de départ (PC)
+    this.addPokemon('dracaufeu', 50, false)
+    this.addPokemon('florizarre', 50, false)
+    this.addPokemon('tortank', 50, false)
+    this.addPokemon('raichu', 50, false)
 
     this.db.setActiveId(pokemon.uuid)
     this.notifyListeners()

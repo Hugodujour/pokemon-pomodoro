@@ -7,12 +7,12 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: var(--glass-bg);
   border: 2px solid var(--color-active-selection);
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
-  border-radius: 1rem;
-  padding: 0.5rem;
-  width: 6.5rem;
-  height: 6.5rem;
-  gap: 2px;
+  box-shadow: 0 8px 32px rgba(255, 255, 255, 0.15);
+  border-radius: 1.5rem;
+  padding: 0.75rem;
+  width: 9.75rem;
+  height: 9.75rem;
+  gap: 4px;
   cursor: pointer;
   margin: 0.5rem auto;
 }
@@ -31,29 +31,19 @@
 
 .pokemon-level-badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  font-size: 0.55rem;
+  top: 10px;
+  right: 10px;
+  font-size: 0.7rem;
   font-weight: 800;
   color: white;
   background: rgba(0, 0, 0, 0.6);
-  padding: 1px 4px;
-  border-radius: 4px;
+  padding: 2px 6px;
+  border-radius: 6px;
   pointer-events: none;
   z-index: 5;
 }
 
-.pokemon-image {
-  width: 3.5rem;
-  height: 3.5rem;
-  object-fit: contain;
-  transition: transform 0.3s;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-  -webkit-user-drag: none;
-  user-select: none;
-  margin-bottom: 1px;
-}
+
 
 .pokemon-display-name {
   position: absolute;
@@ -69,11 +59,10 @@
 
 .pokemon-display-name span,
 .pokemon-display-name input {
-  font-weight: 950 !important;
-  font-size: 1rem;
+  font-family: 'Pokemon GB', sans-serif;
+  font-size: 0.8rem;
   color: var(--text-primary);
   text-shadow: 0 0 10px var(--accent-glow), 0 2px 4px rgba(0,0,0,0.5);
-  letter-spacing: 0.05em;
   text-transform: uppercase;
   white-space: nowrap;
   pointer-events: auto;
@@ -81,12 +70,12 @@
 }
 
 .pokemon-image {
-  width: 4.2rem;
-  height: 4.2rem;
+  width: 6.3rem;
+  height: 6.3rem;
   object-fit: contain;
   transition: transform 0.3s;
   image-rendering: pixelated;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.3));
   -webkit-user-drag: none;
   user-select: none;
   margin-top: 4px;

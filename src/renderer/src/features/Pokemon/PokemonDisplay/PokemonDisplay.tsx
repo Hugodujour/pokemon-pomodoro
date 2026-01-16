@@ -14,6 +14,8 @@ interface PokemonDisplayProps {
   isBusy?: boolean;
   nickname?: string;
   onRename?: (newName: string) => void;
+  onNameMouseEnter?: () => void;
+  onNameMouseLeave?: () => void;
   types?: string[];
 }
 
@@ -36,6 +38,8 @@ export default function PokemonDisplay({
   isBusy,
   nickname,
   onRename,
+  onNameMouseEnter,
+  onNameMouseLeave,
   types
 }: PokemonDisplayProps) {
   const [displaySpecies, setDisplaySpecies] = useState(name);
@@ -164,6 +168,8 @@ export default function PokemonDisplay({
         ) : (
           <span 
             className={onRename ? 'editable-name' : ''} 
+            onMouseEnter={onNameMouseEnter}
+            onMouseLeave={onNameMouseLeave}
             onClick={(e) => {
               if (onRename) {
                 e.stopPropagation();

@@ -127,7 +127,7 @@ export const zones = [
   },
   {
     id: 'forest',
-    label: 'Forêt de Jadielle',
+    label: 'Foret de Jade',
     type: 'wild',
     pokemon: ['pikachu', 'bulbizarre'],
     x: 100,

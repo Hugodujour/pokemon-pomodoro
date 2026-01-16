@@ -21,8 +21,19 @@ const {
 - Affichage du Pokémon actif via `PokemonDisplay`
 - Affichage du Timer Pomodoro
 - Boutons de contrôle (Aventure, Boutique, Zone)
+- **Action Log (Help Box)** : Affiche des messages contextuels au survol des éléments.
 - Conteneur pour `CombatScreen` pendant les combats
 - Gestion des modales (Boutique)
+
+### Système de Tooltips (Action Log)
+Les messages de survol sont centralisés dans l'objet `HOVER_MESSAGES` en haut du fichier pour faciliter la maintenance et la personnalisation :
+```javascript
+const HOVER_MESSAGES = {
+  IDLE: "...",
+  CANDY: "...",
+  // etc.
+}
+```
 
 ### Actions IPC
 - `window.gameAPI.buyStone()` - Achat de pierre
@@ -71,6 +82,11 @@ Affiche le sprite et la barre de progression.
 | `xp` | Number | Expérience actuelle |
 | `isAdventureRunning` | Boolean | Mode timer actif ? |
 | `timerState` | Object | `{ current, total }` |
+| `nickname` | String | Surnom personnalisé du Pokémon |
+| `onRename` | Function | Callback pour changer le nom |
+| `onNameMouseEnter` | Function | Déclenche le log au survol du nom |
+| `onNameMouseLeave` | Function | Réinitialise le log |
+| `types` | Array | Types du Pokémon (pour le background dynamique) |
 
 ### Logique Locale
 Contient une fonction `getLevel(xp)` inline pour l'affichage du niveau et de la barre XP.
