@@ -2,10 +2,15 @@
 @reference "../../../assets/main.css";
 
 .combat-screen-layout {
+  /* Design Variables */
+  --player-sprite-size: 11rem;
+  --player-sprite-y: 40px;
+  --player-sprite-x: -30px;
+  --opponent-sprite-size: 5rem;
+  
   width: 100%;
   height: 100%;
-  padding: 0 2rem;
-  /* Added side padding */
+  padding: 0; /* Full edge-to-edge layout */
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -24,7 +29,7 @@
   flex: none;
   width: 100%;
   /* Increased height for the diagonal layout space */
-  min-height: 180px;
+  min-height: 200px;
   position: relative;
   padding: 0;
   box-sizing: border-box;
@@ -33,54 +38,69 @@
   background-image: url('../../../assets/zone/grassy.png');
   background-size: cover;
   background-position: center bottom;
-  border-radius: 16px;
-  border: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0;
   overflow: hidden;
-  /* Clip everything inside */
+  /* Content margin managed by .combat-fighter */
 }
 
 /* Common Fighter Container */
 .combat-fighter {
   position: absolute;
-  display: flex;
-  align-items: flex-end;
-  /* Align sprites and boxes at bottom of their line */
-  gap: 1rem;
+  top: 0;
+  bottom: 0;
+  left: 1.5rem;  /* The padding for sprites/content */
+  right: 1.5rem;
+  pointer-events: none;
+}
+
+.combat-fighter > * {
+  pointer-events: auto;
 }
 
 /* OPPONENT CONFIG */
-.combat-fighter.opponent {
-  top: 1.5rem;
-  right: 1.5rem;
-  flex-direction: row;
-  /* Info Left, Sprite Right */
-  align-items: center;
+.combat-fighter.opponent .combat-sprite-container {
+  position: absolute;
+  top: 2.5rem;
+  right: 0;
+}
+
+.combat-fighter.opponent .combat-info-panel {
+  position: absolute;
+  top: 1rem;
+  left: -1.5rem; /* Escape fighter padding to touch window edge */
+  border-left: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .combat-fighter.opponent .combat-sprite {
-  width: 5rem;
-  /* Larger sprites */
-  height: 5rem;
+  width: var(--opponent-sprite-size);
+  height: var(--opponent-sprite-size);
 }
 
 /* PLAYER CONFIG */
-.combat-fighter.player {
+.combat-fighter.player .combat-sprite-container {
+  position: absolute;
+  bottom: 0;
+  left: var(--player-sprite-x);
+}
+
+.combat-fighter.player .combat-info-panel {
+  position: absolute;
   bottom: 1rem;
-  left: 1.5rem;
-  flex-direction: row;
-  /* Sprite Left, Info Right */
-  align-items: center;
-  /* Align center vertically so box and sprite look connected */
+  right: -1.5rem; /* Escape fighter padding to touch window edge */
+  border-right: none;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .combat-fighter.player .combat-sprite {
-  width: 6rem;
-  /* Even larger back sprite */
-  height: 6rem;
-  /* Shift down slightly to look "closer" */
-  transform: translateY(10px);
+  width: var(--player-sprite-size);
+  height: var(--player-sprite-size);
+  /* Shift down further to look even closer and ground the larger size */
+  transform: translateY(var(--player-sprite-y));
 }
 
 /* SPRITE CONTAINER & SHADOW */
@@ -144,11 +164,7 @@
   text-shadow: 1px 1px 0 #000;
 }
 
-.combat-gender {
-  font-size: 0.6rem;
-  color: #60a5fa;
-  /* Blue for male default */
-}
+
 
 .combat-lvl {
   font-size: 0.6rem;
@@ -218,14 +234,13 @@
   /* Let flex handle height to prevent overflow clipped */
   display: flex;
   flex-direction: column;
-  padding: 0 1rem;
+  padding: 0;
   box-sizing: border-box;
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  margin-bottom: 0.5rem;
+  border-top: 1px solid var(--glass-border);
+  margin-bottom: 0;
 }
 
 /* Reusing your existing styles with vertical tweaks */
@@ -265,7 +280,7 @@
   min-height: 0;
   height: 0;
   /* Flexbox trick to ensure the container uses scroll instead of growing */
-  padding: 0.5rem;
+  padding: 1rem 1.5rem; /* Padding for log text */
   font-family: 'Pokemon GB', sans-serif;
   font-size: 0.6rem;
   /* Slightly smaller for the blocky font */

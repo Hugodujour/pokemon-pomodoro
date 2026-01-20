@@ -211,7 +211,6 @@ export default function CombatScreen({
           <div className="combat-info-panel">
             <div className="combat-info-top">
               <span className="combat-name">{opponentPokemon.label}</span>
-              <span className="combat-gender">♂</span>
               <span className="combat-lvl">Lv{opponentPokemon.level}</span>
             </div>
             <div className="combat-hp-container">
@@ -235,7 +234,6 @@ export default function CombatScreen({
           <div className="combat-info-panel">
             <div className="combat-info-top">
               <span className="combat-name">{playerPokemon.label}</span>
-              <span className="combat-gender">♂</span>{/* Placeholder gender */}
               <span className="combat-lvl">Lv{playerPokemon.level}</span>
             </div>
             <div className="combat-hp-container">
