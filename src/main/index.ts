@@ -249,6 +249,55 @@ ipcMain.on('window-toggle-minimalist', (event, isMinimalist: boolean) => {
   win.setAlwaysOnTop(true, 'screen-saver')
 })
 
+ipcMain.on('window-set-combat-mode', (event, inCombat: boolean) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  if (!win) return
+
+  const { screen } = require('electron')
+  const winBounds = win.getBounds()
+  const display = screen.getDisplayMatching(winBounds)
+  const { x: dX, y: dY, width: dW, height: dH } = display.workArea
+
+  const targetHeight = 550
+  const targetWidth = inCombat ? 456 : 380
+
+  // Smart Anchoring: Check if closer to Right or Left edge
+  const distRight = (dX + dW) - (winBounds.x + winBounds.width)
+  const distLeft = winBounds.x - dX
+
+  let newX = winBounds.x
+  let newY = winBounds.y 
+
+  // If closer to right edge (or default position), anchor to Right
+  if (distRight < distLeft) {
+    newX = (dX + dW) - distRight - targetWidth
+  } 
+  // Else (closer to left), anchor Left: newX stays winBounds.x (default resize behavior)
+
+  // Vertical anchoring: always align bottom if consistent with app design? 
+  // The app is bottom-heavy. Let's keep bottom anchor if closer to bottom.
+  const distBottom = (dY + dH) - (winBounds.y + winBounds.height)
+  const distTop = winBounds.y - dY
+  
+  if (distBottom < distTop) {
+     newY = (dY + dH) - distBottom - targetHeight
+  }
+  
+  // Ensure we don't go off-screen (Clamp)
+  if (newX < dX) newX = dX
+  if (newX + targetWidth > dX + dW) newX = dX + dW - targetWidth
+  
+  if (newY < dY) newY = dY
+  if (newY + targetHeight > dY + dH) newY = dY + dH - targetHeight
+
+  win.setBounds({
+    x: Math.round(newX),
+    y: Math.round(newY),
+    width: Math.round(targetWidth),
+    height: Math.round(targetHeight)
+  })
+})
+
 // App Lifecycle
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
