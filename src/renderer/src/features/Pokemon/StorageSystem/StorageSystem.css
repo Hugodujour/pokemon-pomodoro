@@ -32,6 +32,7 @@
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
+
 .storage-item-label {
   display: none; /* Hide label to save space */
 }

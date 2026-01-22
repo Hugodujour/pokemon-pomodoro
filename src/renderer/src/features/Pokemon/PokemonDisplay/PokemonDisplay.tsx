@@ -17,6 +17,7 @@ interface PokemonDisplayProps {
   onNameMouseEnter?: () => void;
   onNameMouseLeave?: () => void;
   types?: string[];
+  size?: 'S' | 'M' | 'L';
 }
 
 // Inline level calculation (logic moved to Main process)
@@ -40,7 +41,8 @@ export default function PokemonDisplay({
   onRename,
   onNameMouseEnter,
   onNameMouseLeave,
-  types
+  types,
+  size
 }: PokemonDisplayProps) {
   const [displaySpecies, setDisplaySpecies] = useState(name);
   const [animPhase, setAnimPhase] = useState<'idle' | 'in' | 'out'>('idle');
@@ -114,7 +116,7 @@ export default function PokemonDisplay({
   };
 
   // Determine Class
-  let imgClass = 'pokemon-image';
+  let imgClass = `pokemon-image size-${size || 'M'}`;
   if (animPhase === 'out') imgClass += ' anim-evo-out';
   if (animPhase === 'in') imgClass += ' anim-evo-in';
   if (isBusy) imgClass += ' busy';

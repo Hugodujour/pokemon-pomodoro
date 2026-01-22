@@ -51,7 +51,7 @@ L'écran de combat en overlay.
 ### Props
 | Prop | Type | Description |
 |------|------|-------------|
-| `playerPokemon` | Object | `{ label, level, speciesId }` |
+| `playerPokemon` | Object | `{ label, level, speciesId, size }` |
 | `opponentPokemon` | Object | Données de l'adversaire |
 | `playerHp` / `maxPlayerHp` | Number | Points de vie joueur |
 | `opponentHp` / `maxOpponentHp` | Number | Points de vie ennemi |
@@ -87,6 +87,7 @@ Affiche le sprite et la barre de progression.
 | `onNameMouseEnter` | Function | Déclenche le log au survol du nom |
 | `onNameMouseLeave` | Function | Réinitialise le log |
 | `types` | Array | Types du Pokémon (pour le background dynamique) |
+| `size` | 'S' \| 'M' \| 'L' | Catégorie de taille pour le rendu |
 
 ### Logique Locale
 Contient une fonction `getLevel(xp)` inline pour l'affichage du niveau et de la barre XP.

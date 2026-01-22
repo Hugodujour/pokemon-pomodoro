@@ -4,14 +4,16 @@
 .team-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.5rem;
+  gap: var(--app-padding);
   justify-content: center;
-  padding: 1.5rem;
+  padding: var(--app-padding);
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  border-radius: var(--app-radius);
+  width: calc(100% - (var(--app-padding) * 2));
+  margin: 0 auto;
 }
 
 
@@ -69,6 +71,7 @@
   image-rendering: pixelated;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
+
 
 .team-label {
   font-family: 'Pokemon GB', sans-serif;

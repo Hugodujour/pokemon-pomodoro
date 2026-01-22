@@ -2,18 +2,11 @@
 @reference "../../../assets/main.css";
 
 .combat-screen-layout {
-  /* Design Variables */
-  --player-sprite-size: 11rem;
-  --player-sprite-y: 40px;
-  --player-sprite-x: -30px;
-  --opponent-sprite-size: 5rem;
-  
   width: 100%;
   height: 100%;
-  padding: 0; /* Full edge-to-edge layout */
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
   box-sizing: border-box;
   overflow: hidden;
   position: relative;
@@ -27,18 +20,20 @@
 /* TOP: POKEMON */
 .combat-pokemon-top {
   flex: none;
-  width: 100%;
+  width: calc(100% - (var(--app-padding) * 2));
+  margin: 0 auto;
+  border-radius: var(--app-radius);
   /* Increased height for the diagonal layout space */
-  min-height: 200px;
+  min-height: 180px;
   position: relative;
-  padding: 0;
+  padding: 15px;
   box-sizing: border-box;
 
   /* Zone Background */
   background-image: url('../../../assets/zone/grassy.png');
   background-size: cover;
   background-position: center bottom;
-  border-bottom: 1px solid var(--glass-border);
+  border: 1px solid var(--glass-border);
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
   margin-bottom: 0;
   overflow: hidden;
@@ -50,8 +45,8 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 1.5rem;  /* The padding for sprites/content */
-  right: 1.5rem;
+  left: var(--app-padding);  /* The padding for sprites/content */
+  right: var(--app-padding);
   pointer-events: none;
 }
 
@@ -59,48 +54,86 @@
   pointer-events: auto;
 }
 
-/* OPPONENT CONFIG */
+/* 
+  CONFIGURATION PAR TAILLE (S, M, L)
+  Modifiez ces valeurs pour ajuster le layout selon chaque catégorie
+*/
+
+/* PETITE TAILLE (ex: Pikachu, Bulbizarre) */
+.size-S {
+  /* Réglages Adversaire */
+  --opp-size: 4rem;
+  --opp-y: 0px;
+  --opp-x: 15px;
+  
+  /* Réglages Joueur */
+  --ply-size: 7rem;
+  --ply-y: 10px;
+  --ply-x: 0px;
+}
+
+/* TAILLE MOYENNE (ex: Herbizarre, Raichu) */
+.size-M {
+  --opp-size: 5.5rem;
+  --opp-y: 0px;
+  --opp-x: 0px;
+
+  --ply-size: 9rem;
+  --ply-y: 40px;
+  --ply-x: -10px;
+}
+
+/* GRANDE TAILLE (ex: Dracaufeu, Florizarre) */
+.size-L {
+  --opp-size: 7.5rem;
+  --opp-y: -10px; /* On remonte un peu les gros car ils sont massifs */
+  --opp-x: 0px;
+
+  --ply-size: 10rem;
+  --ply-y: 40px;
+  --ply-x: -20px;
+}
+
+/* APPLIQUE LES DIMENSIONS ET POSITIONS */
 .combat-fighter.opponent .combat-sprite-container {
   position: absolute;
-  top: 2.5rem;
-  right: 0;
+  top: calc(2.5rem + var(--opp-y, 0px));
+  right: var(--opp-x, 0px);
 }
 
 .combat-fighter.opponent .combat-info-panel {
   position: absolute;
   top: 1rem;
-  left: -1.5rem; /* Escape fighter padding to touch window edge */
+  left: calc(-1 * var(--app-padding)); /* Escape fighter padding to touch window edge */
   border-left: none;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
 
 .combat-fighter.opponent .combat-sprite {
-  width: var(--opponent-sprite-size);
-  height: var(--opponent-sprite-size);
+  width: var(--opp-size);
+  height: var(--opp-size);
 }
 
-/* PLAYER CONFIG */
 .combat-fighter.player .combat-sprite-container {
   position: absolute;
-  bottom: 0;
-  left: var(--player-sprite-x);
+  bottom: 0px;
+  left: var(--ply-x, -10px);
 }
 
 .combat-fighter.player .combat-info-panel {
   position: absolute;
   bottom: 1rem;
-  right: -1.5rem; /* Escape fighter padding to touch window edge */
+  right: calc(-1 * var(--app-padding)); /* Escape fighter padding to touch window edge */
   border-right: none;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
 .combat-fighter.player .combat-sprite {
-  width: var(--player-sprite-size);
-  height: var(--player-sprite-size);
-  /* Shift down further to look even closer and ground the larger size */
-  transform: translateY(var(--player-sprite-y));
+  width: var(--ply-size);
+  height: var(--ply-size);
+  transform: translateY(var(--ply-y, 40px));
 }
 
 /* SPRITE CONTAINER & SHADOW */
@@ -229,7 +262,8 @@
 /* BOTTOM: LOGS */
 .combat-logs-bottom {
   flex: 1;
-  width: 100%;
+  width: calc(100% - (var(--app-padding) * 2));
+  margin: 0 auto var(--app-padding) auto;
   min-height: 0;
   /* Let flex handle height to prevent overflow clipped */
   display: flex;
@@ -239,21 +273,23 @@
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  border-top: 1px solid var(--glass-border);
-  margin-bottom: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--app-radius);
+  position: relative;
 }
 
-/* Reusing your existing styles with vertical tweaks */
+/* Full Width Divider between sections */
 .section-divider {
   position: relative;
   width: 100%;
   height: 1px;
   background: var(--glass-border);
-  margin: 0.25rem 0;
-  /* Unified spacing reduced */
   display: flex;
   justify-content: center;
   align-items: center;
+  flex: none;
+  margin-top: calc(var(--app-padding) / 8);
+  margin-bottom: calc(var(--app-padding) / 8);
 }
 
 .header-zone-label {
@@ -280,7 +316,7 @@
   min-height: 0;
   height: 0;
   /* Flexbox trick to ensure the container uses scroll instead of growing */
-  padding: 1rem 1.5rem; /* Padding for log text */
+  padding: 5px 10px; /* Added small vertical padding for readability */
   font-family: 'Pokemon GB', sans-serif;
   font-size: 0.6rem;
   /* Slightly smaller for the blocky font */

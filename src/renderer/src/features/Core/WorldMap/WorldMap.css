@@ -9,7 +9,7 @@
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   border: 1px solid var(--glass-border);
-  border-radius: 20px;
+  border-radius: var(--app-radius);
   display: flex;
   flex-direction: column;
   overflow: hidden;

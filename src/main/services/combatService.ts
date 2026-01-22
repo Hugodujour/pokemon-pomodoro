@@ -117,7 +117,8 @@ export class CombatService {
       catchRate: speciesData.catchRate || 30,
       types: speciesData.types || ['normal'],
       basePower: speciesData.basePower || 40,
-      baseSpeed: speciesData.baseSpeed || 50
+      baseSpeed: speciesData.baseSpeed || 50,
+      size: speciesData.size || 'M'
     }
   }
 
@@ -145,7 +146,8 @@ export class CombatService {
         level: player.level,
         types: playerData?.types || ['normal'],
         basePower: playerData?.basePower || 40,
-        baseSpeed: playerData?.baseSpeed || 50
+        baseSpeed: playerData?.baseSpeed || 50,
+        size: playerData?.size || 'M'
       },
       playerHp: maxPlayerHp,
       maxPlayerHp,

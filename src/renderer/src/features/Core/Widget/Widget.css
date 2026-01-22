@@ -5,14 +5,14 @@
   width: calc(100vw - 4rem);
   height: fit-content;
   margin: 2rem;
-  padding: 0 0 2.5rem 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
   overflow: hidden;
   box-sizing: border-box;
-  border-radius: 20px;
+  border-radius: var(--app-radius);
 
   /* Glassmorphism Effect */
   background: var(--glass-bg);
@@ -191,9 +191,9 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
-  width: 100%;
-  margin-top: 1.5rem;
+  gap: var(--app-padding);
+  width: calc(100% - (var(--app-padding) * 2));
+  margin: var(--app-padding) auto;
 }
 
 .side-controls {
@@ -232,8 +232,8 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
 
 .modal-content {
   position: relative;
-  padding: 1.5rem;
-  border-radius: 1.5rem;
+  padding: var(--app-padding);
+  border-radius: var(--app-radius);
   overflow-y: auto;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
   max-width: 90%;
@@ -279,7 +279,7 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   box-sizing: border-box;
   position: relative; /* For absolute centering of title */
   overflow: visible; /* Allow label to overlap border */
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--app-padding);
 }
 
 .header-zone-label {
@@ -631,10 +631,10 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
 }
 
 .help-box-container {
-  margin: 0 1.5rem 1.5rem 1.5rem;
+  margin: 0 auto var(--app-padding) auto;
   display: flex;
   flex-direction: column;
-  align-self: stretch; /* Stretches to fill the app-container width */
+  width: calc(100% - (var(--app-padding) * 2));
 }
 
 .help-box-title {
@@ -653,7 +653,7 @@ button, select, input, .candy-display, .pokemon-display-container, [onClick] {
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  border-radius: var(--app-radius);
   height: 4.5rem;
   width: 100%; /* Fill the container */
   display: flex;

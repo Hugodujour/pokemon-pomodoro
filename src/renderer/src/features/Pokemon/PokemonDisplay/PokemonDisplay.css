@@ -70,8 +70,8 @@
 }
 
 .pokemon-image {
-  width: 6.3rem;
-  height: 6.3rem;
+  width: var(--display-size, 6.3rem);
+  height: var(--display-size, 6.3rem);
   object-fit: contain;
   transition: transform 0.3s;
   image-rendering: pixelated;
@@ -80,6 +80,15 @@
   user-select: none;
   margin-top: 4px;
 }
+
+/* 
+  TAILLE DU POKEMON ACTIF (HOME)
+  Par défaut tout est à 6.3rem, modifie ici pour différencier les tailles.
+*/
+.pokemon-image.size-S { --display-size: 4.5rem; }
+.pokemon-image.size-M { --display-size: 6.3rem; }
+.pokemon-image.size-L { --display-size: 6.3rem; }
+
 
 .pokemon-image:hover {
   transform: scale(1.1);

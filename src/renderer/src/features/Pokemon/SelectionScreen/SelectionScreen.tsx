@@ -28,13 +28,13 @@ function SelectionScreen() {
     if (!instance) return null;
     const data = pokedex.find(p => p.id === instance.speciesId);
     const label = instance.nickname || (data ? data.label : instance.speciesId.toUpperCase());
-    return { ...instance, label, types: data?.types } as any;
+    return { ...instance, label, types: data?.types, size: data?.size } as any;
   }).filter((p): p is any => p !== null);
 
   const storageList = ownedPokemon.filter(p => !teamIds.includes(p.uuid)).map(instance => {
     const data = pokedex.find(p => p.id === instance.speciesId);
     const label = instance.nickname || (data ? data.label : instance.speciesId.toUpperCase());
-    return { ...instance, label, types: data?.types } as any;
+    return { ...instance, label, types: data?.types, size: data?.size } as any;
   });
 
   const [draggedItem, setDraggedItem] = useState<DraggedItem | null>(null);

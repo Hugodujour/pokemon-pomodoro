@@ -403,7 +403,8 @@ function Widget() {
               playerPokemon={{
                 label: activeSpeciesData?.label || activeInstance.speciesId,
                 level: activeInstance.level,
-                speciesId: activeInstance.speciesId
+                speciesId: activeInstance.speciesId,
+                size: activeSpeciesData?.size
               }}
               opponentPokemon={combatState.opponent}
               log={combatState.log}
@@ -465,6 +466,7 @@ function Widget() {
                         onNameMouseEnter={() => setHoverText(HOVER_MESSAGES.RENAME)}
                         onNameMouseLeave={() => setHoverText(HOVER_MESSAGES.STORAGE)}
                         types={activeSpeciesData?.types || []}
+                        size={activeSpeciesData?.size}
                       />
                     </div>
                   )}

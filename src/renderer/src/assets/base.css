@@ -29,6 +29,10 @@
   
   --color-active-selection: #ffffff;
   --accent-glow: rgba(99, 102, 241, 0.4);
+
+  /* Spacing & Layout */
+  --app-padding: 1.5rem;
+  --app-radius: 16px;
 }
 
 :root {

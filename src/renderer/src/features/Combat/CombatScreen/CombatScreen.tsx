@@ -5,6 +5,7 @@ interface CombatPokemon {
   label: string;
   level: number;
   speciesId: string;
+  size?: 'S' | 'M' | 'L';
 }
 
 interface CombatScreenProps {
@@ -169,7 +170,7 @@ export default function CombatScreen({
 
   // Animation Classes
   const getOpponentClass = () => {
-    let classes = 'combat-sprite-container ';
+    let classes = `combat-sprite-container size-${opponentPokemon.size || 'M'} `;
     if (animOpponent) classes += 'anim-attack-opponent ';
 
     // Capture animations
@@ -227,7 +228,7 @@ export default function CombatScreen({
 
         {/* PLAYER (Bottom Left - Visual Left, Info Right) */}
         <div className="combat-fighter player">
-          <div className={`combat-sprite-container ${animPlayer ? 'anim-attack-player' : ''}`}>
+          <div className={`combat-sprite-container size-${playerPokemon.size || 'M'} ${animPlayer ? 'anim-attack-player' : ''}`}>
             <img src={getPokemonImage(playerPokemon.speciesId, true)} alt={playerPokemon.label} className="combat-sprite" />
             <div className="shadow-oval"></div>
           </div>
@@ -254,7 +255,6 @@ export default function CombatScreen({
         {/* Actions or additional UI could go here */}
       </div>
 
-      {/* BOTTOM: LOGS */}
       <div className="section-divider">
         <div className="header-zone-label">Détails du combat</div>
       </div>

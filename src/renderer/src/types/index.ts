@@ -7,8 +7,10 @@ export interface PokemonInstance {
   isInTeam: boolean;
   teamPosition: number | null;
   pcPosition: number | null;
-  label?: string; // Optinal label from pokedex
   nickname?: string;
+  label?: string;
+  types?: string[];
+  size?: 'S' | 'M' | 'L';
 }
 
 export interface PokedexEntry {
@@ -18,6 +20,7 @@ export interface PokedexEntry {
   basePower: number;
   baseSpeed: number;
   catchRate: number;
+  size: 'S' | 'M' | 'L';
   evolutions?: Evolution[];
 }
 
@@ -65,6 +68,7 @@ export interface Opponent {
   hp: number;
   maxHp: number;
   catchRate: number;
+  size: 'S' | 'M' | 'L';
 }
 
 export interface PlayerFighter {
@@ -72,4 +76,5 @@ export interface PlayerFighter {
   level: number;
   types: string[];
   basePower: number;
+  size: 'S' | 'M' | 'L';
 }

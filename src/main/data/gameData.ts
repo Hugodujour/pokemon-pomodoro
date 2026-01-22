@@ -7,6 +7,7 @@ export const pokedex = [
     basePower: 55,
     baseSpeed: 90,
     catchRate: 40,
+    size: 'S',
     evolutions: [{ type: 'item', item: 'pierre-foudre', to: 'raichu' }]
   },
   {
@@ -16,6 +17,7 @@ export const pokedex = [
     basePower: 90,
     baseSpeed: 110,
     catchRate: 15,
+    size: 'M',
     evolutions: []
   },
   {
@@ -25,6 +27,7 @@ export const pokedex = [
     basePower: 45,
     baseSpeed: 45,
     catchRate: 30,
+    size: 'S',
     evolutions: [{ type: 'level', level: 16, to: 'herbizarre' }]
   },
   {
@@ -34,6 +37,7 @@ export const pokedex = [
     basePower: 60,
     baseSpeed: 60,
     catchRate: 20,
+    size: 'M',
     evolutions: [{ type: 'level', level: 32, to: 'florizarre' }]
   },
   {
@@ -43,6 +47,7 @@ export const pokedex = [
     basePower: 100,
     baseSpeed: 80,
     catchRate: 10,
+    size: 'L',
     evolutions: []
   },
   {
@@ -52,6 +57,7 @@ export const pokedex = [
     basePower: 52,
     baseSpeed: 65,
     catchRate: 30,
+    size: 'S',
     evolutions: [{ type: 'level', level: 16, to: 'reptincel' }]
   },
   {
@@ -61,6 +67,7 @@ export const pokedex = [
     basePower: 64,
     baseSpeed: 80,
     catchRate: 20,
+    size: 'M',
     evolutions: [{ type: 'level', level: 36, to: 'dracaufeu' }]
   },
   {
@@ -70,6 +77,7 @@ export const pokedex = [
     basePower: 104,
     baseSpeed: 100,
     catchRate: 10,
+    size: 'L',
     evolutions: []
   },
   {
@@ -79,6 +87,7 @@ export const pokedex = [
     basePower: 48,
     baseSpeed: 43,
     catchRate: 30,
+    size: 'S',
     evolutions: [{ type: 'level', level: 16, to: 'carabaffe' }]
   },
   {
@@ -88,6 +97,7 @@ export const pokedex = [
     basePower: 63,
     baseSpeed: 58,
     catchRate: 20,
+    size: 'M',
     evolutions: [{ type: 'level', level: 36, to: 'tortank' }]
   },
   {
@@ -97,15 +107,16 @@ export const pokedex = [
     basePower: 95,
     baseSpeed: 78,
     catchRate: 10,
+    size: 'L',
     evolutions: []
   },
-  { id: 'nidoran-f', label: 'Nidoran♀', types: ['poison'], basePower: 47, baseSpeed: 41, catchRate: 35, evolutions: [] },
-  { id: 'nidoran-m', label: 'Nidoran♂', types: ['poison'], basePower: 50, baseSpeed: 50, catchRate: 35, evolutions: [] },
-  { id: 'nosferapti', label: 'Nosferapti', types: ['poison', 'flying'], basePower: 45, baseSpeed: 55, catchRate: 35, evolutions: [] },
-  { id: 'racaillou', label: 'Racaillou', types: ['rock', 'ground'], basePower: 80, baseSpeed: 20, catchRate: 35, evolutions: [] },
-  { id: 'hypotrempe', label: 'Hypotrempe', types: ['water'], basePower: 40, baseSpeed: 60, catchRate: 40, evolutions: [] },
-  { id: 'magicarp', label: 'Magicarpe', types: ['water'], basePower: 10, baseSpeed: 80, catchRate: 50, evolutions: [] },
-  { id: 'tentacool', label: 'Tentacool', types: ['water', 'poison'], basePower: 40, baseSpeed: 70, catchRate: 40, evolutions: [] }
+  { id: 'nidoran-f', label: 'Nidoran♀', types: ['poison'], basePower: 47, baseSpeed: 41, catchRate: 35, size: 'S', evolutions: [] },
+  { id: 'nidoran-m', label: 'Nidoran♂', types: ['poison'], basePower: 50, baseSpeed: 50, catchRate: 35, size: 'S', evolutions: [] },
+  { id: 'nosferapti', label: 'Nosferapti', types: ['poison', 'flying'], basePower: 45, baseSpeed: 55, catchRate: 35, size: 'S', evolutions: [] },
+  { id: 'racaillou', label: 'Racaillou', types: ['rock', 'ground'], basePower: 80, baseSpeed: 20, catchRate: 35, size: 'S', evolutions: [] },
+  { id: 'hypotrempe', label: 'Hypotrempe', types: ['water'], basePower: 40, baseSpeed: 60, catchRate: 40, size: 'S', evolutions: [] },
+  { id: 'magicarp', label: 'Magicarpe', types: ['water'], basePower: 10, baseSpeed: 80, catchRate: 50, size: 'M', evolutions: [] },
+  { id: 'tentacool', label: 'Tentacool', types: ['water', 'poison'], basePower: 40, baseSpeed: 70, catchRate: 40, size: 'M', evolutions: [] }
 ]
 
 export const zones = [
@@ -159,4 +170,3 @@ export const zones = [
     fixedLevel: 1
   }
 ]
-
